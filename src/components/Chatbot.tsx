@@ -1,16 +1,18 @@
 "use client";
 
 import { useState } from 'react';
-import { Button } from '@/components/ui/button'; // Optional: we'll add shadcn/ui later if you want
-import { MessageCircle, X } from 'lucide-react';
 import { useChat } from 'ai/react';
 
 export default function Chatbot() {
   const [open, setOpen] = useState(false);
   const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({
-    api: '/api/chat', // We'll create this next
+    api: '/api/chat',
     initialMessages: [
-      { id: '1', role: 'assistant', content: "Howdy! I'm your Valley Somm — the AI guide to Yadkin Valley wines. Ask me about wineries, trails, pairings, events, or recommendations!" }
+      {
+        id: '1',
+        role: 'assistant',
+        content: "Howdy! I'm your Valley Somm — the AI guide to Yadkin Valley wines. Ask me about wineries, trails, pairings, events, or recommendations!",
+      },
     ],
   });
 
@@ -19,15 +21,25 @@ export default function Chatbot() {
       {/* Floating Button */}
       <button
         onClick={() => setOpen(!open)}
-        className="fixed bottom-6 right-6 bg-[#6B2737] text-[#F5F0E1] p-4 rounded-full shadow-2xl hover:bg-[#D4A017] transition z-50"
+        className="fixed bottom-6 right-6 bg-[#6B2737] text-[#F5F0E1] p-4 rounded-full shadow-2xl hover:bg-[#D4A017] transition z-50 flex items-center justify-center"
+        aria-label="Open chat"
       >
-        {open ? <X size={28} /> : <MessageCircle size={28} />}
+        {open ? (
+          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M18 6L6 18" />
+            <path d="M6 6l12 12" />
+          </svg>
+        ) : (
+          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+          </svg>
+        )}
       </button>
 
       {/* Chat Window */}
       {open && (
-        <div className="fixed bottom-24 right-6 w-96 h-96 md:h-[600px] bg-white rounded-lg shadow-2xl flex flex-col z-50 border border-gray-200">
-          <div className="bg-[#6B2737] text-[#F5F0E1] p-4 rounded-t-lg font-playfair text-xl text-center">
+        <div className="fixed bottom-24 right-6 w-96 h-[600px] bg-white rounded-lg shadow-2xl flex flex-col z-50 border border-gray-300 overflow-hidden">
+          <div className="bg-[#6B2737] text-[#F5F0E1] p-4 font-playfair text-xl text-center">
             Ask the Somm
           </div>
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -48,15 +60,16 @@ export default function Chatbot() {
               </div>
             ))}
             {isLoading && (
-              <div className="text-center text-gray-500">Thinking...</div>
+              <div className="text-center text-gray-500 text-sm">Thinking...</div>
             )}
           </div>
-          <form onSubmit={handleSubmit} className="p-4 border-t">
+          <form onSubmit={handleSubmit} className="p-4 border-t bg-gray-50">
             <input
               value={input}
               onChange={handleInputChange}
-              placeholder="Ask about wineries, pairings, trails..."
-              className="w-full px-4 py-2 border rounded-full focus:outline-none focus:border-[#6B2737]"
+              placeholder="Ask about wineries, trails, pairings..."
+              className="w-full px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:border-[#6B2737] text-gray-800"
+              disabled={isLoading}
             />
           </form>
         </div>
