@@ -15,7 +15,13 @@ export default function WineryDirectory() {
           >
             {/* Placeholder for future photo */}
             <div className="bg-gray-200 border-2 border-dashed rounded-t-lg w-full h-48" />
-            
+            <Image
+    src={winery.photoUrl}
+    alt={`${winery.name} winery`}
+    fill
+    className="object-cover"
+    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+  />
             <div className="p-6 flex flex-col flex-grow">
               <h3 className="text-2xl font-bold text-[#6B2737] mb-3">
                 {winery.name}
