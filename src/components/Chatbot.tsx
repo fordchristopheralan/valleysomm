@@ -6,7 +6,8 @@ import { useChat } from '@ai-sdk/react';
 export default function Chatbot() {
   const [open, setOpen] = useState(false);
   const [userInput, setUserInput] = useState('');
-  const { messages, append, isLoading } = useChat({
+
+  const { messages, setMessages, isLoading, sendMessage } = useChat({
     api: '/api/chat',
     initialMessages: [
       {
@@ -18,8 +19,8 @@ export default function Chatbot() {
   });
 
   const handleSend = () => {
-    if (userInput.trim()) {
-      append({ role: 'user', content: userInput });
+    if (userInput.trim() && !isLoading) {
+      sendMessage(userInput);
       setUserInput('');
     }
   };
@@ -76,7 +77,7 @@ export default function Chatbot() {
               <input
                 value={userInput}
                 onChange={(e) => setUserInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+                onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
                 placeholder="Ask about wineries, trails, pairings..."
                 className="flex-1 px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:border-[#6B2737] text-gray-800"
                 disabled={isLoading}
