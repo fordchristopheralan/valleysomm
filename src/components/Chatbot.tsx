@@ -7,16 +7,18 @@ export default function Chatbot() {
   const [open, setOpen] = useState(false);
   const [userInput, setUserInput] = useState('');
 
-  const { messages, setMessages, isLoading, sendMessage } = useChat({
+  const { messages, status, error, sendMessage, setMessages } = useChat({
     api: '/api/chat',
     initialMessages: [
       {
-        id: '1',
+        id: Date.now().toString(),
         role: 'assistant',
         content: "Howdy! I'm your Valley Somm — the AI guide to Yadkin Valley wines. Ask me about wineries, trails, pairings, events, or recommendations!",
       },
     ],
   });
+
+  const isLoading = status === 'submitted' || status === 'streaming';
 
   const handleSend = () => {
     if (userInput.trim() && !isLoading) {
@@ -70,6 +72,9 @@ export default function Chatbot() {
             ))}
             {isLoading && (
               <div className="text-center text-gray-500 text-sm">Thinking...</div>
+            )}
+            {error && (
+              <div className="text-center text-red-500 text-sm">Error: {error.message}</div>
             )}
           </div>
           <div className="p-4 border-t bg-gray-50">
