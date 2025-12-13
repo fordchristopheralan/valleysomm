@@ -5,7 +5,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { wineries } from '@/data/wineries';
 
-// Fix Leaflet marker icons
+// Fix Leaflet default marker icons
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
@@ -14,6 +14,11 @@ L.Icon.Default.mergeOptions({
 });
 
 export default function WineryMap() {
+  // Filter only wineries with valid coordinates
+  const mappedWineries = wineries.filter((winery): winery is { lat: number; lng: number } & typeof winery => 
+    typeof winery.lat === 'number' && typeof winery.lng === 'number'
+  );
+
   return (
     <section className="py-20 px-6 bg-[#F5F0E1]">
       <h2 className="text-5xl text-center mb-12 text-[#6B2737] font-playfair">
@@ -23,9 +28,9 @@ export default function WineryMap() {
         <MapContainer center={[36.35, -80.65]} zoom={11} style={{ height: '100%', width: '100%' }}>
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            attribution='&copy; OpenStreetMap contributors'
+            attribution='&copy; <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
           />
-          {wineries.map((winery) => (
+          {mappedWineries.map((winery) => (
             <Marker key={winery.id} position={[winery.lat, winery.lng]}>
               <Popup>
                 <div className="text-center p-2 min-w-48">
