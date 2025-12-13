@@ -54,7 +54,7 @@ export default function Home() {
 
 import WineryMap from '@/components/WineryMap';
 
-<WineryMap />
+{/* <WineryMap /> */}
 
 
       {/* Footer */}
