@@ -13,22 +13,16 @@ export default function WineryDirectory() {
             key={winery.id}
             className="bg-[#F5F0E1] rounded-lg shadow-xl overflow-hidden flex flex-col h-full hover:shadow-2xl transition"
           >
-            {/* Image Container with Fallback */}
+            {/* Image Container */}
             <div className="relative w-full h-64">
-              {winery.photoUrl ? (
-                <Image
-                  src={winery.photoUrl}
-                  alt={`${winery.name} - Yadkin Valley winery`}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  priority={false}  // Optional: load lazily unless top cards
-                />
-              ) : null}
-              {/* Fallback placeholder - always rendered, but covered by valid image */}
-              <div className="absolute inset-0 flex items-center justify-center bg-gray-200 border-2 border-dashed border-gray-400 rounded-t-lg">
-                <span className="text-gray-500 text-lg font-medium">No image available</span>
-              </div>
+              <Image
+                src={winery.photoUrl}
+                alt={`${winery.name} - Yadkin Valley winery`}
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                priority={false} // Loads lazily for performance
+              />
             </div>
 
             {/* Card Content */}
