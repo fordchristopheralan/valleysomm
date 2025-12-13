@@ -7,8 +7,8 @@ export default function Chatbot() {
   const [open, setOpen] = useState(false);
   const [userInput, setUserInput] = useState('');
 
-  const { messages, status, error, sendMessage, setMessages } = useChat({
-    api: '/api/chat',
+  const { messages, status, error, sendMessage } = useChat({
+    api: '/api/chat', // Optional – defaults to /api/chat, but explicit is safe
     initialMessages: [
       {
         id: Date.now().toString(),
