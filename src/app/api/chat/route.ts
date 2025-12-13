@@ -1,4 +1,4 @@
-import { openai } from '@ai-sdk/openai';
+import { groq } from '@ai-sdk/openai';
 import { streamText } from 'ai';
 
 // Allow streaming responses
@@ -13,9 +13,9 @@ export async function POST(req: Request) {
   const { messages } = await req.json();
 
   const result = await streamText({
-    model: openai('gpt-4o-mini'), // Or use Groq: groq('llama3-70b-8192')
-    system: systemPrompt,
-    messages,
+  model: groq('llama3-70b-8192'),  // or 'mixtral-8x7b-32768'
+  system: systemPrompt,
+  messages,
   });
 
   return result.toDataStreamResponse();
