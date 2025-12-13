@@ -1,4 +1,4 @@
-import { groq } from '@ai-sdk/groq'; // Correct import
+import { groq } from '@ai-sdk/groq';
 import { streamText } from 'ai';
 
 // Allow streaming responses
@@ -18,5 +18,5 @@ export async function POST(req: Request) {
     messages,
   });
 
-  return result.toDataStreamResponse();
+  return result.toTextStreamResponse(); // <-- Fixed: was toDataStreamResponse()
 }
