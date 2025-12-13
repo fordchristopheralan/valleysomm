@@ -10,7 +10,7 @@ export default function Home() {
       {/* Hero Section */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
         <Image
-          src="https://valleysomm.com/hero.jpg"  // Replace with a real Yadkin image URL (e.g., upload to /public or Unsplash)
+          src="/hero.jpg"  // Replace with a real Yadkin image URL (e.g., upload to /public or Unsplash)
           alt="Rolling vineyards of Yadkin Valley"
           fill
           className="object-cover brightness-75"
