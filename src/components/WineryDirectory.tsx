@@ -1,4 +1,4 @@
-import Image from 'next/image';  // Optional for future photos
+import Image from 'next/image';
 import { wineries } from '@/data/wineries';
 
 export default function WineryDirectory() {
@@ -13,15 +13,28 @@ export default function WineryDirectory() {
             key={winery.id}
             className="bg-[#F5F0E1] rounded-lg shadow-xl overflow-hidden flex flex-col h-full hover:shadow-2xl transition"
           >
-            {/* Placeholder for future photo */}
-            <div className="bg-gray-200 border-2 border-dashed rounded-t-lg w-full h-48" />
-            <Image
-    src={winery.photoUrl}
-    alt={`${winery.name} winery`}
-    fill
-    className="object-cover"
-    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-  />
+            {/* Image Container */}
+            <div className="relative w-full h-64 bg-gray-200">
+              {winery.photoUrl ? (
+                <Image
+                  src={winery.photoUrl}
+                  alt={`${winery.name} - Yadkin Valley winery`}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                  }}
+                />
+              ) : null}
+              {/* Fallback placeholder if no photoUrl or image fails */}
+              <div className="absolute inset-0 flex items-center justify-center bg-gray-200 border-2 border-dashed border-gray-400 rounded-t-lg">
+                <span className="text-gray-500 text-lg">No image available</span>
+              </div>
+            </div>
+
+            {/* Card Content */}
             <div className="p-6 flex flex-col flex-grow">
               <h3 className="text-2xl font-bold text-[#6B2737] mb-3">
                 {winery.name}
