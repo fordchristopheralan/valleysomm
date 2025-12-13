@@ -5,7 +5,8 @@ import { useChat } from '@ai-sdk/react';
 
 export default function Chatbot() {
   const [open, setOpen] = useState(false);
-  const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({
+  const [userInput, setUserInput] = useState('');
+  const { messages, append, isLoading } = useChat({
     api: '/api/chat',
     initialMessages: [
       {
@@ -15,6 +16,13 @@ export default function Chatbot() {
       },
     ],
   });
+
+  const handleSend = () => {
+    if (userInput.trim()) {
+      append({ role: 'user', content: userInput });
+      setUserInput('');
+    }
+  };
 
   return (
     <>
@@ -63,15 +71,25 @@ export default function Chatbot() {
               <div className="text-center text-gray-500 text-sm">Thinking...</div>
             )}
           </div>
-          <form onSubmit={handleSubmit} className="p-4 border-t bg-gray-50">
-            <input
-              value={input}
-              onChange={handleInputChange}
-              placeholder="Ask about wineries, trails, pairings..."
-              className="w-full px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:border-[#6B2737] text-gray-800"
-              disabled={isLoading}
-            />
-          </form>
+          <div className="p-4 border-t bg-gray-50">
+            <div className="flex gap-2">
+              <input
+                value={userInput}
+                onChange={(e) => setUserInput(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+                placeholder="Ask about wineries, trails, pairings..."
+                className="flex-1 px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:border-[#6B2737] text-gray-800"
+                disabled={isLoading}
+              />
+              <button
+                onClick={handleSend}
+                disabled={isLoading || !userInput.trim()}
+                className="bg-[#6B2737] text-[#F5F0E1] px-6 py-3 rounded-full hover:bg-[#D4A017] transition font-medium"
+              >
+                Send
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </>
