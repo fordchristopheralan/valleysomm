@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import { Playfair_Display, Montserrat } from 'next/font/google';
 import MapSection from '@/components/MapSection';
+import WineryDirectory from '@/components/WineryDirectory';
 
 const playfair = Playfair_Display({ subsets: ['latin'], weight: ['400', '700'] });
 const montserrat = Montserrat({ subsets: ['latin'], weight: ['400', '600'] });
@@ -56,6 +57,12 @@ export default function Home() {
 
 <center>
 <MapSection />
+</center>
+
+      {/* Winery Directory Section */}
+
+<center>
+<WineryDirectory />
 </center>
 
       {/* Footer */}
