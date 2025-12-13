@@ -1,4 +1,4 @@
-import { groq } from '@ai-sdk/openai';
+import { groq } from '@ai-sdk/groq'; // Correct import
 import { streamText } from 'ai';
 
 // Allow streaming responses
@@ -13,9 +13,9 @@ export async function POST(req: Request) {
   const { messages } = await req.json();
 
   const result = await streamText({
-  model: groq('llama3-70b-8192'),  // or 'mixtral-8x7b-32768'
-  system: systemPrompt,
-  messages,
+    model: groq('llama3-70b-8192'), // Fast, free Groq model
+    system: systemPrompt,
+    messages,
   });
 
   return result.toDataStreamResponse();
