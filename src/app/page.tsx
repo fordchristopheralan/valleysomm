@@ -1,5 +1,13 @@
 import Image from 'next/image';
 import { Playfair_Display, Montserrat } from 'next/font/google';
+import dynamic from 'next/dynamic';
+import WineryMap from '@/components/WineryMap';
+
+
+const WineryMap = dynamic(() => import('@/components/WineryMap'), {
+  ssr: false,  // Loads only in browser - fixes Leaflet SSR issues
+  loading: () => <p className="text-center py-20">Loading interactive map...</p>,
+});
 
 const playfair = Playfair_Display({ subsets: ['latin'], weight: ['400', '700'] });
 const montserrat = Montserrat({ subsets: ['latin'], weight: ['400', '600'] });
@@ -52,10 +60,10 @@ export default function Home() {
 
       {/* Winery Map Section */}
 
-import WineryMap from '@/components/WineryMap';
 
-{/* <WineryMap /> */}
-
+<center>
+<WineryMap />
+</center>
 
       {/* Footer */}
       <footer className="bg-[#6B2737] text-[#F5F0E1] py-10 text-center">
