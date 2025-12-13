@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@ai-sdk/groq": "^2.0.33",
+    "@ai-sdk/react": "^2.0.115",
     "ai": "^5.0.113",
     "groq-sdk": "^0.37.0",
     "leaflet": "^1.9.4",
