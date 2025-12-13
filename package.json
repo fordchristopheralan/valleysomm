@@ -9,6 +9,9 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^2.0.86",
+    "ai": "^5.0.113",
+    "groq-sdk": "^0.37.0",
     "leaflet": "^1.9.4",
     "next": "16.0.10",
     "react": "19.2.1",

@@ -2,6 +2,7 @@ import Image from 'next/image';
 import { Playfair_Display, Montserrat } from 'next/font/google';
 import MapSection from '@/components/MapSection';
 import WineryDirectory from '@/components/WineryDirectory';
+import Chatbot from '@/components/Chatbot';
 
 const playfair = Playfair_Display({ subsets: ['latin'], weight: ['400', '700'] });
 const montserrat = Montserrat({ subsets: ['latin'], weight: ['400', '600'] });
@@ -64,6 +65,9 @@ export default function Home() {
 <center>
 <WineryDirectory />
 </center>
+      {/* Chatbot Section */}
+
+<Chatbot />
 
       {/* Footer */}
       <footer className="bg-[#6B2737] text-[#F5F0E1] py-10 text-center">
