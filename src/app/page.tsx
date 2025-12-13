@@ -54,7 +54,6 @@ export default function Home() {
 
 import WineryMap from '@/components/WineryMap';
 
-// Inside the main return, after the features </section>:
 <WineryMap />
 
 
