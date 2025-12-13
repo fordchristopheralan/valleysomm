@@ -50,6 +50,14 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Winery Map Section */}
+
+import WineryMap from '@/components/WineryMap';
+
+// Inside the main return, after the features </section>:
+<WineryMap />
+
+
       {/* Footer */}
       <footer className="bg-[#6B2737] text-[#F5F0E1] py-10 text-center">
         <p>&copy; 2025 Valley Somm. All rights reserved.</p>
