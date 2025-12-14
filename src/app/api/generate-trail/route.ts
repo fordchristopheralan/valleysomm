@@ -3,6 +3,7 @@ import Groq from 'groq-sdk';
 import { WINERIES } from '@/lib/wineries';
 import { AIInputSchema, AITrailResponseSchema } from '@/lib/schema';
 import type { AIInput, AITrailResponse } from '@/lib/types';
+import { saveTrail } from '@/lib/db/trails';  // ← ADD THIS IMPORT
 
 // Initialize Groq client
 const groq = new Groq({
@@ -148,7 +149,22 @@ export async function POST(request: Request) {
     
     if (!rawResponse) {
       console.error('No response from AI');
-      return NextResponse.json(getFallbackTrail(input.stops));
+      const fallback = getFallbackTrail(input.stops);
+      
+      // Try to save fallback to database
+      try {
+        const metadata = {
+          userAgent: request.headers.get('user-agent') || undefined,
+          ipAddress: request.headers.get('x-forwarded-for') || 
+                     request.headers.get('x-real-ip') || undefined
+        };
+        const fallbackId = await saveTrail(input, fallback, metadata);
+        console.log('Fallback trail saved with ID:', fallbackId);
+        return NextResponse.json({ ...fallback, id: fallbackId });
+      } catch (dbError) {
+        console.error('Database save failed for fallback:', dbError);
+        return NextResponse.json({ ...fallback, id: Date.now().toString() });
+      }
     }
 
     // Parse and validate AI response
@@ -160,6 +176,7 @@ export async function POST(request: Request) {
     
     if (invalidIds.length > 0) {
       console.error('AI returned invalid winery IDs:', invalidIds);
+      
       // Retry once with more explicit instructions
       const retryCompletion = await groq.chat.completions.create({
         messages: [
@@ -182,24 +199,76 @@ export async function POST(request: Request) {
         const retryInvalidIds = validateWineryIds(retryValidated);
         
         if (retryInvalidIds.length === 0) {
-          return NextResponse.json(retryValidated);
+          // Retry succeeded - save to database
+          const metadata = {
+            userAgent: request.headers.get('user-agent') || undefined,
+            ipAddress: request.headers.get('x-forwarded-for') || 
+                       request.headers.get('x-real-ip') || undefined
+          };
+          
+          try {
+            const trailId = await saveTrail(input, retryValidated, metadata);
+            console.log('Retry trail saved with ID:', trailId);
+            return NextResponse.json({ ...retryValidated, id: trailId });
+          } catch (dbError) {
+            console.error('Database save failed for retry:', dbError);
+            return NextResponse.json({ ...retryValidated, id: Date.now().toString() });
+          }
         }
       }
       
       // Both attempts failed, return fallback
-      return NextResponse.json(getFallbackTrail(input.stops));
+      const fallback = getFallbackTrail(input.stops);
+      try {
+        const metadata = {
+          userAgent: request.headers.get('user-agent') || undefined,
+          ipAddress: request.headers.get('x-forwarded-for') || undefined
+        };
+        const fallbackId = await saveTrail(input, fallback, metadata);
+        console.log('Fallback trail (after retry) saved with ID:', fallbackId);
+        return NextResponse.json({ ...fallback, id: fallbackId });
+      } catch (dbError) {
+        console.error('Database save failed for fallback:', dbError);
+        return NextResponse.json({ ...fallback, id: Date.now().toString() });
+      }
     }
 
-    // Success!
-    return NextResponse.json(validated);
+    // ✨ SUCCESS - Save to database
+    const metadata = {
+      userAgent: request.headers.get('user-agent') || undefined,
+      ipAddress: request.headers.get('x-forwarded-for') || 
+                 request.headers.get('x-real-ip') || undefined
+    };
+    
+    try {
+      const trailId = await saveTrail(input, validated, metadata);
+      console.log('✅ Trail saved to database with ID:', trailId);
+      
+      return NextResponse.json({
+        ...validated,
+        id: trailId
+      });
+    } catch (dbError) {
+      console.error('❌ Database save failed:', dbError);
+      // Still return the trail even if DB save fails
+      return NextResponse.json({
+        ...validated,
+        id: Date.now().toString()
+      });
+    }
 
   } catch (error) {
     console.error('Trail generation error:', error);
     
     // Return fallback on any error
-    const fallbackStops = 3; // Default fallback
-    return NextResponse.json(getFallbackTrail(fallbackStops), {
-      status: 200 // Still return 200 to avoid breaking UX
+    const fallbackStops = 3;
+    const fallback = getFallbackTrail(fallbackStops);
+    
+    return NextResponse.json({
+      ...fallback,
+      id: Date.now().toString()
+    }, {
+      status: 200
     });
   }
 }
