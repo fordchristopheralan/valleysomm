@@ -1,32 +1,31 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useChat } from '@ai-sdk/react';
-
-interface ChatMessage {
-  id: string;
-  role: 'user' | 'assistant' | 'system';
-  content: string;
-}
 
 export default function Chatbot() {
   const [open, setOpen] = useState(false);
   const [userInput, setUserInput] = useState('');
 
-  const { messages, status, error, sendMessage, setMessages } = useChat();
-
-  // Add the initial greeting on first render
-  useEffect(() => {
-    if (messages.length === 0) {
-      setMessages([
-        {
-          id: 'greeting',
-          role: 'assistant' as const,
-          content: "Howdy! I'm your Valley Somm — the AI guide to Yadkin Valley wines. Ask me about wineries, trails, pairings, events, or recommendations!",
-        },
-      ]);
-    }
-  }, [messages.length, setMessages]);
+  const {
+    messages,
+    status,
+    error,
+    sendMessage,
+  } = useChat({
+    initialMessages: [
+      {
+        id: 'greeting',
+        role: 'assistant' as const,
+        parts: [
+          {
+            type: 'text',
+            text: "Howdy! I'm your Valley Somm — the AI guide to Yadkin Valley wines. Ask me about wineries, trails, pairings, events, or recommendations!",
+          },
+        ],
+      },
+    ],
+  });
 
   const isLoading = status === 'submitted' || status === 'streaming';
 
@@ -35,6 +34,18 @@ export default function Chatbot() {
       sendMessage(userInput);
       setUserInput('');
     }
+  };
+
+  const renderMessageContent = (message: typeof messages[number]) => {
+    // New format (AI SDK v5+): parts array
+    if ('parts' in message && message.parts) {
+      return message.parts.map((part, idx) =>
+        part.type === 'text' ? <span key={idx}>{part.text}</span> : null
+      );
+    }
+
+    // Fallback for any older format (shouldn't happen with current SDK)
+    return (message as any).content || '';
   };
 
   return (
@@ -63,6 +74,7 @@ export default function Chatbot() {
           <div className="bg-[#6B2737] text-[#F5F0E1] p-4 font-playfair text-xl text-center">
             Ask the Somm
           </div>
+
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
             {messages.map((m) => (
               <div
@@ -76,17 +88,22 @@ export default function Chatbot() {
                       : 'bg-gray-200 text-gray-800'
                   }`}
                 >
-                  {m.content}
+                  {renderMessageContent(m)}
                 </div>
               </div>
             ))}
+
             {isLoading && (
               <div className="text-center text-gray-500 text-sm">Thinking...</div>
             )}
+
             {error && (
-              <div className="text-center text-red-500 text-sm">Error: {error.message}</div>
+              <div className="text-center text-red-500 text-sm">
+                Error: {error.message}
+              </div>
             )}
           </div>
+
           <div className="p-4 border-t bg-gray-50">
             <div className="flex gap-2">
               <input
