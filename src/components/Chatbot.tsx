@@ -1,34 +1,58 @@
 "use client";
 import { useState } from 'react';
-import { useChat } from '@ai-sdk/react';
 
 export default function Chatbot() {
   const [open, setOpen] = useState(false);
   const [userInput, setUserInput] = useState('');
+  const [messages, setMessages] = useState<{ role: 'user' | 'assistant'; content: string }[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [streamingContent, setStreamingContent] = useState('');
 
-  const { messages, status, error, sendMessage } = useChat({
-    streamProtocol: 'text', // Tells useChat to handle raw text streams
-  });
+  const handleSend = async () => {
+    if (!userInput.trim() || isLoading) return;
 
-  const isLoading = status === 'submitted' || status === 'streaming';
+    const userMessage = userInput.trim();
+    setUserInput('');
+    setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
+    setIsLoading(true);
+    setStreamingContent('');
 
-  const handleSend = () => {
-    if (userInput.trim() && !isLoading) {
-      sendMessage({ text: userInput });
-      setUserInput('');
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: [...messages, { role: 'user', content: userMessage }] }),
+      });
+
+      if (!response.ok || !response.body) {
+        throw new Error('Failed to get response');
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let assistantContent = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        assistantContent += chunk;
+        setStreamingContent(assistantContent); // Real-time streaming update
+      }
+
+      // Add complete assistant message to history
+      setMessages(prev => [...prev, { role: 'assistant', content: assistantContent }]);
+      setStreamingContent('');
+    } catch (err) {
+      console.error(err);
+      setMessages(prev => [...prev, { role: 'assistant', content: 'Sorry, something went wrong. Try again!' }]);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const renderContent = (message: any) => {
-    if (message.parts && Array.isArray(message.parts)) {
-      return message.parts
-        .filter((part: any) => part.type === 'text')
-        .map((part: any, idx: number) => <span key={idx}>{part.text}</span>);
-    }
-    return message.content || '';
-  };
-
-  const showGreeting = messages.length === 0;
+  const showGreeting = messages.length === 0 && !streamingContent;
 
   return (
     <>
@@ -65,17 +89,23 @@ export default function Chatbot() {
               </div>
             )}
 
-            {messages.map((m) => (
-              <div key={m.id} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+            {messages.map((m, idx) => (
+              <div key={idx} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                 <div className={`max-w-xs px-4 py-2 rounded-lg ${m.role === 'user' ? 'bg-[#6B2737] text-[#F5F0E1]' : 'bg-gray-200 text-gray-800'}`}>
-                  {renderContent(m)}
+                  {m.content}
                 </div>
               </div>
             ))}
 
-            {isLoading && <div className="text-center text-gray-500 text-sm">Thinking...</div>}
+            {streamingContent && (
+              <div className="flex justify-start">
+                <div className="max-w-xs px-4 py-2 rounded-lg bg-gray-200 text-gray-800">
+                  {streamingContent}
+                </div>
+              </div>
+            )}
 
-            {error && <div className="text-center text-red-500 text-sm">Error: {error.message}</div>}
+            {isLoading && <div className="text-center text-gray-500 text-sm">Thinking...</div>}
           </div>
 
           <div className="p-4 border-t bg-gray-50">

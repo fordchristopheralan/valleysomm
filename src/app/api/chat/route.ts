@@ -15,7 +15,7 @@ export async function POST(req: Request) {
       messages: modelMessages,
     });
 
-    return result.toTextStreamResponse(); // This works with your current version
+    return result.toTextStreamResponse(); // Raw text stream — perfect for manual handling
   } catch (error) {
     console.error('[/api/chat] Error:', error);
     return new Response(`Error: ${(error as Error).message}`, { status: 500 });
