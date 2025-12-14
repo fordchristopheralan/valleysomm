@@ -3,12 +3,12 @@ import { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-markercluster';
 import L from 'leaflet';
-import type { LeafletMapEvent } from 'leaflet'; // Import the correct type
+import type { LeafletEvent } from 'leaflet'; // ← Correct type
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 
- // Fix Leaflet default icon issue in Next.js
+// Fix Leaflet default icon issue in Next.js
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
@@ -45,7 +45,7 @@ export default function WineryMap({ filteredWineries = wineries }: { filteredWin
       center={[36.1, -80.8]}
       zoom={10}
       style={{ height: '100%', width: '100%' }}
-      whenReady={(event: LeafletMapEvent) => setMap(event.target)}  // Properly typed callback
+      whenReady={(event: LeafletEvent) => setMap(event.target)}
     >
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
