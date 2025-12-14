@@ -14,10 +14,17 @@ const montserrat = Montserrat({
   weight: ["400", "600"],
 });
 
-export const metadata: Metadata = {
-  title: "Valley Somm - Your AI Sommelier for Yadkin Valley",
-  description: "Discover Yadkin Valley wines with personalized AI recommendations, interactive trails, and a virtual sommelier.",
-};
+export const metadata = {
+  title: 'Valley Somm - AI Wine Trail Guide for Yadkin Valley',
+  description: 'Get a personalized wine trail in Yadkin Valley, NC. Answer 5 questions and discover your perfect wine tasting route.',
+  openGraph: {
+    title: 'Valley Somm - Your AI Wine Trail Guide',
+    description: 'Personalized wine trails for Yadkin Valley',
+    url: 'https://www.valleysomm.com',
+    siteName: 'Valley Somm',
+    images: ['/hero.jpg'],
+  },
+}
 
 export default function RootLayout({
   children,
