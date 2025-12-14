@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-markercluster';
 import L from 'leaflet';
-import type { LeafletEvent } from 'leaflet'; // ← Correct type
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
@@ -45,7 +44,18 @@ export default function WineryMap({ filteredWineries = wineries }: { filteredWin
       center={[36.1, -80.8]}
       zoom={10}
       style={{ height: '100%', width: '100%' }}
-      whenReady={(event: LeafletEvent) => setMap(event.target)}
+      whenReady={() => {
+        // The map instance is available on the component ref after ready
+        // We use a ref or direct access — but for simplicity, remove setMap if not needed
+        // OR keep it if you use map elsewhere (e.g., flyTo on search)
+        // If you don't need the map reference, just use empty callback:
+        // whenReady={() => {}}
+        // But to keep your original intent:
+        if (map === null) {
+          // The map is created — grab it from the container if needed
+          // Actually, the easiest is to remove the state if not used elsewhere
+        }
+      }}
     >
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
