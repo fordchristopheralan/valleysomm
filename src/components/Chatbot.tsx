@@ -6,7 +6,9 @@ export default function Chatbot() {
   const [open, setOpen] = useState(false);
   const [userInput, setUserInput] = useState('');
 
-  const { messages, status, error, sendMessage } = useChat();
+  const { messages, status, error, sendMessage } = useChat({
+    streamProtocol: 'text', // Tells useChat to handle raw text streams
+  });
 
   const isLoading = status === 'submitted' || status === 'streaming';
 
