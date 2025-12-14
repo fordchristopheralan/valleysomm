@@ -1,10 +1,11 @@
 "use client";
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useChat } from '@ai-sdk/react';
 
 export default function Chatbot() {
   const [open, setOpen] = useState(false);
   const [userInput, setUserInput] = useState('');
+
   const { messages, status, error, sendMessage } = useChat({
     initialMessages: [
       {
@@ -19,14 +20,12 @@ export default function Chatbot() {
       },
     ],
   });
-    }
-  }, [messages.length, setMessages]);
 
   const isLoading = status === 'submitted' || status === 'streaming';
 
   const handleSend = () => {
     if (userInput.trim() && !isLoading) {
-      sendMessage({ text: userInput }); // Correct for latest SDK
+      sendMessage({ text: userInput });
       setUserInput('');
     }
   };
