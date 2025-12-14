@@ -9,47 +9,47 @@ export default function Chatbot() {
   const [streamingContent, setStreamingContent] = useState('');
 
   const handleSend = async () => {
-    if (!userInput.trim() || isLoading) return;
+  if (!userInput.trim() || isLoading) return;
 
-    const userMessage = userInput.trim();
-    setUserInput('');
-    setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
-    setIsLoading(true);
-    setStreamingContent('');
+  const userMessage = userInput.trim();
+  setUserInput('');
+  setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
+  setIsLoading(true);
+  setStreamingContent('');
 
-    try {
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify([...messages, { role: 'user', content: userMessage }]),
-      });
+  try {
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify([...messages, { role: 'user', content: userMessage }]), // ← Plain array, no wrapper, no .map()
+    });
 
-      if (!response.ok || !response.body) {
-        throw new Error('Failed to get response from server');
-      }
-
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let assistantContent = '';
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        const chunk = decoder.decode(value, { stream: true });
-        assistantContent += chunk;
-        setStreamingContent(assistantContent);
-      }
-
-      setMessages(prev => [...prev, { role: 'assistant', content: assistantContent }]);
-      setStreamingContent('');
-    } catch (err) {
-      console.error('Chat error:', err);
-      setMessages(prev => [...prev, { role: 'assistant', content: 'Sorry, something went wrong. Please try again.' }]);
-    } finally {
-      setIsLoading(false);
+    if (!response.ok || !response.body) {
+      throw new Error('Failed to get response');
     }
-  };
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let assistantContent = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      const chunk = decoder.decode(value, { stream: true });
+      assistantContent += chunk;
+      setStreamingContent(assistantContent);
+    }
+
+    setMessages(prev => [...prev, { role: 'assistant', content: assistantContent }]);
+    setStreamingContent('');
+  } catch (err) {
+    console.error('Chat error:', err);
+    setMessages(prev => [...prev, { role: 'assistant', content: 'Sorry, I encountered an error. Please try again.' }]);
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const showGreeting = messages.length === 0 && !streamingContent && !isLoading;
 
