@@ -15,20 +15,33 @@ export default function TrailResults({ trail, onReset }: TrailResultsProps) {
   const [saved, setSaved] = useState(false);
 
   const handleShare = async () => {
-    const url = window.location.href;
-    const text = `Check out my ${trail.trailName} wine trail in Yadkin Valley!`;
-    
-    if (navigator.share) {
-      try {
-        await navigator.share({ title: trail.trailName, text, url });
-      } catch (err) {
-        // User cancelled or share failed
-        copyToClipboard(url);
-      }
-    } else {
+  // Track share in database
+  if (trail.id) {
+    try {
+      await fetch(`/api/trails/${trail.id}/share`, { method: 'POST' });
+    } catch (error) {
+      console.error('Failed to track share:', error);
+    }
+  }
+  
+  const url = window.location.href;
+  const text = `Check out my ${trail.trailName} wine trail in Yadkin Valley!`;
+  
+  if (navigator.share) {
+    try {
+      await navigator.share({ 
+        title: trail.trailName, 
+        text, 
+        url 
+      });
+    } catch (err) {
+      // User cancelled or share failed
       copyToClipboard(url);
     }
-  };
+  } else {
+    copyToClipboard(url);
+  }
+};
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);

@@ -12,33 +12,35 @@ export default function HomePage() {
   const [isGenerating, setIsGenerating] = useState(false);
 
   const handleQuestionnaireComplete = async (data: AIInput) => {
-    setIsGenerating(true);
-    
-    try {
-      const response = await fetch('/api/generate-trail', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
+  setIsGenerating(true);
+  
+  try {
+    const response = await fetch('/api/generate-trail', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
 
-      if (!response.ok) {
-        throw new Error('Failed to generate trail');
-      }
-
-      const trail = await response.json();
-      const trailId = Date.now().toString();
-      
-      // Save to localStorage
-      localStorage.setItem(`trail_${trailId}`, JSON.stringify(trail));
-      
-      // Navigate to results
-      router.push(`/trail/${trailId}`);
-    } catch (error) {
-      console.error('Error generating trail:', error);
-      alert('Sorry, something went wrong. Please try again.');
-      setIsGenerating(false);
+    if (!response.ok) {
+      throw new Error('Failed to generate trail');
     }
-  };
+
+    const trail = await response.json();
+    
+    // Use trail ID from database response
+    const trailId = trail.id || Date.now().toString();
+    
+    // Still save to localStorage as backup
+    localStorage.setItem(`trail_${trailId}`, JSON.stringify(trail));
+    
+    // Navigate to shareable URL
+    router.push(`/trail/${trailId}`);
+  } catch (error) {
+    console.error('Error generating trail:', error);
+    alert('Sorry, something went wrong. Please try again.');
+    setIsGenerating(false);
+  }
+};
 
   if (isGenerating) {
     return (
