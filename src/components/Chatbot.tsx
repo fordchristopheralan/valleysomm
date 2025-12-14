@@ -9,14 +9,19 @@ export default function Chatbot() {
 
   const { messages, status, error, sendMessage, setMessages } = useChat();
 
-  // Add initial greeting on first render
+  // Add the initial greeting on first render using the correct message format
   useEffect(() => {
     if (messages.length === 0) {
       setMessages([
         {
           id: 'greeting',
           role: 'assistant',
-          content: "Howdy! I'm your Valley Somm — the AI guide to Yadkin Valley wines. Ask me about wineries, trails, pairings, events, or recommendations!",
+          parts: [
+            {
+              type: 'text',
+              text: "Howdy! I'm your Valley Somm — the AI guide to Yadkin Valley wines. Ask me about wineries, trails, pairings, events, or recommendations!",
+            },
+          ],
         },
       ]);
     }
@@ -29,6 +34,16 @@ export default function Chatbot() {
       sendMessage(userInput);
       setUserInput('');
     }
+  };
+
+  // Render message content safely (handles both old and new formats)
+  const renderContent = (message: any) => {
+    if (message.parts && Array.isArray(message.parts)) {
+      return message.parts
+        .filter((part: any) => part.type === 'text')
+        .map((part: any, idx: number) => <span key={idx}>{part.text}</span>);
+    }
+    return message.content || '';
   };
 
   return (
@@ -76,7 +91,7 @@ export default function Chatbot() {
                       : 'bg-gray-200 text-gray-800'
                   }`}
                 >
-                  {(m as any).content || (m as any).parts?.[0]?.text || ''}
+                  {renderContent(m)}
                 </div>
               </div>
             ))}
