@@ -37,7 +37,8 @@ export default function Chatbot() {
 
   const handleSend = () => {
     if (userInput.trim() && !isLoading) {
-      sendMessage(userInput);
+      // Fixed: sendMessage now expects { text: string } in AI SDK v5+
+      sendMessage({ text: userInput });
       setUserInput('');
     }
   };
