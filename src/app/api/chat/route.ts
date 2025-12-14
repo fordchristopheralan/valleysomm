@@ -15,9 +15,9 @@ export async function POST(req: Request) {
       messages: modelMessages,
     });
 
-    return result.toTextStreamResponse(); // Raw text stream — perfect for manual handling
+    return result.toTextStreamResponse();
   } catch (error) {
     console.error('[/api/chat] Error:', error);
-    return new Response(`Error: ${(error as Error).message}`, { status: 500 });
+    return new Response(`Error: ${(error as Error).message || 'Unknown error'}`, { status: 500 });
   }
 }

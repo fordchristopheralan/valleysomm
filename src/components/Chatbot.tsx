@@ -21,7 +21,12 @@ export default function Chatbot() {
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: [...messages, { role: 'user', content: userMessage }] }),
+        body: JSON.stringify({
+          messages: [...messages, { role: 'user', content: userMessage }].map(m => ({
+            role: m.role,
+            content: m.content
+          })),
+        }),
       });
 
       if (!response.ok || !response.body) {
@@ -38,21 +43,20 @@ export default function Chatbot() {
 
         const chunk = decoder.decode(value, { stream: true });
         assistantContent += chunk;
-        setStreamingContent(assistantContent); // Real-time streaming update
+        setStreamingContent(assistantContent);
       }
 
-      // Add complete assistant message to history
       setMessages(prev => [...prev, { role: 'assistant', content: assistantContent }]);
       setStreamingContent('');
     } catch (err) {
-      console.error(err);
-      setMessages(prev => [...prev, { role: 'assistant', content: 'Sorry, something went wrong. Try again!' }]);
+      console.error('Chat error:', err);
+      setMessages(prev => [...prev, { role: 'assistant', content: 'Sorry, I encountered an error. Please try again.' }]);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const showGreeting = messages.length === 0 && !streamingContent;
+  const showGreeting = messages.length === 0 && !streamingContent && !isLoading;
 
   return (
     <>
