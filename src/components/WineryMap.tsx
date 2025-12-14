@@ -5,9 +5,9 @@ import MarkerClusterGroup from 'react-leaflet-markercluster';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
-import 'leaflet.markercluster/dist/MarkerCluster.Default.css'; // Optional for default styles
+import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 
-// Fix Leaflet default icon issue in Next.js
+ // Fix Leaflet default icon issue in Next.js
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
@@ -20,7 +20,6 @@ import { wineries } from '@/data/wineries';
 export default function WineryMap({ filteredWineries = wineries }: { filteredWineries?: typeof wineries }) {
   const [map, setMap] = useState<L.Map | null>(null);
 
-  // Optional: Invalidate size if map doesn't render correctly on load
   useEffect(() => {
     if (map) {
       setTimeout(() => map.invalidateSize(), 100);
@@ -45,7 +44,7 @@ export default function WineryMap({ filteredWineries = wineries }: { filteredWin
       center={[36.1, -80.8]}
       zoom={10}
       style={{ height: '100%', width: '100%' }}
-      whenReady={setMap}  // ← Changed from whenCreated to whenReady
+      whenReady={(event) => setMap(event.target)}  // ← Correct callback
     >
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
