@@ -145,7 +145,9 @@ export default function Questionnaire({ onComplete, onCancel }: QuestionnairePro
           ? [finalAnswers.winePreferences as string]
           : [],
       groupType: finalAnswers.groupType as string,
-      stops: parseInt(finalAnswers.stops as string),
+      stops: typeof finalAnswers.stops === 'string' 
+        ? parseInt(finalAnswers.stops) 
+        : (finalAnswers.stops as number),
       originCity: finalAnswers.originCity as string,
       visitLength: 'day',
       priorities: []
