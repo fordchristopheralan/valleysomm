@@ -5,7 +5,7 @@ import MarkerClusterGroup from 'react-leaflet-markercluster';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
-import 'leaflet.markercluster/dist/MarkerCluster.Default.css'; // Optional: for default cluster icons
+import 'leaflet.markercluster/dist/MarkerCluster.Default.css'; // Optional for default styles
 
 // Fix Leaflet default icon issue in Next.js
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -20,13 +20,13 @@ import { wineries } from '@/data/wineries';
 export default function WineryMap({ filteredWineries = wineries }: { filteredWineries?: typeof wineries }) {
   const [map, setMap] = useState<L.Map | null>(null);
 
+  // Optional: Invalidate size if map doesn't render correctly on load
   useEffect(() => {
     if (map) {
-      map.invalidateSize();
+      setTimeout(() => map.invalidateSize(), 100);
     }
-  }, [map, open]); // Re-center or resize if needed when chat opens/closes
+  }, [map]);
 
-  // Custom cluster icon
   const createClusterCustomIcon = (cluster: any) => {
     const count = cluster.getChildCount();
     const size = 40 + count * 2;
@@ -42,10 +42,10 @@ export default function WineryMap({ filteredWineries = wineries }: { filteredWin
 
   return (
     <MapContainer
-      center={[36.1, -80.8]} // Approximate center of Yadkin Valley
+      center={[36.1, -80.8]}
       zoom={10}
       style={{ height: '100%', width: '100%' }}
-      whenCreated={setMap}
+      whenReady={setMap}  // ← Changed from whenCreated to whenReady
     >
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -68,7 +68,7 @@ export default function WineryMap({ filteredWineries = wineries }: { filteredWin
                     href={winery.website}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-[#6B2737] underline text-sm"
+                    className="text-[#6B2737] underline text-sm block mt-1"
                   >
                     Visit Website
                   </a>
