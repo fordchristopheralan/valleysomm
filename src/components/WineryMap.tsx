@@ -49,12 +49,14 @@ export default function WineryMap({ filteredWineries = wineries }: { filteredWin
         {filteredWineries.map((winery) => (
           <Marker
             key={winery.id}
-            position={[winery.lat!, winery.lng!]}  // ← Non-null assertion (safe if all have coords)
+            position={[winery.lat!, winery.lng!]} // Non-null assertion (all mapped wineries have coords)
           >
             <Popup>
               <div className="p-2 text-center">
                 <h3 className="font-bold text-lg">{winery.name}</h3>
-                <p className="text-sm text-gray-600">{winery.address}</p>
+                {winery.address && (
+                  <p className="text-sm text-gray-600">{winery.address}</p>
+                )}
                 {winery.website && (
                   <a
                     href={winery.website}
