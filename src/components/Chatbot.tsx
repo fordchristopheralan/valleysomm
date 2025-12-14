@@ -3,22 +3,30 @@
 import { useState, useEffect } from 'react';
 import { useChat } from '@ai-sdk/react';
 
+interface ChatMessage {
+  id: string;
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+}
+
 export default function Chatbot() {
   const [open, setOpen] = useState(false);
   const [userInput, setUserInput] = useState('');
 
   const { messages, status, error, sendMessage, setMessages } = useChat();
 
-  // Add initial greeting message on mount
+  // Add the initial greeting on first render
   useEffect(() => {
-    setMessages([
-      {
-        id: Date.now().toString(),
-        role: 'assistant',
-        content: "Howdy! I'm your Valley Somm — the AI guide to Yadkin Valley wines. Ask me about wineries, trails, pairings, events, or recommendations!",
-      },
-    ]);
-  }, [setMessages]);
+    if (messages.length === 0) {
+      setMessages([
+        {
+          id: 'greeting',
+          role: 'assistant' as const,
+          content: "Howdy! I'm your Valley Somm — the AI guide to Yadkin Valley wines. Ask me about wineries, trails, pairings, events, or recommendations!",
+        },
+      ]);
+    }
+  }, [messages.length, setMessages]);
 
   const isLoading = status === 'submitted' || status === 'streaming';
 
