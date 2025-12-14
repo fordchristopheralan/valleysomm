@@ -5,9 +5,7 @@ import { useChat } from '@ai-sdk/react';
 export default function Chatbot() {
   const [open, setOpen] = useState(false);
   const [userInput, setUserInput] = useState('');
-  const { messages, status, error, sendMessage, setMessages } = useChat({
-    api: '/api/chat',
-  });
+  const { messages, status, error, sendMessage, setMessages } = useChat();
 
   // Add initial greeting on first render
   useEffect(() => {
@@ -31,7 +29,7 @@ export default function Chatbot() {
 
   const handleSend = () => {
     if (userInput.trim() && !isLoading) {
-      sendMessage({ text: userInput }); // Correct format for latest AI SDK
+      sendMessage({ text: userInput }); // Correct for latest SDK
       setUserInput('');
     }
   };
