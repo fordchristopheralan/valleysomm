@@ -1,13 +1,13 @@
 "use client";
-
 import { useState, useEffect } from 'react';
 import { useChat } from '@ai-sdk/react';
 
 export default function Chatbot() {
   const [open, setOpen] = useState(false);
   const [userInput, setUserInput] = useState('');
-
-  const { messages, status, error, sendMessage, setMessages } = useChat();
+  const { messages, status, error, sendMessage, setMessages } = useChat({
+    api: '/api/chat',
+  });
 
   // Add initial greeting on first render
   useEffect(() => {
@@ -31,18 +31,21 @@ export default function Chatbot() {
 
   const handleSend = () => {
     if (userInput.trim() && !isLoading) {
-      sendMessage(userInput); // String argument in current SDK
+      sendMessage({ text: userInput }); // Correct format for latest AI SDK
       setUserInput('');
     }
   };
 
-  // Render message content safely
+  // Render message content safely from parts
   const renderContent = (message: any) => {
     if (message.parts && Array.isArray(message.parts)) {
       return message.parts
         .filter((part: any) => part.type === 'text')
-        .map((part: any, idx: number) => <span key={idx}>{part.text}</span>);
+        .map((part: any, idx: number) => (
+          <span key={idx}>{part.text}</span>
+        ));
     }
+    // Fallback for older formats
     return message.content || '';
   };
 
@@ -95,9 +98,11 @@ export default function Chatbot() {
                 </div>
               </div>
             ))}
+
             {isLoading && (
               <div className="text-center text-gray-500 text-sm">Thinking...</div>
             )}
+
             {error && (
               <div className="text-center text-red-500 text-sm">Error: {error.message}</div>
             )}
