@@ -21,16 +21,12 @@ export default function Chatbot() {
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messages: [...messages, { role: 'user', content: userMessage }].map(m => ({
-            role: m.role,
-            content: m.content
-          })),
-        }),
+        // Send the full conversation history as a plain array (exactly what the backend expects)
+        body: JSON.stringify([...messages, { role: 'user', content: userMessage }]),
       });
 
       if (!response.ok || !response.body) {
-        throw new Error('Failed to get response');
+        throw new Error('Failed to get response from server');
       }
 
       const reader = response.body.getReader();
@@ -43,14 +39,15 @@ export default function Chatbot() {
 
         const chunk = decoder.decode(value, { stream: true });
         assistantContent += chunk;
-        setStreamingContent(assistantContent);
+        setStreamingContent(assistantContent); // Real-time streaming display
       }
 
+      // Add the complete assistant response to history
       setMessages(prev => [...prev, { role: 'assistant', content: assistantContent }]);
       setStreamingContent('');
     } catch (err) {
       console.error('Chat error:', err);
-      setMessages(prev => [...prev, { role: 'assistant', content: 'Sorry, I encountered an error. Please try again.' }]);
+      setMessages(prev => [...prev, { role: 'assistant', content: 'Sorry, something went wrong. Please try again.' }]);
     } finally {
       setIsLoading(false);
     }
@@ -60,6 +57,7 @@ export default function Chatbot() {
 
   return (
     <>
+      {/* Floating Toggle Button */}
       {!open && (
         <button
           onClick={() => setOpen(true)}
@@ -72,6 +70,7 @@ export default function Chatbot() {
         </button>
       )}
 
+      {/* Chat Window */}
       {open && (
         <div className="fixed bottom-24 right-6 w-96 h-[600px] bg-white rounded-lg shadow-2xl flex flex-col z-[1000] border border-gray-300 overflow-hidden">
           <div className="bg-[#6B2737] text-[#F5F0E1] p-4 font-playfair text-xl text-center flex justify-between items-center">

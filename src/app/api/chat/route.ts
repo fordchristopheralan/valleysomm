@@ -5,9 +5,16 @@ export const maxDuration = 30;
 
 export async function POST(req: Request) {
   try {
-    const { messages } = await req.json();
+    const body = await req.json();
 
-    const modelMessages = convertToModelMessages(messages);
+    // Safely extract messages — handle { messages: [...] } or direct [...]
+    let rawMessages = Array.isArray(body) ? body : body.messages;
+
+    if (!Array.isArray(rawMessages)) {
+      throw new Error('Invalid messages format');
+    }
+
+    const modelMessages = convertToModelMessages(rawMessages);
 
     const result = await streamText({
       model: groq('llama-3.3-70b-versatile'),
