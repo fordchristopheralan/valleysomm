@@ -54,9 +54,7 @@ export default function WineryMap({ filteredWineries = wineries }: { filteredWin
             <Popup>
               <div className="p-2 text-center">
                 <h3 className="font-bold text-lg">{winery.name}</h3>
-                {winery.address && (
-                  <p className="text-sm text-gray-600">{winery.address}</p>
-                )}
+
                 {winery.website && (
                   <a
                     href={winery.website}
