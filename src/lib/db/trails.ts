@@ -207,7 +207,7 @@ export async function getPopularTrails(limit: number = 10): Promise<StoredTrail[
     
     return result as any[];
   } catch (error) {
-    console.error('Failed to get popular trails:', error);
+    console.error('Oops! Failed to get popular trails:', error);
     return [];
   }
 }
