@@ -1,5 +1,8 @@
-import { sql } from '@vercel/postgres';
+import { neon } from '@neondatabase/serverless';
 import type { AIInput, AITrailResponse } from '@/lib/types';
+
+// Initialize Neon client
+const sql = neon(process.env.DATABASE_URL!);
 
 export type StoredTrail = {
   id: string;
@@ -93,9 +96,9 @@ export async function getTrailById(id: string): Promise<StoredTrail | null> {
       WHERE id = ${id}
     `;
     
-    if (result.rows.length === 0) return null;
+    if (result.length === 0) return null;
     
-    const row = result.rows[0];
+    const row = result[0];
     return {
       ...row,
       wineries: typeof row.wineries === 'string' 
@@ -183,7 +186,7 @@ export async function getTrailAnalytics(days: number = 30) {
       WHERE created_at > NOW() - INTERVAL '${days} days'
     `;
     
-    return result.rows[0];
+    return result[0];
   } catch (error) {
     console.error('Analytics query failed:', error);
     return null;
@@ -202,7 +205,7 @@ export async function getPopularTrails(limit: number = 10): Promise<StoredTrail[
       LIMIT ${limit}
     `;
     
-    return result.rows as any[];
+    return result as any[];
   } catch (error) {
     console.error('Failed to get popular trails:', error);
     return [];
