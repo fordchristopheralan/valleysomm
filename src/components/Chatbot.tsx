@@ -1,7 +1,18 @@
 "use client";
 
-import { useState } from 'react';
-import { useChat } from '@ai-sdk/react';
+import { useState, useEffect } from 'react';
+import { useChat, type UIMessage } from '@ai-sdk/react';
+
+const initialGreeting: UIMessage = {
+  id: 'greeting',
+  role: 'assistant',
+  parts: [
+    {
+      type: 'text',
+      text: "Howdy! I'm your Valley Somm — the AI guide to Yadkin Valley wines. Ask me about wineries, trails, pairings, events, or recommendations!",
+    },
+  ],
+};
 
 export default function Chatbot() {
   const [open, setOpen] = useState(false);
@@ -12,20 +23,15 @@ export default function Chatbot() {
     status,
     error,
     sendMessage,
-  } = useChat({
-    initialMessages: [
-      {
-        id: 'greeting',
-        role: 'assistant' as const,
-        parts: [
-          {
-            type: 'text',
-            text: "Howdy! I'm your Valley Somm — the AI guide to Yadkin Valley wines. Ask me about wineries, trails, pairings, events, or recommendations!",
-          },
-        ],
-      },
-    ],
-  });
+    setMessages,
+  } = useChat();
+
+  // Add the initial greeting only if there are no messages yet
+  useEffect(() => {
+    if (messages.length === 0) {
+      setMessages([initialGreeting]);
+    }
+  }, [messages.length, setMessages]);
 
   const isLoading = status === 'submitted' || status === 'streaming';
 
@@ -37,14 +43,14 @@ export default function Chatbot() {
   };
 
   const renderMessageContent = (message: typeof messages[number]) => {
-    // New format (AI SDK v5+): parts array
-    if ('parts' in message && message.parts) {
+    // AI SDK v5+ uses `parts` array
+    if ('parts' in message && Array.isArray(message.parts)) {
       return message.parts.map((part, idx) =>
         part.type === 'text' ? <span key={idx}>{part.text}</span> : null
       );
     }
 
-    // Fallback for any older format (shouldn't happen with current SDK)
+    // Very unlikely fallback
     return (message as any).content || '';
   };
 
