@@ -13,8 +13,6 @@ export async function POST(req: Request) {
 
   const result = await streamText({
     model: groq('llama3-70b-8192'),
-    temperature: 0.8,
-    maxTokens: 1024,
     system: systemPrompt,
     messages,
   });
