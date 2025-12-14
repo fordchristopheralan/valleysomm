@@ -226,7 +226,7 @@ export default function HomePage() {
       <footer className="py-12 px-4 bg-gray-900 text-white">
         <div className="max-w-6xl mx-auto text-center">
           <p className="text-gray-400">
-            © 2025 Valley Somm. All rights reserved.
+            © 2025 Yadkin Data Partners LLC. All rights reserved.
           </p>
           <p className="text-gray-500 text-sm mt-2">
             Discover Yadkin Valley, North Carolina

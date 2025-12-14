@@ -263,6 +263,7 @@ export default function TrailResults({ trail, onReset }: TrailResultsProps) {
         <div className="text-center mt-8 text-gray-500 text-sm print:mt-6">
           <p>Created by Valley Somm • Your AI Wine Trail Guide</p>
           <p className="mt-1">Discover Yadkin Valley, North Carolina</p>
+	  <p>© 2025 Yadkin Data Partners LLC. All rights reserved.</p>
         </div>
       </div>
 
