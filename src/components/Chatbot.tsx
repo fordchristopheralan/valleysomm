@@ -70,7 +70,7 @@ export function Chatbot() {
       </button>
 
       {open && (
-        <div className="fixed bottom-24 right-6 w-96 h-[600px] bg-white rounded-lg shadow-2xl flex flex-col z-50 border border-gray-300 overflow-hidden">
+        <div className="fixed bottom-24 right-6 w-96 h-[600px] bg-white rounded-lg shadow-2xl flex flex-col z-[1000] border border-gray-300 overflow-hidden">
           <div className="bg-[#6B2737] text-[#F5F0E1] p-4 font-playfair text-xl text-center">
             Ask the Somm
           </div>
@@ -117,7 +117,7 @@ export function Chatbot() {
               <button
                 onClick={handleSend}
                 disabled={isLoading || !userInput.trim()}
-                className="bg-[#6B2737] text-[#F5F0E1] px-6 py-3 rounded-full hover:bg-[#D4A017] transition font-medium"
+                className="fixed bottom-6 right-6 bg-[#6B2737] text-[#F5F0E1] p-4 rounded-full shadow-2xl hover:bg-[#D4A017] transition z-[999] flex items-center justify-center"
               >
                 Send
               </button>

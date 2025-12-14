@@ -1,6 +1,7 @@
 import { groq } from '@ai-sdk/groq';
 import { streamText } from 'ai';
 
+// Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
 
 const systemPrompt = `You are Valley Somm, a friendly and knowledgeable AI sommelier for the Yadkin Valley wine region in North Carolina.
@@ -12,11 +13,10 @@ export async function POST(req: Request) {
   const { messages } = await req.json();
 
   const result = await streamText({
-    model: groq('llama3-70b-8192'),
+    model: groq('llama3-70b-8192'), // Fast, free Groq model
     system: systemPrompt,
     messages,
   });
 
-  // Use the correct method for your AI SDK version
-  return result.toTextStreamResponse();
+  return result.toTextStreamResponse(); // Correct method for current SDK
 }
