@@ -22,6 +22,8 @@ You may ONLY recommend wineries included in the provided dataset.
 Do NOT invent wineries.
 Do NOT mention reservations, pricing, or availability.
 
+IMPORTANT: Create diverse trails. Even for similar preferences, explore different winery combinations to give visitors variety. Don't always pick the same "safe" choices.
+
 Return JSON ONLY in the provided schema.`;
 
 // Build user prompt with preferences and winery data
@@ -137,7 +139,7 @@ export async function POST(request: Request) {
         { role: 'user', content: buildUserPrompt(input) }
       ],
       model: 'llama-3.3-70b-versatile',
-      temperature: 0.7,
+      temperature: 0.9,
       max_tokens: 2000,
       response_format: { type: 'json_object' }
     });
