@@ -32,4 +32,11 @@ export const wineries: Winery[] = [
   { id: 21, name: "Shadow Springs Vineyard", lat: 36.3, lng: -80.78, description: "Scenic views and muscadine wines.", website: "https://shadowspringsvineyard.com", photoUrl: "/directory_placeholder.jpg" },
   { id: 22, name: "Cellar 4201", lat: 36.26, lng: -80.78, description: "Boutique winery in East Bend.", website: "https://cellar4201.com", photoUrl: "/directory_placeholder.jpg" },
   { id: 23, name: "Medaloni Cellars", lat: 36.15, lng: -80.68, description: "Italian-inspired estate.", website: "https://medalonicellars.com", photoUrl: "/directory_placeholder.jpg" },
-  { id: 24, name: "Junius Lindsay Vineyard", lat: 36.18, lng:
+  { id: 24, name: "Junius Lindsay Vineyard", lat: 36.18, lng: -80.55, description: "French-style Rhône varietals.", website: "https://juniuslindsay.com", photoUrl: "/directory_placeholder.jpg" },
+  { id: 25, name: "Weathervane Winery", lat: 36.2, lng: -80.65, description: "Family-friendly with live music.", website: "https://weathervanewinery.com", photoUrl: "/directory_placeholder.jpg" },
+  { id: 26, name: "Native Vines Winery", lat: 36.25, lng: -80.7, description: "First Native American-owned winery in NC.", website: "https://nativevineswinery.com", photoUrl: "/directory_placeholder.jpg" },
+  { id: 27, name: "Childress Vineyards", lat: 35.85, lng: -80.38, description: "Large estate with NASCAR ties.", website: "https://childressvineyards.com", photoUrl: "/directory_placeholder.jpg" },
+  { id: 28, name: "Raffaldini Vineyards", lat: 36.22, lng: -80.85, description: "Italian heritage in Swan Creek.", website: "https://raffaldini.com", photoUrl: "/directory_placeholder.jpg" },
+  { id: 29, name: "Hanover Park Vineyard", lat: 36.12, lng: -80.58, description: "One of the oldest in the AVA.", website: "https://hanoverparkwines.com", photoUrl: "/directory_placeholder.jpg" },
+  { id: 30, name: "Brandon Hills Vineyard", lat: 36.3, lng: -80.75, description: "Small-batch and personal.", website: "https://brandonhillsvineyard.com", photoUrl: "/directory_placeholder.jpg" },
+];
