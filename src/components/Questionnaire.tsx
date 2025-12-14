@@ -141,7 +141,9 @@ export default function Questionnaire({ onComplete, onCancel }: QuestionnairePro
       vibe: finalAnswers.vibe as string,
       winePreferences: Array.isArray(finalAnswers.winePreferences) 
         ? finalAnswers.winePreferences 
-        : [finalAnswers.winePreferences as string],
+        : finalAnswers.winePreferences 
+          ? [finalAnswers.winePreferences as string]
+          : [],
       groupType: finalAnswers.groupType as string,
       stops: parseInt(finalAnswers.stops as string),
       originCity: finalAnswers.originCity as string,
