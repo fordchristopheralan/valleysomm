@@ -1,21 +1,24 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useChat } from '@ai-sdk/react';
 
 export default function Chatbot() {
   const [open, setOpen] = useState(false);
   const [userInput, setUserInput] = useState('');
 
-  const { messages, status, error, sendMessage } = useChat({
-    initialMessages: [
+  const { messages, status, error, sendMessage, setMessages } = useChat();
+
+  // Add initial greeting message on mount
+  useEffect(() => {
+    setMessages([
       {
         id: Date.now().toString(),
         role: 'assistant',
         content: "Howdy! I'm your Valley Somm — the AI guide to Yadkin Valley wines. Ask me about wineries, trails, pairings, events, or recommendations!",
       },
-    ],
-  });
+    ]);
+  }, [setMessages]);
 
   const isLoading = status === 'submitted' || status === 'streaming';
 
