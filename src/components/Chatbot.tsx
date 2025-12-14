@@ -6,7 +6,9 @@ export default function Chatbot() {
   const [open, setOpen] = useState(false);
   const [userInput, setUserInput] = useState('');
 
-  const { messages, status, error, sendMessage } = useChat();
+  const { messages, status, error, sendMessage } = useChat({
+    streamProtocol: 'text', // Critical for compatibility with toTextStreamResponse()
+  });
 
   const isLoading = status === 'submitted' || status === 'streaming';
 
@@ -29,7 +31,7 @@ export default function Chatbot() {
     return message.content || '';
   };
 
-  // Determine if we should show the greeting (only when no real messages yet)
+  // Show greeting only when there are no real messages yet
   const showGreeting = messages.length === 0;
 
   return (
@@ -95,7 +97,9 @@ export default function Chatbot() {
             )}
 
             {error && (
-              <div className="text-center text-red-500 text-sm">Error: {error?.message || 'Unknown error'}</div>
+              <div className="text-center text-red-500 text-sm">
+                Error: {error?.message || 'Something went wrong'}
+              </div>
             )}
           </div>
 
