@@ -2,7 +2,7 @@ import Image from 'next/image';
 import { Playfair_Display, Montserrat } from 'next/font/google';
 import MapSection from '@/components/MapSection';
 import WineryDirectory from '@/components/WineryDirectory';
-import { Chatbot } from '@/components/Chatbot';
+import Chatbot from '@/components/Chatbot';
 
 const playfair = Playfair_Display({ subsets: ['latin'], weight: ['400', '700'] });
 const montserrat = Montserrat({ subsets: ['latin'], weight: ['400', '600'] });
