@@ -1,34 +1,24 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { useChat, type UIMessage } from '@ai-sdk/react';
+import { useChat } from '@ai-sdk/react';
 
-const initialGreeting: UIMessage = {
-  id: 'greeting',
-  role: 'assistant',
-  parts: [
-    {
-      type: 'text',
-      text: "Howdy! I'm your Valley Somm — the AI guide to Yadkin Valley wines. Ask me about wineries, trails, pairings, events, or recommendations!",
-    },
-  ],
-};
-
-export function Chatbot() {
+export default function Chatbot() {
   const [open, setOpen] = useState(false);
   const [userInput, setUserInput] = useState('');
 
-  const {
-    messages,
-    status,
-    error,
-    sendMessage,
-    setMessages,
-  } = useChat();
+  const { messages, status, error, sendMessage, setMessages } = useChat();
 
+  // Add initial greeting on first render
   useEffect(() => {
     if (messages.length === 0) {
-      setMessages([initialGreeting]);
+      setMessages([
+        {
+          id: 'greeting',
+          role: 'assistant',
+          content: "Howdy! I'm your Valley Somm — the AI guide to Yadkin Valley wines. Ask me about wineries, trails, pairings, events, or recommendations!",
+        },
+      ]);
     }
   }, [messages.length, setMessages]);
 
@@ -36,43 +26,41 @@ export function Chatbot() {
 
   const handleSend = () => {
     if (userInput.trim() && !isLoading) {
-      sendMessage({ text: userInput });
+      sendMessage(userInput);
       setUserInput('');
     }
   };
 
-  const renderMessageContent = (message: typeof messages[number]) => {
-    if ('parts' in message && Array.isArray(message.parts)) {
-      return message.parts.map((part, idx) =>
-        part.type === 'text' ? <span key={idx}>{part.text}</span> : null
-      );
-    }
-    return (message as any).content || '';
-  };
-
   return (
     <>
-      <button
-        onClick={() => setOpen(!open)}
-        className="fixed bottom-6 right-6 bg-[#6B2737] text-[#F5F0E1] p-4 rounded-full shadow-2xl hover:bg-[#D4A017] transition z-50 flex items-center justify-center"
-        aria-label="Open chat"
-      >
-        {open ? (
-          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M18 6L6 18" />
-            <path d="M6 6l12 12" />
-          </svg>
-        ) : (
+      {/* Floating Toggle Button - only visible when chat is closed */}
+      {!open && (
+        <button
+          onClick={() => setOpen(true)}
+          className="fixed bottom-6 right-6 bg-[#6B2737] text-[#F5F0E1] p-4 rounded-full shadow-2xl hover:bg-[#D4A017] transition z-[999] flex items-center justify-center"
+          aria-label="Open chat"
+        >
           <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
           </svg>
-        )}
-      </button>
+        </button>
+      )}
 
+      {/* Chat Window */}
       {open && (
         <div className="fixed bottom-24 right-6 w-96 h-[600px] bg-white rounded-lg shadow-2xl flex flex-col z-[1000] border border-gray-300 overflow-hidden">
-          <div className="bg-[#6B2737] text-[#F5F0E1] p-4 font-playfair text-xl text-center">
-            Ask the Somm
+          <div className="bg-[#6B2737] text-[#F5F0E1] p-4 font-playfair text-xl text-center flex justify-between items-center">
+            <span>Ask the Somm</span>
+            <button
+              onClick={() => setOpen(false)}
+              className="text-[#F5F0E1] hover:text-white"
+              aria-label="Close chat"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M18 6L6 18" />
+                <path d="M6 6l12 12" />
+              </svg>
+            </button>
           </div>
 
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -88,19 +76,15 @@ export function Chatbot() {
                       : 'bg-gray-200 text-gray-800'
                   }`}
                 >
-                  {renderMessageContent(m)}
+                  {(m as any).content || (m as any).parts?.[0]?.text || ''}
                 </div>
               </div>
             ))}
-
             {isLoading && (
               <div className="text-center text-gray-500 text-sm">Thinking...</div>
             )}
-
             {error && (
-              <div className="text-center text-red-500 text-sm">
-                Error: {error?.message}
-              </div>
+              <div className="text-center text-red-500 text-sm">Error: {error.message}</div>
             )}
           </div>
 
@@ -117,7 +101,7 @@ export function Chatbot() {
               <button
                 onClick={handleSend}
                 disabled={isLoading || !userInput.trim()}
-                className="fixed bottom-6 right-6 bg-[#6B2737] text-[#F5F0E1] p-4 rounded-full shadow-2xl hover:bg-[#D4A017] transition z-[999] flex items-center justify-center"
+                className="bg-[#6B2737] text-[#F5F0E1] px-6 py-3 rounded-full hover:bg-[#D4A017] transition font-medium"
               >
                 Send
               </button>
