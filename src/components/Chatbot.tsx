@@ -5,23 +5,20 @@ import { useChat } from '@ai-sdk/react';
 export default function Chatbot() {
   const [open, setOpen] = useState(false);
   const [userInput, setUserInput] = useState('');
-  const { messages, status, error, sendMessage, setMessages } = useChat();
-
-  // Add initial greeting on first render
-  useEffect(() => {
-    if (messages.length === 0) {
-      setMessages([
-        {
-          id: 'greeting',
-          role: 'assistant',
-          parts: [
-            {
-              type: 'text',
-              text: "Howdy! I'm your Valley Somm — the AI guide to Yadkin Valley wines. Ask me about wineries, trails, pairings, events, or recommendations!",
-            },
-          ],
-        },
-      ]);
+  const { messages, status, error, sendMessage } = useChat({
+    initialMessages: [
+      {
+        id: 'greeting',
+        role: 'assistant',
+        parts: [
+          {
+            type: 'text',
+            text: "Howdy! I'm your Valley Somm — the AI guide to Yadkin Valley wines. Ask me about wineries, trails, pairings, events, or recommendations!",
+          },
+        ],
+      },
+    ],
+  });
     }
   }, [messages.length, setMessages]);
 
