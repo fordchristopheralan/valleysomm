@@ -1,5 +1,4 @@
 "use client";
-import { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-markercluster';
 import L from 'leaflet';
@@ -18,14 +17,6 @@ L.Icon.Default.mergeOptions({
 import { wineries } from '@/data/wineries';
 
 export default function WineryMap({ filteredWineries = wineries }: { filteredWineries?: typeof wineries }) {
-  const [map, setMap] = useState<L.Map | null>(null);
-
-  useEffect(() => {
-    if (map) {
-      setTimeout(() => map.invalidateSize(), 100);
-    }
-  }, [map]);
-
   const createClusterCustomIcon = (cluster: any) => {
     const count = cluster.getChildCount();
     const size = 40 + count * 2;
@@ -44,18 +35,6 @@ export default function WineryMap({ filteredWineries = wineries }: { filteredWin
       center={[36.1, -80.8]}
       zoom={10}
       style={{ height: '100%', width: '100%' }}
-      whenReady={() => {
-        // The map instance is available on the component ref after ready
-        // We use a ref or direct access — but for simplicity, remove setMap if not needed
-        // OR keep it if you use map elsewhere (e.g., flyTo on search)
-        // If you don't need the map reference, just use empty callback:
-        // whenReady={() => {}}
-        // But to keep your original intent:
-        if (map === null) {
-          // The map is created — grab it from the container if needed
-          // Actually, the easiest is to remove the state if not used elsewhere
-        }
-      }}
     >
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -68,7 +47,10 @@ export default function WineryMap({ filteredWineries = wineries }: { filteredWin
         iconCreateFunction={createClusterCustomIcon}
       >
         {filteredWineries.map((winery) => (
-          <Marker key={winery.id} position={[winery.lat, winery.lng]}>
+          <Marker
+            key={winery.id}
+            position={[winery.lat!, winery.lng!]}  // ← Non-null assertion (safe if all have coords)
+          >
             <Popup>
               <div className="p-2 text-center">
                 <h3 className="font-bold text-lg">{winery.name}</h3>
