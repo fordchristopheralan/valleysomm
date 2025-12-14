@@ -17,6 +17,6 @@ export async function POST(req: Request) {
     messages,
   });
 
-  // ← THIS IS THE CORRECT ONE FOR AI SDK v5+
-  return result.toDataStreamResponse();
+  // Use the correct method for your AI SDK version
+  return result.toTextStreamResponse();
 }
