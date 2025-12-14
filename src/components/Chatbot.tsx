@@ -21,7 +21,6 @@ export default function Chatbot() {
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        // Send the full conversation history as a plain array (exactly what the backend expects)
         body: JSON.stringify([...messages, { role: 'user', content: userMessage }]),
       });
 
@@ -39,10 +38,9 @@ export default function Chatbot() {
 
         const chunk = decoder.decode(value, { stream: true });
         assistantContent += chunk;
-        setStreamingContent(assistantContent); // Real-time streaming display
+        setStreamingContent(assistantContent);
       }
 
-      // Add the complete assistant response to history
       setMessages(prev => [...prev, { role: 'assistant', content: assistantContent }]);
       setStreamingContent('');
     } catch (err) {
@@ -57,7 +55,6 @@ export default function Chatbot() {
 
   return (
     <>
-      {/* Floating Toggle Button */}
       {!open && (
         <button
           onClick={() => setOpen(true)}
@@ -69,8 +66,6 @@ export default function Chatbot() {
           </svg>
         </button>
       )}
-
-      {/* Chat Window */}
       {open && (
         <div className="fixed bottom-24 right-6 w-96 h-[600px] bg-white rounded-lg shadow-2xl flex flex-col z-[1000] border border-gray-300 overflow-hidden">
           <div className="bg-[#6B2737] text-[#F5F0E1] p-4 font-playfair text-xl text-center flex justify-between items-center">
@@ -82,7 +77,6 @@ export default function Chatbot() {
               </svg>
             </button>
           </div>
-
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
             {showGreeting && (
               <div className="flex justify-start">
@@ -91,7 +85,6 @@ export default function Chatbot() {
                 </div>
               </div>
             )}
-
             {messages.map((m, idx) => (
               <div key={idx} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                 <div className={`max-w-xs px-4 py-2 rounded-lg ${m.role === 'user' ? 'bg-[#6B2737] text-[#F5F0E1]' : 'bg-gray-200 text-gray-800'}`}>
@@ -99,7 +92,6 @@ export default function Chatbot() {
                 </div>
               </div>
             ))}
-
             {streamingContent && (
               <div className="flex justify-start">
                 <div className="max-w-xs px-4 py-2 rounded-lg bg-gray-200 text-gray-800">
@@ -107,10 +99,8 @@ export default function Chatbot() {
                 </div>
               </div>
             )}
-
             {isLoading && <div className="text-center text-gray-500 text-sm">Thinking...</div>}
           </div>
-
           <div className="p-4 border-t bg-gray-50">
             <div className="flex gap-2">
               <input
