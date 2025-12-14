@@ -9,7 +9,7 @@ export default function Chatbot() {
 
   const { messages, status, error, sendMessage, setMessages } = useChat();
 
-  // Add the initial greeting on first render using the correct message format
+  // Add the initial greeting on first render
   useEffect(() => {
     if (messages.length === 0) {
       setMessages([
@@ -31,12 +31,12 @@ export default function Chatbot() {
 
   const handleSend = () => {
     if (userInput.trim() && !isLoading) {
-      sendMessage(userInput);
+      sendMessage({ content: userInput }); // Correct format: object with 'content'
       setUserInput('');
     }
   };
 
-  // Render message content safely (handles both old and new formats)
+  // Render message content safely
   const renderContent = (message: any) => {
     if (message.parts && Array.isArray(message.parts)) {
       return message.parts
