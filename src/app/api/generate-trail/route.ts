@@ -4,6 +4,14 @@ import { WINERIES } from '@/lib/wineries';
 import { AIInputSchema, AITrailResponseSchema } from '@/lib/schema';
 import type { AIInput, AITrailResponse } from '@/lib/types';
 import { saveTrail } from '@/lib/db/trails';  // ← Added import for DB save
+import { customAlphabet } from 'nanoid';
+
+// Generate short IDs like your existing ones: 10 chars, letters + numbers
+const nanoid = customAlphabet('abcdefghijklmnopqrstuvwxyz0123456789', 10);
+
+function generateShortId(): string {
+  return nanoid();
+}
 
 // Initialize Groq client
 const groq = new Groq({
@@ -263,41 +271,44 @@ Do not invent any new ones. If unsure, use 'shelton', 'jolo', or 'raffaldini'.`
     }
 
     // ✨ SUCCESS - Save to database
+    let trailId: string;
     const metadata = {
       userAgent: request.headers.get('user-agent') || undefined,
-      ipAddress: request.headers.get('x-forwarded-for') || 
+      ipAddress: request.headers.get('x-forwarded-for')?.split(',')[0].trim() ||
                  request.headers.get('x-real-ip') || undefined
     };
     
     try {
-      const trailId = await saveTrail(input, validated, metadata);
+      trailId = await saveTrail(input, validated, metadata);
       console.log('✅ Trail saved to database with ID:', trailId);
-      
-      return NextResponse.json({
-        ...validated,
-        id: trailId
-      });
     } catch (dbError) {
-      console.error('❌ Database save failed:', dbError);
-      // Still return the trail even if DB save fails
-      return NextResponse.json({
-        ...validated,
-        id: Date.now().toString()
-      });
+      console.error('❌ Database save failed, using fallback ID:', dbError);
+      // Generate a short fallback ID instead of timestamp
+      trailId = generateShortId(); // You'll add this helper
+    }
+
+    return NextResponse.json({
+      ...validated,
+      id: trailId
+    });
     }
 
   } catch (error) {
     console.error('Trail generation error:', error);
     
-    // Return fallback on any error
-    const fallbackStops = 3;
-    const fallback = getFallbackTrail(fallbackStops);
-    
+    const fallback = getFallbackTrail(parseInt(input.stops || '3'));
+    let trailId: string;
+
+    try {
+      const metadata = { /* same as above */ };
+      trailId = await saveTrail(input, fallback, metadata);
+    } catch (dbError) {
+      trailId = generateShortId();
+    }
+
     return NextResponse.json({
       ...fallback,
-      id: Date.now().toString()
-    }, {
-      status: 200
+      id: trailId
     });
   }
 }
