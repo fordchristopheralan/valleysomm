@@ -180,9 +180,10 @@ export default function TrailResults({ trail, onReset }: TrailResultsProps) {
         </div>
 
         {/* Wineries List */}
+                {/* Wineries List */}
         <div className="space-y-4">
-                    {trail.wineries
-            .map((stop) => ({
+          {trail.wineries
+            .map((stop: { wineryId: string; order: number; suggestedArrivalTime: string; whyItsIncluded: string; whatToTry: string }) => ({
               stop,
               winery: getWineryById(stop.wineryId),
             }))
