@@ -66,7 +66,7 @@ export default function TrailResults({ trail, onReset }: TrailResultsProps) {
   const handlePrint = () => window.print();
 
   // One-click Google Maps navigation
-  const buildGoogleMapsLink = () => {
+      const buildGoogleMapsLink = () => {
     const orderedWineries = trail.wineries
       .map((stop) => getWineryById(stop.wineryId))
       .filter(Boolean) as { latitude: number; longitude: number }[];
