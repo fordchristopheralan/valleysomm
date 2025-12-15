@@ -106,6 +106,7 @@ function getFallbackTrail(stops: number): AITrailResponse {
   ].slice(0, stops);
 
   return {
+    id: nanoid(), // ← Add this line: generate a short ID for fallback
     trailName: 'Classic Yadkin Valley Trail',
     summary: 'A perfect introduction to the best of Yadkin Valley with iconic views, variety, and Italian flair.',
     totalStops: stops,
