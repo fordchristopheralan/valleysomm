@@ -1,9 +1,28 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChevronRight, Check, X, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import type { AIInput } from '@/lib/types';
+
+// Fire-and-forget analytics tracker
+const trackEvent = async (eventType: string, properties?: Record<string, any>) => {
+  if (typeof window === 'undefined') return;
+
+  try {
+    await fetch('/api/analytics/event', {
+      method: 'POST',
+      body: JSON.stringify({
+        event_type: eventType,
+        properties: properties || {},
+        timestamp: new Date().toISOString(),
+      }),
+      keepalive: true,
+    });
+  } catch (err) {
+    console.warn('Analytics event failed:', err);
+  }
+};
 
 type QuestionOption = {
   value: string;
@@ -92,11 +111,41 @@ export default function Questionnaire({ onCancel }: QuestionnaireProps) {
   const progress = ((step + 1) / QUESTIONS.length) * 100;
   const isLastStep = step === QUESTIONS.length - 1;
 
+  // Track quiz start
+  useEffect(() => {
+    trackEvent('quiz_started', {
+      step: 0,
+      question_id: currentQ.id,
+    });
+  }, []);
+
+  // Track abandonment if user leaves before completion
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (!isGenerating && step < QUESTIONS.length - 1) {
+        trackEvent('quiz_abandoned', {
+          last_step_reached: step,
+          last_question_id: currentQ.id,
+          answers_so_far: answers,
+        });
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [step, isGenerating, answers, currentQ.id]);
+
   const handleAnswer = (value: string) => {
     if (currentQ.type === 'single') {
       const newAnswers = { ...answers, [currentQ.id]: value };
       setAnswers(newAnswers);
-      
+
+      trackEvent('quiz_answer', {
+        question_id: currentQ.id,
+        answer: value,
+        step: step + 1,
+      });
+
       setIsAnimating(true);
       setTimeout(() => {
         setIsAnimating(false);
@@ -115,22 +164,42 @@ export default function Questionnaire({ onCancel }: QuestionnaireProps) {
       ? current.filter(v => v !== value)
       : [...current, value];
     setAnswers({ ...answers, winePreferences: newPrefs });
+
+    trackEvent('quiz_answer', {
+      question_id: currentQ.id,
+      answer: value,
+      selected: !current.includes(value),
+    });
   };
 
   const handleNext = () => {
-    if (isLastStep) {
-      generateTrail(answers);
-    } else {
-      setIsAnimating(true);
-      setTimeout(() => {
-        setIsAnimating(false);
+    trackEvent('quiz_continue', {
+      from_step: step,
+      question_id: currentQ.id,
+    });
+
+    setIsAnimating(true);
+    setTimeout(() => {
+      setIsAnimating(false);
+      if (isLastStep) {
+        generateTrail(answers);
+      } else {
         setStep(step + 1);
-      }, 200);
-    }
+      }
+    }, 200);
   };
+
+  const canContinue = currentQ.type === 'multiple'
+    ? (answers.winePreferences as string[] || []).length > 0
+    : !!answers[currentQ.id];
 
   const handleBack = () => {
     if (step > 0) {
+      trackEvent('quiz_back', {
+        from_step: step,
+        to_step: step - 1,
+      });
+
       setIsAnimating(true);
       setTimeout(() => {
         setIsAnimating(false);
@@ -141,58 +210,53 @@ export default function Questionnaire({ onCancel }: QuestionnaireProps) {
 
   const generateTrail = async (finalAnswers: Partial<AIInput>) => {
     setIsGenerating(true);
-    setGenerationError(false);
 
-    const input: AIInput = {
-      vibe: finalAnswers.vibe as string,
-      winePreferences: Array.isArray(finalAnswers.winePreferences) 
-        ? finalAnswers.winePreferences 
-        : finalAnswers.winePreferences 
-          ? [finalAnswers.winePreferences as string]
-          : [],
-      groupType: finalAnswers.groupType as string,
-      stops: typeof finalAnswers.stops === 'string' 
-        ? parseInt(finalAnswers.stops) 
-        : (finalAnswers.stops as number),
-      originCity: finalAnswers.originCity as string,
-      visitLength: 'day',
-      priorities: []
-    };
+    trackEvent('quiz_completed', {
+      answers: finalAnswers,
+      total_steps: QUESTIONS.length,
+    });
 
     try {
       const response = await fetch('/api/generate-trail', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(input),
+        body: JSON.stringify(finalAnswers),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to generate trail');
+        throw new Error(`HTTP ${response.status}`);
       }
 
-      const trail = await response.json();
+      const data = await response.json();
 
-      // Only navigate after successful DB save and we have the ID
-      router.push(`/trails/${trail.id}`);
+      trackEvent('trail_generated', {
+        trail_id: data.id,
+        num_stops: data.totalStops,
+        vibe: finalAnswers.vibe,
+        origin_city: finalAnswers.originCity,
+        wine_preferences: finalAnswers.winePreferences,
+      });
+
+      router.push(`/trails/${data.id}`);
     } catch (err) {
       console.error('Trail generation failed:', err);
       setGenerationError(true);
-    } finally {
       setIsGenerating(false);
+
+      trackEvent('trail_generation_failed', {
+        error: err instanceof Error ? err.message : String(err),
+        answers: finalAnswers,
+      });
     }
   };
-
-  const canContinue = currentQ.type === 'multiple' 
-    ? (answers.winePreferences as string[] || []).length > 0
-    : !!answers[currentQ.id];
 
   if (isGenerating) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center px-4">
         <div className="text-center">
           <Loader2 className="w-16 h-16 text-white animate-spin mx-auto mb-6" />
-          <h2 className="text-3xl font-bold text-white mb-3">Building your perfect trail...</h2>
-          <p className="text-xl text-white/90">This might take a moment — finding the best wineries for you!</p>
+          <h2 className="text-3xl font-bold text-white mb-4">Building your perfect trail...</h2>
+          <p className="text-xl text-white/90">This usually takes 10–20 seconds</p>
         </div>
       </div>
     );
@@ -207,7 +271,10 @@ export default function Questionnaire({ onCancel }: QuestionnaireProps) {
             We couldn't generate your trail right now. Please try again.
           </p>
           <button
-            onClick={() => setGenerationError(false)}
+            onClick={() => {
+              setGenerationError(false);
+              setIsGenerating(false);
+            }}
             className="bg-white text-purple-600 px-8 py-4 rounded-xl font-bold text-lg hover:bg-white/90 transition-colors"
           >
             Try Again
