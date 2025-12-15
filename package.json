@@ -15,6 +15,7 @@
     "@neondatabase/serverless": "^1.0.2",
     "@types/leaflet.markercluster": "^1.5.6",
     "ai": "^5.0.113",
+    "date-fns": "^4.1.0",
     "groq-sdk": "^0.37.0",
     "leaflet": "^1.9.4",
     "leaflet.markercluster": "^1.5.3",
