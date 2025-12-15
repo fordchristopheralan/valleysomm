@@ -36,7 +36,7 @@ function generateTrailId(): string {
 // Save trail to database
 export async function saveTrail(
   input: AIInput,
-  trail: AITrailResponse,
+  trail: Omit<AITrailResponse, 'id'>,  // ← Remove 'id' requirement
   metadata?: { userAgent?: string; ipAddress?: string }
 ): Promise<string> {
   const id = generateTrailId();
