@@ -187,7 +187,7 @@ export async function POST(request: Request) {
             content: buildUserPrompt(input) + '\n\nIMPORTANT: Only use winery IDs that appear in the dataset above. Do not make up IDs.' 
           }
         ],
-        model: 'llama-3.3-70b-versatile',
+        model: 'llama-3.1-8b-instant',
         temperature: 0.5,
         max_tokens: 2000,
         response_format: { type: 'json_object' }
