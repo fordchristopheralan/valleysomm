@@ -54,7 +54,7 @@ export async function saveTrail(
         ${input.groupType},
         ${input.stops},
         ${input.originCity},
-        ${input.specialRequests || null},
+        ${null},
         ${trail.trailName},
         ${trail.summary},
         ${trail.estimatedDurationHours},
