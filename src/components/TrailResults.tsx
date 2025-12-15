@@ -181,12 +181,15 @@ export default function TrailResults({ trail, onReset }: TrailResultsProps) {
 
         {/* Wineries List */}
         <div className="space-y-4">
-          {trail.wineries
-            .map((stop: { wineryId: string }) => ({
-  stop,
-  winery: getWineryById(stop.wineryId)
-}))
-            .filter((item): item is { stop: any; winery: any } => item && item.winery !== undefined)
+                    {trail.wineries
+            .map((stop) => ({
+              stop,
+              winery: getWineryById(stop.wineryId),
+            }))
+            .filter(
+              (item): item is { stop: typeof stop; winery: NonNullable<ReturnType<typeof getWineryById>> } =>
+                item.winery !== undefined
+            )
             .map(({ stop, winery }) => (
               <div
                 key={stop.wineryId}
@@ -199,7 +202,7 @@ export default function TrailResults({ trail, onReset }: TrailResultsProps) {
                     </div>
                     <div className="flex-1">
                       <h3 className="text-2xl font-bold text-gray-900 mb-1">
-                        {winery!.name}
+                        {winery.name}
                       </h3>
                       <p className="text-sm text-gray-500 flex items-center gap-2">
                         <Clock className="w-4 h-4" />
@@ -208,7 +211,7 @@ export default function TrailResults({ trail, onReset }: TrailResultsProps) {
                     </div>
                   </div>
 
-                  <p className="text-gray-600 mb-4">{winery!.description}</p>
+                  <p className="text-gray-600 mb-4">{winery.description}</p>
 
                   <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-4 mb-4">
                     <p className="text-sm font-semibold text-purple-900 mb-1 flex items-center gap-2">
@@ -228,7 +231,7 @@ export default function TrailResults({ trail, onReset }: TrailResultsProps) {
                   </div>
 
                   <div className="flex flex-wrap gap-2 mb-4">
-                    {winery!.vibeTags.slice(0, 3).map((tag) => (
+                    {winery.vibeTags.slice(0, 3).map((tag) => (
                       <span
                         key={tag}
                         className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium"
@@ -236,22 +239,22 @@ export default function TrailResults({ trail, onReset }: TrailResultsProps) {
                         {tag}
                       </span>
                     ))}
-                    {winery!.scenic && (
+                    {winery.scenic && (
                       <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium flex items-center gap-1">
                         <MapPin className="w-3 h-3" />
                         Scenic views
                       </span>
                     )}
-                    {winery!.lunchNearby && (
+                    {winery.lunchNearby && (
                       <span className="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-xs font-medium">
                         🍽️ Lunch nearby
                       </span>
                     )}
                   </div>
 
-                  {winery!.website && (
+                  {winery.website && (
                     <a
-                      href={winery!.website}
+                      href={winery.website}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-2 text-purple-600 hover:text-purple-700 font-medium transition-colors print:hidden"
