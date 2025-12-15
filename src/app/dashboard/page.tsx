@@ -29,8 +29,8 @@ async function getDailyMetrics() {
     `, [yesterday.toISOString().split('T')[0], today.toISOString().split('T')[0]]),
   ]);
 
-  const t = todayData.rows[0] || {};
-  const y = yesterdayData.rows[0] || {};
+  const t = todayData[0] || {};
+  const y = yesterdayData[0] || {};
 
   const percentChange = (current: number, prev: number) => 
     prev === 0 ? null : ((current - prev) / prev * 100);
