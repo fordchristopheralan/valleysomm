@@ -151,7 +151,7 @@ export async function POST(request: NextRequest) {
     let trailData = AITrailResponseSchema.parse(parsed);
     // Add a temporary ID so validateWineryIds is happy (it only checks wineries anyway)
     let validated: AITrailResponse = { ...trailData, id: 'temp' };
-    const invalidIds = validateWineryIds(validated);
+const invalidIds = validateWineryIds(validated);
 
     // If invalid IDs, retry once with stronger prompt
     if (invalidIds.length > 0) {
@@ -184,13 +184,14 @@ Do not invent any new ones. If unsure, use 'shelton', 'jolo', or 'raffaldini'.`
         }
 
         if (retryParsed) {
-          const retryValidated = AITrailResponseSchema.parse(retryParsed);
-          const retryInvalidIds = validateWineryIds(retryValidated);
-          
-          if (retryInvalidIds.length === 0) {
-            validated = retryValidated;
-          }
+        const retryData = AITrailResponseSchema.parse(retryParsed);
+        const retryValidated: AITrailResponse = { ...retryData, id: 'temp' };
+        const retryInvalidIds = validateWineryIds(retryValidated);
+        
+        if (retryInvalidIds.length === 0) {
+          validated = retryValidated;
         }
+      }
       }
     }
 
