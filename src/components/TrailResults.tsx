@@ -182,10 +182,10 @@ export default function TrailResults({ trail, onReset }: TrailResultsProps) {
         {/* Wineries List */}
         <div className="space-y-4">
           {trail.wineries
-            .map((stop) => ({
-              stop,
-              winery: getWineryById(stop.wineryId),
-            }))
+            .map((stop: { wineryId: string }) => ({
+  stop,
+  winery: getWineryById(stop.wineryId)
+}))
             .filter(({ winery }) => winery !== undefined)
             .map(({ stop, winery }) => (
               <div
