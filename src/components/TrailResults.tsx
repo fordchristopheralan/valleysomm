@@ -22,6 +22,18 @@ type TrailResultsProps = {
 export default function TrailResults({ trail, onReset }: TrailResultsProps) {
   const [saved, setSaved] = useState(false);
 
+  // Critical guard for SSR safety
+  if (!trail || !trail.wineries || trail.wineries.length === 0) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-xl font-semibold text-gray-900">Loading your trail...</p>
+        </div>
+      </div>
+    );
+  }
+
   const handleShare = async () => {
     if (trail?.id) {
       try {
@@ -53,7 +65,7 @@ export default function TrailResults({ trail, onReset }: TrailResultsProps) {
 
   const handlePrint = () => window.print();
 
-  // One-click Google Maps navigation (starts from user’s current location)
+  // One-click Google Maps navigation
   const buildGoogleMapsLink = () => {
     const orderedWineries = trail.wineries
       .map((stop) => getWineryById(stop.wineryId))
@@ -136,14 +148,14 @@ export default function TrailResults({ trail, onReset }: TrailResultsProps) {
             </div>
           </div>
 
-          {/* Action Buttons – Now with Navigation! */}
+          {/* Action Buttons */}
           <div className="flex flex-wrap gap-3 mt-6 print:hidden">
             {mapsUrl && (
               <a
                 href={mapsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex-1 min-w-[200px] py-3 px-6 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition-all transform hover:scale-[1.02] shadow-lg flex items-center gap-2"
+                className="flex-1 min-w-[200px] py-3 px-6 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition-all transform hover:scale-[1.02] shadow-lg flex items-center justify-center gap-2"
               >
                 <Navigation className="w-5 h-5" />
                 Open Full Trail in Google Maps
@@ -155,14 +167,14 @@ export default function TrailResults({ trail, onReset }: TrailResultsProps) {
               className="flex-1 min-w-[200px] py-3 px-6 bg-purple-600 text-white rounded-xl font-semibold hover:bg-purple-700 transition-all transform hover:scale-[1.02] shadow-lg flex items-center justify-center gap-2"
             >
               <Share2 className="w-5 h-5" />
-              {saved ? 'Link Copied!' : 'Share Trail'}
+              {saved ? '✓ Link Copied!' : 'Share Trail'}
             </button>
 
             <button
               onClick={handlePrint}
               className="py-3 px-6 border-2 border-purple-600 text-purple-600 rounded-xl font-semibold hover:bg-purple-50 transition-all transform hover:scale-[1.02] flex items-center justify-center gap-2"
             >
-              Print
+              📄 Print
             </button>
           </div>
         </div>
@@ -210,7 +222,7 @@ export default function TrailResults({ trail, onReset }: TrailResultsProps) {
 
                   <div className="bg-gray-50 rounded-lg p-4 mb-4">
                     <p className="text-sm font-semibold text-gray-900 mb-1">
-                      What to try:
+                      🍷 What to try:
                     </p>
                     <p className="text-sm text-gray-700">{stop.whatToTry}</p>
                   </div>
@@ -232,7 +244,7 @@ export default function TrailResults({ trail, onReset }: TrailResultsProps) {
                     )}
                     {winery!.lunchNearby && (
                       <span className="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-xs font-medium">
-                        Lunch nearby
+                        🍽️ Lunch nearby
                       </span>
                     )}
                   </div>
@@ -270,39 +282,72 @@ export default function TrailResults({ trail, onReset }: TrailResultsProps) {
           </div>
         </div>
 
-        {/* Winter Tips – December 2025 */}
+        {/* Winter Tips – Updated for December 14, 2025 */}
         <div className="bg-white rounded-2xl shadow-xl p-8 mt-6 print:break-inside-avoid">
-          <h3 className="text-xl font-bold text-gray-900 mb-4">
-            Winter Tips for Your Yadkin Valley Trail (Dec 2025)
+          <h3 className="text-xl font-bold text-gray-900 mb-6">
+            ❄️ Winter Tips for Your Yadkin Valley Trail (December 2025)
           </h3>
-          <ul className="space-y-3 text-gray-700">
+
+          {/* Holiday Vibes Gallery */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+
+<grok-card data-id="798375" data-type="image_card"></grok-card>
+
+
+
+<grok-card data-id="6ef5f9" data-type="image_card"></grok-card>
+
+
+
+<grok-card data-id="4cedd6" data-type="image_card"></grok-card>
+
+
+
+<grok-card data-id="b5ba23" data-type="image_card"></grok-card>
+
+          </div>
+
+          <ul className="space-y-3 text-gray-700 mb-6">
             <li className="flex items-start gap-3">
               <span className="text-purple-600 font-bold">•</span>
-              <span>Most wineries open at noon or 1 PM on Sundays and close at 5 PM — start midday to fit everything in before sunset (~5:15 PM)</span>
+              <span>Today is Sunday — most wineries open at noon or 1 PM and close at 5 PM (sunset around 5:15 PM). Plan a midday start!</span>
             </li>
             <li className="flex items-start gap-3">
               <span className="text-purple-600 font-bold">•</span>
-              <span>Cozy indoor tastings are perfect now — hearty reds shine, and many spots have holiday lights & events</span>
+              <span>Cozy indoor tastings are ideal now — hearty reds pair perfectly with the season, and many spots have holiday lights & events</span>
             </li>
             <li className="flex items-start gap-3">
               <span className="text-purple-600 font-bold">•</span>
-              <span>
-                <strong>Yadkin Valley Winter Wine & Beer Passport</strong> is active (through March 30, 2025) — free tastings at 9 wineries + discounts!
-              </span>
+              <span>The <strong>Yadkin Valley Winter Wine & Beer Passport</strong> is active (through March 30, 2025) — 9 wineries offer tastings + discounts on lodging/food</span>
             </li>
             <li className="flex items-start gap-3">
               <span className="text-purple-600 font-bold">•</span>
-              <span>Always call ahead or check websites/Facebook for exact hours & reservations</span>
+              <span>Always call ahead or check websites/Facebook for exact hours & reservations (e.g., Childress open earlier; others noon-5)</span>
             </li>
             <li className="flex items-start gap-3">
               <span className="text-purple-600 font-bold">•</span>
-              <span>Dress in layers and bring a designated driver — roads are scenic but winding</span>
+              <span>Dress in layers and designate a driver — roads are beautiful but winding</span>
             </li>
             <li className="flex items-start gap-3">
               <span className="text-purple-600 font-bold">•</span>
-              <span>Winter perk: fewer crowds = more personal attention!</span>
+              <span>Winter bonus: fewer crowds mean more personal attention from staff!</span>
             </li>
           </ul>
+
+          {/* Dormant Vine Landscapes */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+<grok-card data-id="6b82e7" data-type="image_card"></grok-card>
+
+
+
+<grok-card data-id="b927ab" data-type="image_card"></grok-card>
+
+
+
+<grok-card data-id="c701aa" data-type="image_card"></grok-card>
+
+          </div>
         </div>
 
         {/* Reset Button */}
