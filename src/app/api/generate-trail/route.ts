@@ -140,7 +140,7 @@ export async function POST(request: Request) {
         { role: 'system', content: SYSTEM_PROMPT },
         { role: 'user', content: buildUserPrompt(input) }
       ],
-      model: 'llama-3.3-70b-versatile',
+      model: 'llama-3.1-8b-instant',
       temperature: 0.9,
       max_tokens: 2000,
       response_format: { type: 'json_object' }
