@@ -31,13 +31,14 @@ export type AITrailResponse = {
   summary: string;
   totalStops: number;
   estimatedDurationHours: number;
-  wineries: {
+  wineries: Array<{
     wineryId: string;
     order: number;
-    whyItsIncluded: string;
     suggestedArrivalTime: string;
+    whyItsIncluded: string;
     whatToTry: string;
-  }[];
+  }>;
+  id: string;  // ← ADD THIS LINE
 };
 
 export type TrailWineryStop = {
