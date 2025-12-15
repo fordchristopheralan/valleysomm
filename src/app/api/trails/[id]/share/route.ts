@@ -1,12 +1,17 @@
-import { NextResponse } from 'next/server';
+// app/api/trails/[id]/share/route.ts
+import { NextRequest, NextResponse } from 'next/server';
 import { incrementShareCount } from '@/lib/db/trails';
 
 export async function POST(
-  request: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    await incrementShareCount(params.id);
+    // Await the params to get the actual id
+    const { id } = await params;
+
+    await incrementShareCount(id);
+
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Share tracking failed:', error);
