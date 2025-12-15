@@ -3,15 +3,11 @@ import Groq from 'groq-sdk';
 import { WINERIES } from '@/lib/wineries';
 import { AIInputSchema, AITrailResponseSchema } from '@/lib/schema';
 import type { AIInput, AITrailResponse } from '@/lib/types';
-import { saveTrail } from '@/lib/db/trails';  // ← Added import for DB save
+import { saveTrail } from '@/lib/db/trails';
 import { customAlphabet } from 'nanoid';
 
-// Generate short IDs like your existing ones: 10 chars, letters + numbers
+// Short ID generator — matches your existing style (10 chars, lowercase + numbers)
 const nanoid = customAlphabet('abcdefghijklmnopqrstuvwxyz0123456789', 10);
-
-function generateShortId(): string {
-  return nanoid();
-}
 
 // Initialize Groq client
 const groq = new Groq({
@@ -107,104 +103,58 @@ function getFallbackTrail(stops: number): AITrailResponse {
       suggestedArrivalTime: '3:00 PM',
       whatToTry: 'Sangiovese and Vermentino'
     },
-    {
-      wineryId: 'divine-llama',
-      order: 4,
-      whyItsIncluded: 'Fun llama experience adds memorable charm to your wine trail',
-      suggestedArrivalTime: '4:30 PM',
-      whatToTry: 'Rosé and Muscadine'
-    },
-    {
-      wineryId: 'round-peak',
-      order: 5,
-      whyItsIncluded: 'Mountain vistas provide a perfect ending with peaceful scenery',
-      suggestedArrivalTime: '6:00 PM',
-      whatToTry: 'Cabernet Franc and Syrah'
-    }
-  ];
+  ].slice(0, stops);
 
   return {
-    trailName: 'Yadkin Valley Classics',
-    summary: 'A carefully curated trail featuring the region\'s most beloved wineries, from educational estates to scenic mountain views.',
+    trailName: 'Classic Yadkin Valley Trail',
+    summary: 'A perfect introduction to the best of Yadkin Valley with iconic views, variety, and Italian flair.',
     totalStops: stops,
     estimatedDurationHours: stops + 1,
-    wineries: fallbackWineries.slice(0, stops),
-    id: Date.now().toString()  // ← Temporary ID for fallback
+    wineries: fallbackWineries
   };
 }
 
-// Validate winery IDs exist in dataset
-function validateWineryIds(trail: { wineries: AITrailResponse['wineries'] }): string[] {
+// Validate winery IDs against dataset
+function validateWineryIds(trail: AITrailResponse): string[] {
   const validIds = new Set(WINERIES.map(w => w.id));
   return trail.wineries
     .map(w => w.wineryId)
     .filter(id => !validIds.has(id));
 }
 
-// Main POST handler
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
-    // Parse and validate input
-    const body = await request.json();
-    const input = AIInputSchema.parse(body);
+    const input = AIInputSchema.parse(await request.json());
 
-    console.log('Generating trail for:', input);
-
-    // Pre-compute the list of valid IDs (used in both initial and retry prompts)
-    const validIdList = WINERIES.map(w => w.id).sort().join(', ');
-
-    // Call Groq API
     const completion = await groq.chat.completions.create({
       messages: [
         { role: 'system', content: SYSTEM_PROMPT },
         { role: 'user', content: buildUserPrompt(input) }
       ],
       model: 'llama-3.1-8b-instant',
-      temperature: 0.9,
+      temperature: 0.5,
       max_tokens: 2000,
       response_format: { type: 'json_object' }
     });
 
-    const rawResponse = completion.choices[0]?.message?.content;
-    
-    if (!rawResponse) {
-      console.error('No response from AI');
-      const fallback = getFallbackTrail(input.stops);
-      
-      // Try to save fallback to database
-      try {
-        const metadata = {
-          userAgent: request.headers.get('user-agent') || undefined,
-          ipAddress: request.headers.get('x-forwarded-for') || 
-                     request.headers.get('x-real-ip') || undefined
-        };
-        const fallbackId = await saveTrail(input, fallback, metadata);
-        console.log('Fallback trail saved with ID:', fallbackId);
-        return NextResponse.json({ ...fallback, id: fallbackId });
-      } catch (dbError) {
-        console.error('Database save failed for fallback:', dbError);
-        return NextResponse.json({ ...fallback, id: Date.now().toString() });
-      }
-    }
+    const response = completion.choices[0]?.message?.content;
+    if (!response) throw new Error('No response from AI');
 
-    // Parse and validate AI response
     let parsed;
     try {
-      parsed = JSON.parse(rawResponse);
+      parsed = JSON.parse(response);
     } catch (e) {
-      console.error('Failed to parse AI response as JSON');
-      throw e;
+      throw new Error('Invalid JSON from AI');
     }
 
     const validated = AITrailResponseSchema.parse(parsed);
-
-    // Verify all wineries exist in dataset
     const invalidIds = validateWineryIds(validated);
-    
+
+    // If invalid IDs, retry once with stronger prompt
     if (invalidIds.length > 0) {
-      console.error('AI returned invalid winery IDs:', invalidIds);
-      
-      // Retry once with more explicit instructions
+      console.log('Invalid IDs detected:', invalidIds);
+      const validIdList = WINERIES.map(w => w.id).join(', ');
+
       const retryCompletion = await groq.chat.completions.create({
         messages: [
           { role: 'system', content: SYSTEM_PROMPT },
@@ -235,75 +185,53 @@ Do not invent any new ones. If unsure, use 'shelton', 'jolo', or 'raffaldini'.`
           const retryInvalidIds = validateWineryIds(retryValidated);
           
           if (retryInvalidIds.length === 0) {
-            // Retry succeeded - save to database
-            const metadata = {
-              userAgent: request.headers.get('user-agent') || undefined,
-              ipAddress: request.headers.get('x-forwarded-for') || 
-                         request.headers.get('x-real-ip') || undefined
-            };
-            
-            try {
-              const trailId = await saveTrail(input, retryValidated, metadata);
-              console.log('Retry trail saved with ID:', trailId);
-              return NextResponse.json({ ...retryValidated, id: trailId });
-            } catch (dbError) {
-              console.error('Database save failed for retry:', dbError);
-              return NextResponse.json({ ...retryValidated, id: Date.now().toString() });
-            }
+            validated = retryValidated;
           }
         }
       }
-      
-      // Both attempts failed, return fallback
-      const fallback = getFallbackTrail(input.stops);
-      try {
-        const metadata = {
-          userAgent: request.headers.get('user-agent') || undefined,
-          ipAddress: request.headers.get('x-forwarded-for') || undefined
-        };
-        const fallbackId = await saveTrail(input, fallback, metadata);
-        console.log('Fallback trail (after retry) saved with ID:', fallbackId);
-        return NextResponse.json({ ...fallback, id: fallbackId });
-      } catch (dbError) {
-        console.error('Database save failed for fallback:', dbError);
-        return NextResponse.json({ ...fallback, id: Date.now().toString() });
-      }
     }
 
-    // ✨ SUCCESS - Save to database
+    // Final save to DB — always use short ID
     let trailId: string;
     const metadata = {
       userAgent: request.headers.get('user-agent') || undefined,
-      ipAddress: request.headers.get('x-forwarded-for')?.split(',')[0].trim() ||
-                 request.headers.get('x-real-ip') || undefined
+      ipAddress: 
+        request.headers.get('x-forwarded-for')?.split(',')[0].trim() ||
+        request.headers.get('x-real-ip') ||
+        undefined
     };
-    
+
     try {
       trailId = await saveTrail(input, validated, metadata);
-      console.log('✅ Trail saved to database with ID:', trailId);
+      console.log('Trail saved to database with ID:', trailId);
     } catch (dbError) {
-      console.error('❌ Database save failed, using fallback ID:', dbError);
-      // Generate a short fallback ID instead of timestamp
-      trailId = generateShortId(); // You'll add this helper
+      console.error('Database save failed, using generated short ID:', dbError);
+      trailId = nanoid();
     }
 
     return NextResponse.json({
       ...validated,
       id: trailId
     });
-    }
 
   } catch (error) {
     console.error('Trail generation error:', error);
-    
-    const fallback = getFallbackTrail(parseInt(input.stops || '3'));
+
+    const fallback = getFallbackTrail(parseInt(input?.stops || '3'));
     let trailId: string;
 
+    const metadata = {
+      userAgent: request.headers.get('user-agent') || undefined,
+      ipAddress: 
+        request.headers.get('x-forwarded-for')?.split(',')[0].trim() ||
+        request.headers.get('x-real-ip') ||
+        undefined
+    };
+
     try {
-      const metadata = { /* same as above */ };
       trailId = await saveTrail(input, fallback, metadata);
     } catch (dbError) {
-      trailId = generateShortId();
+      trailId = nanoid();
     }
 
     return NextResponse.json({
@@ -313,7 +241,7 @@ Do not invent any new ones. If unsure, use 'shelton', 'jolo', or 'raffaldini'.`
   }
 }
 
-// Health check endpoint
+// Health check
 export async function GET() {
   return NextResponse.json({
     status: 'ok',
