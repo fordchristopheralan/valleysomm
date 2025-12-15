@@ -1,3 +1,4 @@
+// src/app/trails/[id]/page.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -13,20 +14,37 @@ export default function TrailPage() {
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    const fetchTrail = async () => {
-      const trailId = params.id as string;
+    if (!params?.id) {
+      console.error('No trail ID in params:', params);
+      setError(true);
+      setLoading(false);
+      return;
+    }
 
+    const trailId = params.id as string;
+    console.log('Fetching trail ID:', trailId);  // Debug log
+
+    const fetchTrail = async () => {
       try {
-        const response = await fetch(`/api/trails/${trailId}`);
+        const response = await fetch(`/api/trails/${trailId}`, {
+          cache: 'no-store'  // Prevent caching issues
+        });
+
+        console.log('API response status:', response.status);  // Debug
 
         if (response.ok) {
           const data = await response.json();
+          console.log('Trail data loaded:', data);  // Debug
           setTrail(data);
 
-          // Track view for analytics
-          await fetch(`/api/trails/${trailId}/view`, { method: 'POST' });
+          // Track view
+          await fetch(`/api/trails/${trailId}/view`, { 
+            method: 'POST',
+            cache: 'no-store'
+          });
         } else {
-          throw new Error('Trail not found in database');
+          console.error('API returned error:', response.status);
+          throw new Error(`Trail not found (status ${response.status})`);
         }
       } catch (err) {
         console.error('Failed to load trail from API:', err);
@@ -37,7 +55,7 @@ export default function TrailPage() {
     };
 
     fetchTrail();
-  }, [params.id]);
+  }, [params?.id]);
 
   const handleReset = () => {
     router.push('/');
@@ -54,7 +72,7 @@ export default function TrailPage() {
     );
   }
 
-  if (!trail) {
+  if (error || !trail) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 flex items-center justify-center px-4">
         <div className="text-center max-w-md">
