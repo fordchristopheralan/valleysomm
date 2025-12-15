@@ -221,7 +221,7 @@ Do not invent any new ones. If unsure, use 'shelton', 'jolo', or 'raffaldini'.`
   } catch (error) {
     console.error('Trail generation error:', error);
 
-    const fallback = getFallbackTrail(parseInt(input?.stops || '3'));
+    const fallback = getFallbackTrail(3); // default to 3 stops in worst-case scenario
     let trailId: string;
 
     const metadata = {
