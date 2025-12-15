@@ -66,9 +66,9 @@ export default function TrailResults({ trail, onReset }: TrailResultsProps) {
   const handlePrint = () => window.print();
 
   // One-click Google Maps navigation
-      const buildGoogleMapsLink = () => {
+    const buildGoogleMapsLink = () => {
     const orderedWineries = trail.wineries
-      .map((stop) => getWineryById(stop.wineryId))
+      .map((stop: { wineryId: string }) => getWineryById(stop.wineryId))
       .filter(Boolean) as { latitude: number; longitude: number }[];
 
     if (orderedWineries.length < 2) return null;
@@ -77,7 +77,7 @@ export default function TrailResults({ trail, onReset }: TrailResultsProps) {
     const destination = orderedWineries[orderedWineries.length - 1];
 
     const waypoints = intermediates
-      .map((w) => `${w.latitude},${w.longitude}`)
+      .map((w: { latitude: number; longitude: number }) => `${w.latitude},${w.longitude}`)
       .join('|');
 
     const params = new URLSearchParams({
