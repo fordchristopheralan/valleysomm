@@ -42,6 +42,8 @@ function buildUserPrompt(input: AIInput): string {
 - Number of stops: ${input.stops}
 - Traveling from: ${input.originCity}
 ${input.dislikes ? `- Dislikes: ${input.dislikes}` : ''}
+${input.visitLength ? `- Visit length: ${input.visitLength}` : ''}
+${input.priorities && input.priorities.length > 0 ? `- Priorities: ${input.priorities.join(', ')}` : ''}
 
 Available wineries (ONLY use these exact IDs):
 ${JSON.stringify(WINERIES, null, 2)}
