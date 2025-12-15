@@ -10,21 +10,33 @@ export default function TrailPage() {
   const router = useRouter();
   const [trail, setTrail] = useState<AITrailResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
-    const trailId = params.id as string;
-    const stored = localStorage.getItem(`trail_${trailId}`);
-    
-    if (stored) {
+    const fetchTrail = async () => {
+      const trailId = params.id as string;
+
       try {
-        const parsed = JSON.parse(stored);
-        setTrail(parsed);
-      } catch (error) {
-        console.error('Failed to parse trail data:', error);
+        const response = await fetch(`/api/trails/${trailId}`);
+
+        if (response.ok) {
+          const data = await response.json();
+          setTrail(data);
+
+          // Track view for analytics
+          await fetch(`/api/trails/${trailId}/view`, { method: 'POST' });
+        } else {
+          throw new Error('Trail not found in database');
+        }
+      } catch (err) {
+        console.error('Failed to load trail from API:', err);
+        setError(true);
+      } finally {
+        setLoading(false);
       }
-    }
-    
-    setLoading(false);
+    };
+
+    fetchTrail();
   }, [params.id]);
 
   const handleReset = () => {
