@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ChevronRight, Check, X } from 'lucide-react';
+import { ChevronRight, Check, X, Loader2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import type { AIInput } from '@/lib/types';
 
 type QuestionOption = {
@@ -76,14 +77,16 @@ const QUESTIONS: Question[] = [
 ];
 
 type QuestionnaireProps = {
-  onComplete: (data: AIInput) => void;
   onCancel?: () => void;
 };
 
-export default function Questionnaire({ onComplete, onCancel }: QuestionnaireProps) {
+export default function Questionnaire({ onCancel }: QuestionnaireProps) {
+  const router = useRouter();
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Partial<AIInput>>({});
   const [isAnimating, setIsAnimating] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generationError, setGenerationError] = useState(false);
 
   const currentQ = QUESTIONS[step];
   const progress = ((step + 1) / QUESTIONS.length) * 100;
@@ -98,7 +101,7 @@ export default function Questionnaire({ onComplete, onCancel }: QuestionnairePro
       setTimeout(() => {
         setIsAnimating(false);
         if (isLastStep) {
-          completeQuestionnaire(newAnswers);
+          generateTrail(newAnswers);
         } else {
           setStep(step + 1);
         }
@@ -116,7 +119,7 @@ export default function Questionnaire({ onComplete, onCancel }: QuestionnairePro
 
   const handleNext = () => {
     if (isLastStep) {
-      completeQuestionnaire(answers);
+      generateTrail(answers);
     } else {
       setIsAnimating(true);
       setTimeout(() => {
@@ -136,8 +139,11 @@ export default function Questionnaire({ onComplete, onCancel }: QuestionnairePro
     }
   };
 
-  const completeQuestionnaire = (finalAnswers: Partial<AIInput>) => {
-    onComplete({
+  const generateTrail = async (finalAnswers: Partial<AIInput>) => {
+    setIsGenerating(true);
+    setGenerationError(false);
+
+    const input: AIInput = {
       vibe: finalAnswers.vibe as string,
       winePreferences: Array.isArray(finalAnswers.winePreferences) 
         ? finalAnswers.winePreferences 
@@ -151,12 +157,65 @@ export default function Questionnaire({ onComplete, onCancel }: QuestionnairePro
       originCity: finalAnswers.originCity as string,
       visitLength: 'day',
       priorities: []
-    });
+    };
+
+    try {
+      const response = await fetch('/api/generate-trail', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(input),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate trail');
+      }
+
+      const trail = await response.json();
+
+      // Only navigate after successful DB save and we have the ID
+      router.push(`/trails/${trail.id}`);
+    } catch (err) {
+      console.error('Trail generation failed:', err);
+      setGenerationError(true);
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const canContinue = currentQ.type === 'multiple' 
     ? (answers.winePreferences as string[] || []).length > 0
     : !!answers[currentQ.id];
+
+  if (isGenerating) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center px-4">
+        <div className="text-center">
+          <Loader2 className="w-16 h-16 text-white animate-spin mx-auto mb-6" />
+          <h2 className="text-3xl font-bold text-white mb-3">Building your perfect trail...</h2>
+          <p className="text-xl text-white/90">This might take a moment — finding the best wineries for you!</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (generationError) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center px-4">
+        <div className="text-center max-w-md">
+          <h2 className="text-3xl font-bold text-white mb-4">Oops! Something went wrong</h2>
+          <p className="text-xl text-white/90 mb-8">
+            We couldn't generate your trail right now. Please try again.
+          </p>
+          <button
+            onClick={() => setGenerationError(false)}
+            className="bg-white text-purple-600 px-8 py-4 rounded-xl font-bold text-lg hover:bg-white/90 transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full max-w-2xl mx-auto">
