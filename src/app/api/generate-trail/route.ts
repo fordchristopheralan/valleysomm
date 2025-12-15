@@ -6,7 +6,7 @@ import type { AIInput, AITrailResponse } from '@/lib/types';
 import { saveTrail } from '@/lib/db/trails';
 import { customAlphabet } from 'nanoid';
 
-// Short ID generator — matches your existing style (10 chars, lowercase + numbers)
+// Short ID generator — 10 chars, lowercase letters + numbers (matches your existing style)
 const nanoid = customAlphabet('abcdefghijklmnopqrstuvwxyz0123456789', 10);
 
 // Initialize Groq client
@@ -14,7 +14,7 @@ const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY || ''
 });
 
-// System prompt - defines AI behavior
+// System prompt
 const SYSTEM_PROMPT = `You are Valley Somm, a friendly, confident local guide helping visitors plan a stress-free wine weekend in Yadkin Valley, North Carolina.
 
 Your visitors are traveling from Charlotte, Winston-Salem, Greensboro, or Raleigh.
@@ -31,7 +31,7 @@ IMPORTANT: Create diverse trails. Even for similar preferences, explore differen
 
 Return JSON ONLY in the provided schema.`;
 
-// Build user prompt with preferences and winery data
+// Build user prompt
 function buildUserPrompt(input: AIInput): string {
   const validIds = WINERIES.map(w => w.id).sort().join(', ');
 
@@ -48,7 +48,7 @@ ${JSON.stringify(WINERIES, null, 2)}
 
 CRITICAL RULES - YOU MUST FOLLOW EXACTLY:
 1. You may ONLY use these exact winery IDs: ${validIds}
-2. Do NOT invent, typo, or modify any IDs (e.g., no 'surrystore', 'surry', etc.)
+2. Do NOT invent, typo, or modify any IDs
 3. Every "wineryId" in your response MUST appear exactly as listed above
 4. If you cannot find matching wineries, use safe defaults like 'shelton', 'jolo', 'raffaldini'
 
@@ -106,7 +106,7 @@ function getFallbackTrail(stops: number): AITrailResponse {
   ].slice(0, stops);
 
   return {
-    id: nanoid(), // ← Add this line: generate a short ID for fallback
+    id: nanoid(), // Give fallback a short ID too
     trailName: 'Classic Yadkin Valley Trail',
     summary: 'A perfect introduction to the best of Yadkin Valley with iconic views, variety, and Italian flair.',
     totalStops: stops,
@@ -115,7 +115,7 @@ function getFallbackTrail(stops: number): AITrailResponse {
   };
 }
 
-// Validate winery IDs against dataset
+// Validate winery IDs
 function validateWineryIds(trail: AITrailResponse): string[] {
   const validIds = new Set(WINERIES.map(w => w.id));
   return trail.wineries
@@ -149,11 +149,10 @@ export async function POST(request: NextRequest) {
     }
 
     let trailData = AITrailResponseSchema.parse(parsed);
-    // Add a temporary ID so validateWineryIds is happy (it only checks wineries anyway)
     let validated: AITrailResponse = { ...trailData, id: 'temp' };
-const invalidIds = validateWineryIds(validated);
+    let invalidIds = validateWineryIds(validated);
 
-    // If invalid IDs, retry once with stronger prompt
+    // Retry once if invalid IDs
     if (invalidIds.length > 0) {
       console.log('Invalid IDs detected:', invalidIds);
       const validIdList = WINERIES.map(w => w.id).join(', ');
@@ -163,9 +162,7 @@ const invalidIds = validateWineryIds(validated);
           { role: 'system', content: SYSTEM_PROMPT },
           { 
             role: 'user', 
-            content: buildUserPrompt(input) + `\n\nYOU PREVIOUSLY USED INVALID IDs (e.g., '${invalidIds.join("', '")}'). THIS IS NOT ALLOWED. 
-You MUST only use these exact IDs: ${validIdList}. 
-Do not invent any new ones. If unsure, use 'shelton', 'jolo', or 'raffaldini'.`
+            content: buildUserPrompt(input) + `\n\nYOU USED INVALID IDs: ${invalidIds.join(', ')}. ONLY use these exact IDs: ${validIdList}. Use 'shelton', 'jolo', or 'raffaldini' if unsure.`
           }
         ],
         model: 'llama-3.1-8b-instant',
@@ -176,27 +173,24 @@ Do not invent any new ones. If unsure, use 'shelton', 'jolo', or 'raffaldini'.`
 
       const retryResponse = retryCompletion.choices[0]?.message?.content;
       if (retryResponse) {
-        let retryParsed;
         try {
-          retryParsed = JSON.parse(retryResponse);
-        } catch (e) {
-          console.error('Failed to parse retry response as JSON');
-        }
+          const retryParsed = JSON.parse(retryResponse);
+          const retryData = AITrailResponseSchema.parse(retryParsed);
+          const retryValidated: AITrailResponse = { ...retryData, id: 'temp' };
+          const retryInvalidIds = validateWineryIds(retryValidated);
 
-        if (retryParsed) {
-        const retryData = AITrailResponseSchema.parse(retryParsed);
-        const retryValidated: AITrailResponse = { ...retryData, id: 'temp' };
-        const retryInvalidIds = validateWineryIds(retryValidated);
-        
-        if (retryInvalidIds.length === 0) {
-          validated = retryValidated;
+          if (retryInvalidIds.length === 0) {
+            validated = retryValidated;
+            invalidIds = [];
+          }
+        } catch (e) {
+          console.error('Retry failed to parse:', e);
         }
-      }
       }
     }
 
-    // Final save to DB — always use short ID
-    let trailId: string;
+    // Save to DB
+    let trailId = nanoid(); // Default fallback
     const metadata = {
       userAgent: request.headers.get('user-agent') || undefined,
       ipAddress: 
@@ -207,10 +201,10 @@ Do not invent any new ones. If unsure, use 'shelton', 'jolo', or 'raffaldini'.`
 
     try {
       trailId = await saveTrail(input, validated, metadata);
-      console.log('Trail saved to database with ID:', trailId);
+      console.log('Trail saved to DB with ID:', trailId);
     } catch (dbError) {
-      console.error('Database save failed, using generated short ID:', dbError);
-      trailId = nanoid();
+      console.error('Failed to save trail to DB:', dbError);
+      console.log('Using generated ID:', trailId);
     }
 
     return NextResponse.json({
@@ -218,11 +212,11 @@ Do not invent any new ones. If unsure, use 'shelton', 'jolo', or 'raffaldini'.`
       id: trailId
     });
 
-      } catch (error) {
-    console.error('Trail generation error:', error);
+  } catch (error) {
+    console.error('Critical trail generation failure:', error);
 
     const fallback = getFallbackTrail(3);
-    const trailId = nanoid(); // Always generate a short ID — no DB needed in worst case
+    const trailId = nanoid();
 
     return NextResponse.json({
       ...fallback,
