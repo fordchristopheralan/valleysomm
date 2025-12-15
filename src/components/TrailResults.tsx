@@ -179,90 +179,53 @@ export default function TrailResults({ trail, onReset }: TrailResultsProps) {
           </div>
         </div>
 
-                {/* Wineries List */}
-        <div className="space-y-4">
-          {trail.wineries
-            .map((stop: { wineryId: string; order: number; suggestedArrivalTime: string; whyItsIncluded: string; whatToTry: string }) => ({
-              stop,
-              winery: getWineryById(stop.wineryId),
-            }))
-            .filter((item): item is { stop: { wineryId: string; order: number; suggestedArrivalTime: string; whyItsIncluded: string; whatToTry: string }; winery: NonNullable<ReturnType<typeof getWineryById>> } => item.winery !== undefined)
-            .map(({ stop, winery }) => (
-              <div
-                key={stop.wineryId}
-                className="bg-white rounded-2xl shadow-lg overflow-hidden transition-all hover:shadow-xl print:shadow-none print:break-inside-avoid"
-              >
-                <div className="p-6">
-                  <div className="flex items-start gap-4 mb-4">
-                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-purple-600 to-pink-600 text-white flex items-center justify-center font-bold text-xl shadow-lg flex-shrink-0">
-                      {stop.order}
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-2xl font-bold text-gray-900 mb-1">
-                        {winery.name}
-                      </h3>
-                      <p className="text-sm text-gray-500 flex items-center gap-2">
-                        <Clock className="w-4 h-4" />
-                        Arrive around {stop.suggestedArrivalTime}
-                      </p>
-                    </div>
-                  </div>
+        {/* Winter Tips – Updated for December 15, 2025 */}
+        <div className="bg-white rounded-2xl shadow-xl p-8 mt-6 print:break-inside-avoid">
+          <h3 className="text-xl font-bold text-gray-900 mb-6">
+            ❄️ Winter Tips for Your Yadkin Valley Trail (December 2025)
+          </h3>
 
-                  <p className="text-gray-600 mb-4">{winery.description}</p>
+          {/* Holiday Vibes Gallery */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <img src="https://www.yadkinvalleync.com/media/images/agm_garden_2112-06701-2-web.max-700x500.jpg" alt="Holiday lights display in Yadkin Valley area" className="rounded-lg shadow-md object-cover h-64 w-full" />
+            <img src="https://carolinagetawaycabins.com/wp-content/uploads/2024/11/Yadkin-Valley-Lights-.jpg" alt="Festive holiday lights at a Yadkin Valley winery" className="rounded-lg shadow-md object-cover h-64 w-full" />
+            <img src="https://carolinagetawaycabins.com/wp-content/uploads/2024/11/Yadkin-Valley-Christmas-Lights.jpg" alt="Christmas lights illuminating Yadkin Valley scenery" className="rounded-lg shadow-md object-cover h-64 w-full" />
+            <img src="https://www.yadkinvalleync.com/media/original_images/Fairfield_Inn_Magic_of_Christmas_Elkin_NC.jpg" alt="Magic of Christmas holiday lights in Elkin" className="rounded-lg shadow-md object-cover h-64 w-full" />
+          </div>
 
-                  <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-4 mb-4">
-                    <p className="text-sm font-semibold text-purple-900 mb-1 flex items-center gap-2">
-                      <Sparkles className="w-4 h-4" />
-                      Why we picked this for you:
-                    </p>
-                    <p className="text-sm text-purple-800 leading-relaxed">
-                      {stop.whyItsIncluded}
-                    </p>
-                  </div>
+          <ul className="space-y-3 text-gray-700 mb-6">
+            <li className="flex items-start gap-3">
+              <span className="text-purple-600 font-bold">•</span>
+              <span>Today is Monday — most wineries are closed or by appointment only (a few open limited hours). Full hours typically Thursday–Sunday. Always verify!</span>
+            </li>
+            <li className="flex items-start gap-3">
+              <span className="text-purple-600 font-bold">•</span>
+              <span>Cozy indoor tastings are perfect — hearty reds shine in winter, with many spots featuring holiday lights & festive events</span>
+            </li>
+            <li className="flex items-start gap-3">
+              <span className="text-purple-600 font-bold">•</span>
+              <span>The <strong>Yadkin Valley Winter Wine & Beer Passport</strong> is active (Nov 29, 2024 – March 30, 2025) — tastings at 9 wineries + 3 breweries, plus lodging/food discounts</span>
+            </li>
+            <li className="flex items-start gap-3">
+              <span className="text-purple-600 font-bold">•</span>
+              <span>Call ahead or check websites/Facebook for exact hours & reservations (sunset ~5:15 PM)</span>
+            </li>
+            <li className="flex items-start gap-3">
+              <span className="text-purple-600 font-bold">•</span>
+              <span>Dress in layers and designate a driver — roads are beautiful but winding</span>
+            </li>
+            <li className="flex items-start gap-3">
+              <span className="text-purple-600 font-bold">•</span>
+              <span>Winter bonus: fewer crowds mean more personal attention from staff!</span>
+            </li>
+          </ul>
 
-                  <div className="bg-gray-50 rounded-lg p-4 mb-4">
-                    <p className="text-sm font-semibold text-gray-900 mb-1">
-                      🍷 What to try:
-                    </p>
-                    <p className="text-sm text-gray-700">{stop.whatToTry}</p>
-                  </div>
-
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {winery.vibeTags.slice(0, 3).map((tag) => (
-                      <span
-                        key={tag}
-                        className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                    {winery.scenic && (
-                      <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium flex items-center gap-1">
-                        <MapPin className="w-3 h-3" />
-                        Scenic views
-                      </span>
-                    )}
-                    {winery.lunchNearby && (
-                      <span className="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-xs font-medium">
-                        🍽️ Lunch nearby
-                      </span>
-                    )}
-                  </div>
-
-                  {winery.website && (
-                    <a
-                      href={winery.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 text-purple-600 hover:text-purple-700 font-medium transition-colors print:hidden"
-                    >
-                      Visit Website
-                      <ExternalLink className="w-4 h-4" />
-                    </a>
-                  )}
-                </div>
-              </div>
-            ))}
+          {/* Dormant Vine Landscapes */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <img src="https://www.vaninblack.com/wp-content/uploads/2018/12/Dormant-Overmountain-Vineyard.jpg" alt="Dormant vines in a serene winter vineyard" className="rounded-lg shadow-md object-cover h-64 w-full" />
+            <img src="https://www.platypustours.com/wp-content/uploads/2022/01/landscape-g9f857f9b5_1280-1080x675.jpg" alt="Peaceful winter landscape with bare grape vines" className="rounded-lg shadow-md object-cover h-64 w-full" />
+            <img src="https://ancientpeaks.com/wp-content/uploads/2024/02/AP_Winter_Vineyard.jpg" alt="Quiet off-season vineyard in winter" className="rounded-lg shadow-md object-cover h-64 w-full" />
+          </div>
         </div>
 
         {/* Map Placeholder */}
