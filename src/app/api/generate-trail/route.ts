@@ -3,7 +3,7 @@ import Groq from 'groq-sdk';
 import { WINERIES } from '@/lib/wineries';
 import { AIInputSchema, AITrailResponseSchema } from '@/lib/schema';
 import type { AIInput, AITrailResponse } from '@/lib/types';
-import { saveTrail } from '@/lib/db/trails';  // ← ADD THIS IMPORT
+import { saveTrail } from '@/lib/db/trails';  // ← Added import for DB save
 
 // Initialize Groq client
 const groq = new Groq({
@@ -74,6 +74,7 @@ Return JSON only matching this exact structure:
   ]
 }`;
 }
+
 // Fallback trail if AI fails
 function getFallbackTrail(stops: number): AITrailResponse {
   const fallbackWineries = [
@@ -120,7 +121,7 @@ function getFallbackTrail(stops: number): AITrailResponse {
     totalStops: stops,
     estimatedDurationHours: stops + 1,
     wineries: fallbackWineries.slice(0, stops),
-    id: Date.now().toString()  // ← ADD THIS LINE
+    id: Date.now().toString()  // ← Temporary ID for fallback
   };
 }
 
@@ -140,6 +141,9 @@ export async function POST(request: Request) {
     const input = AIInputSchema.parse(body);
 
     console.log('Generating trail for:', input);
+
+    // Pre-compute the list of valid IDs (used in both initial and retry prompts)
+    const validIdList = WINERIES.map(w => w.id).sort().join(', ');
 
     // Call Groq API
     const completion = await groq.chat.completions.create({
@@ -176,7 +180,14 @@ export async function POST(request: Request) {
     }
 
     // Parse and validate AI response
-    const parsed = JSON.parse(rawResponse);
+    let parsed;
+    try {
+      parsed = JSON.parse(rawResponse);
+    } catch (e) {
+      console.error('Failed to parse AI response as JSON');
+      throw e;
+    }
+
     const validated = AITrailResponseSchema.parse(parsed);
 
     // Verify all wineries exist in dataset
@@ -191,8 +202,8 @@ export async function POST(request: Request) {
           { role: 'system', content: SYSTEM_PROMPT },
           { 
             role: 'user', 
-            content: buildUserPrompt(input) + `\n\nYOU PREVIOUSLY USED INVALID IDs LIKE 'surrystore'. THIS IS NOT ALLOWED. 
-You MUST only use these exact IDs: ${validIds.join(', ')}. 
+            content: buildUserPrompt(input) + `\n\nYOU PREVIOUSLY USED INVALID IDs (e.g., '${invalidIds.join("', '")}'). THIS IS NOT ALLOWED. 
+You MUST only use these exact IDs: ${validIdList}. 
 Do not invent any new ones. If unsure, use 'shelton', 'jolo', or 'raffaldini'.`
           }
         ],
@@ -204,25 +215,33 @@ Do not invent any new ones. If unsure, use 'shelton', 'jolo', or 'raffaldini'.`
 
       const retryResponse = retryCompletion.choices[0]?.message?.content;
       if (retryResponse) {
-        const retryParsed = JSON.parse(retryResponse);
-        const retryValidated = AITrailResponseSchema.parse(retryParsed);
-        const retryInvalidIds = validateWineryIds(retryValidated);
-        
-        if (retryInvalidIds.length === 0) {
-          // Retry succeeded - save to database
-          const metadata = {
-            userAgent: request.headers.get('user-agent') || undefined,
-            ipAddress: request.headers.get('x-forwarded-for') || 
-                       request.headers.get('x-real-ip') || undefined
-          };
+        let retryParsed;
+        try {
+          retryParsed = JSON.parse(retryResponse);
+        } catch (e) {
+          console.error('Failed to parse retry response as JSON');
+        }
+
+        if (retryParsed) {
+          const retryValidated = AITrailResponseSchema.parse(retryParsed);
+          const retryInvalidIds = validateWineryIds(retryValidated);
           
-          try {
-            const trailId = await saveTrail(input, retryValidated, metadata);
-            console.log('Retry trail saved with ID:', trailId);
-            return NextResponse.json({ ...retryValidated, id: trailId });
-          } catch (dbError) {
-            console.error('Database save failed for retry:', dbError);
-            return NextResponse.json({ ...retryValidated, id: Date.now().toString() });
+          if (retryInvalidIds.length === 0) {
+            // Retry succeeded - save to database
+            const metadata = {
+              userAgent: request.headers.get('user-agent') || undefined,
+              ipAddress: request.headers.get('x-forwarded-for') || 
+                         request.headers.get('x-real-ip') || undefined
+            };
+            
+            try {
+              const trailId = await saveTrail(input, retryValidated, metadata);
+              console.log('Retry trail saved with ID:', trailId);
+              return NextResponse.json({ ...retryValidated, id: trailId });
+            } catch (dbError) {
+              console.error('Database save failed for retry:', dbError);
+              return NextResponse.json({ ...retryValidated, id: Date.now().toString() });
+            }
           }
         }
       }
