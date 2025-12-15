@@ -148,7 +148,9 @@ export async function POST(request: NextRequest) {
       throw new Error('Invalid JSON from AI');
     }
 
-    let validated = AITrailResponseSchema.parse(parsed);
+    let trailData = AITrailResponseSchema.parse(parsed);
+    // Add a temporary ID so validateWineryIds is happy (it only checks wineries anyway)
+    let validated: AITrailResponse = { ...trailData, id: 'temp' };
     const invalidIds = validateWineryIds(validated);
 
     // If invalid IDs, retry once with stronger prompt
