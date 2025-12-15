@@ -121,10 +121,9 @@ function getFallbackTrail(stops: number): AITrailResponse {
 function validateWineryIds(trail: AITrailResponse): string[] {
   const validIds = new Set(WINERIES.map(w => w.id));
   return trail.wineries
-    .map(w => w.wineryId)
-    .filter(id => !validIds.has(id));
+    .map((stop) => stop.wineryId)
+    .filter((id) => !validIds.has(id));
 }
-
 export async function POST(request: NextRequest) {
   try {
     const input = AIInputSchema.parse(await request.json());
