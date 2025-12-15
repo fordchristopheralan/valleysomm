@@ -80,6 +80,7 @@ Return JSON only matching this exact structure:
   ]
 }`;
 }
+
 // Fallback trail if AI fails
 function getFallbackTrail(stops: number): AITrailResponse {
   const fallbackWineries = [
