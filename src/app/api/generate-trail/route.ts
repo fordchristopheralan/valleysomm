@@ -112,7 +112,7 @@ function getFallbackTrail(stops: number): AITrailResponse {
     summary: 'A carefully curated trail featuring the region\'s most beloved wineries, from educational estates to scenic mountain views.',
     totalStops: stops,
     estimatedDurationHours: stops + 1,
-    wineries: fallbackWineries.slice(0, stops)
+    wineries: fallbackWineries.slice(0, stops),
     id: Date.now().toString()  // ← ADD THIS LINE
   };
 }
