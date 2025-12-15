@@ -179,7 +179,6 @@ export default function TrailResults({ trail, onReset }: TrailResultsProps) {
           </div>
         </div>
 
-        {/* Wineries List */}
                 {/* Wineries List */}
         <div className="space-y-4">
           {trail.wineries
@@ -187,9 +186,10 @@ export default function TrailResults({ trail, onReset }: TrailResultsProps) {
               stop,
               winery: getWineryById(stop.wineryId),
             }))
-            .filter((item): item is { stop: { wineryId: string; order: number; suggestedArrivalTime: string; whyItsIncluded: string; whatToTry: string }; winery: NonNullable<ReturnType<typeof getWineryById>> } => 
-              item.winery !== undefined
-            )
+            .filter((item): item is { 
+              stop: { wineryId: string; order: number; suggestedArrivalTime: string; whyItsIncluded: string; whatToTry: string }; 
+              winery: NonNullable<ReturnType<typeof getWineryById>> 
+            } => item.winery !== undefined)
             .map(({ stop, winery }) => (
               <div
                 key={stop.wineryId}
