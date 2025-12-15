@@ -186,7 +186,7 @@ export default function TrailResults({ trail, onReset }: TrailResultsProps) {
   stop,
   winery: getWineryById(stop.wineryId)
 }))
-            .filter(({ winery }) => winery !== undefined)
+            .filter((item): item is { stop: any; winery: any } => item && item.winery !== undefined)
             .map(({ stop, winery }) => (
               <div
                 key={stop.wineryId}
