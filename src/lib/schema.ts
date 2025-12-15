@@ -1,17 +1,18 @@
 import { z } from 'zod';
 
 // Zod schemas for runtime validation
-// Ensures AI responses match expected structure
 
 export const AIInputSchema = z.object({
   vibe: z.string().min(1, 'Vibe is required'),
   winePreferences: z.array(z.string()).min(1, 'Select at least one wine preference'),
   dislikes: z.string().optional(),
   groupType: z.string().min(1, 'Group type is required'),
-  stops: z.number().int().min(3).max(5, 'Must be between 3 and 5 stops'),
+  stops: z.string().transform((val) => parseInt(val, 10)).pipe(
+    z.number().int().min(3).max(5, 'Must be between 3 and 5 stops')
+  ),
   originCity: z.string().min(1, 'Origin city is required'),
-  visitLength: z.string().min(1),
-  priorities: z.array(z.string())
+  visitLength: z.string().optional(), // Not in current questionnaire
+  priorities: z.array(z.string()).optional(), // Not in current questionnaire
 });
 
 export const TrailWineryStopSchema = z.object({
