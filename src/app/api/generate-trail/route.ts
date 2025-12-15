@@ -118,7 +118,7 @@ function getFallbackTrail(stops: number): AITrailResponse {
 }
 
 // Validate winery IDs exist in dataset
-function validateWineryIds(trail: AITrailResponse): string[] {
+function validateWineryIds(trail: { wineries: AITrailResponse['wineries'] }): string[] {
   const validIds = new Set(WINERIES.map(w => w.id));
   return trail.wineries
     .map(w => w.wineryId)
