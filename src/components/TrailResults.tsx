@@ -1,10 +1,18 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Wine, Clock, MapPin, Share2, Sparkles, ExternalLink, ChevronLeft } from 'lucide-react';
+import {
+  Wine,
+  Clock,
+  MapPin,
+  Share2,
+  Sparkles,
+  ExternalLink,
+  ChevronLeft,
+  Navigation,
+} from 'lucide-react';
 import type { AITrailResponse } from '@/lib/types';
 import { getWineryById } from '@/lib/wineries';
-import Link from 'next/link';
 
 type TrailResultsProps = {
   trail: AITrailResponse;
@@ -15,33 +23,27 @@ export default function TrailResults({ trail, onReset }: TrailResultsProps) {
   const [saved, setSaved] = useState(false);
 
   const handleShare = async () => {
-  // Track share in database
-  if (trail.id) {
-    try {
-      await fetch(`/api/trails/${trail.id}/share`, { method: 'POST' });
-    } catch (error) {
-      console.error('Failed to track share:', error);
+    if (trail?.id) {
+      try {
+        await fetch(`/api/trails/${trail.id}/share`, { method: 'POST' });
+      } catch (error) {
+        console.error('Failed to track share:', error);
+      }
     }
-  }
-  
-  const url = window.location.href;
-  const text = `Check out my ${trail.trailName} wine trail in Yadkin Valley!`;
-  
-  if (navigator.share) {
-    try {
-      await navigator.share({ 
-        title: trail.trailName, 
-        text, 
-        url 
-      });
-    } catch (err) {
-      // User cancelled or share failed
+
+    const url = window.location.href;
+    const text = `Check out my ${trail?.trailName || 'Yadkin Valley'} wine trail!`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: trail.trailName, text, url });
+      } catch {
+        copyToClipboard(url);
+      }
+    } else {
       copyToClipboard(url);
     }
-  } else {
-    copyToClipboard(url);
-  }
-};
+  };
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -49,14 +51,40 @@ export default function TrailResults({ trail, onReset }: TrailResultsProps) {
     setTimeout(() => setSaved(false), 2000);
   };
 
-  const handlePrint = () => {
-    window.print();
+  const handlePrint = () => window.print();
+
+  // One-click Google Maps navigation (starts from user’s current location)
+  const buildGoogleMapsLink = () => {
+    const orderedWineries = trail.wineries
+      .map((stop) => getWineryById(stop.wineryId))
+      .filter(Boolean) as { latitude: number; longitude: number }[];
+
+    if (orderedWineries.length < 2) return null;
+
+    const intermediates = orderedWineries.slice(0, -1);
+    const destination = orderedWineries[orderedWineries.length - 1];
+
+    const waypoints = intermediates
+      .map((w) => `${w.latitude},${w.longitude}`)
+      .join('|');
+
+    const params = new URLSearchParams({
+      api: '1',
+      travelmode: 'driving',
+      destination: `${destination.latitude},${destination.longitude}`,
+    });
+
+    if (waypoints) params.append('waypoints', waypoints);
+
+    return `https://www.google.com/maps/dir/?${params.toString()}`;
   };
+
+  const mapsUrl = buildGoogleMapsLink();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50">
       <div className="max-w-4xl mx-auto px-4 py-8">
-        {/* Back button */}
+        {/* Back Button */}
         {onReset && (
           <button
             onClick={onReset}
@@ -74,7 +102,7 @@ export default function TrailResults({ trail, onReset }: TrailResultsProps) {
               <div className="flex items-center gap-2 mb-3">
                 <Sparkles className="w-6 h-6 text-purple-600" />
                 <span className="text-sm font-semibold text-purple-600 uppercase tracking-wide">
-                  Your Custom Trail
+                  YOUR CUSTOM TRAIL
                 </span>
               </div>
               <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">
@@ -101,52 +129,65 @@ export default function TrailResults({ trail, onReset }: TrailResultsProps) {
               </div>
               <div>
                 <p className="text-sm text-gray-500">Duration</p>
-                <p className="text-xl font-bold text-gray-900">~{trail.estimatedDurationHours} hours</p>
+                <p className="text-xl font-bold text-gray-900">
+                  ~{trail.estimatedDurationHours} hours
+                </p>
               </div>
             </div>
           </div>
 
-          {/* Action Buttons */}
+          {/* Action Buttons – Now with Navigation! */}
           <div className="flex flex-wrap gap-3 mt-6 print:hidden">
+            {mapsUrl && (
+              <a
+                href={mapsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 min-w-[200px] py-3 px-6 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition-all transform hover:scale-[1.02] shadow-lg flex items-center gap-2"
+              >
+                <Navigation className="w-5 h-5" />
+                Open Full Trail in Google Maps
+              </a>
+            )}
+
             <button
               onClick={handleShare}
               className="flex-1 min-w-[200px] py-3 px-6 bg-purple-600 text-white rounded-xl font-semibold hover:bg-purple-700 transition-all transform hover:scale-[1.02] shadow-lg flex items-center justify-center gap-2"
             >
               <Share2 className="w-5 h-5" />
-              {saved ? '✓ Link Copied!' : 'Share Trail'}
+              {saved ? 'Link Copied!' : 'Share Trail'}
             </button>
+
             <button
               onClick={handlePrint}
               className="py-3 px-6 border-2 border-purple-600 text-purple-600 rounded-xl font-semibold hover:bg-purple-50 transition-all transform hover:scale-[1.02] flex items-center justify-center gap-2"
             >
-              📄 Print
+              Print
             </button>
           </div>
         </div>
 
         {/* Wineries List */}
         <div className="space-y-4">
-          {trail.wineries.map((stop, idx) => {
-            const winery = getWineryById(stop.wineryId);
-            if (!winery) {
-              console.error(`Winery not found: ${stop.wineryId}`);
-              return null;
-            }
-
-            return (
-              <div 
-                key={stop.wineryId} 
+          {trail.wineries
+            .map((stop) => ({
+              stop,
+              winery: getWineryById(stop.wineryId),
+            }))
+            .filter(({ winery }) => winery !== undefined)
+            .map(({ stop, winery }) => (
+              <div
+                key={stop.wineryId}
                 className="bg-white rounded-2xl shadow-lg overflow-hidden transition-all hover:shadow-xl print:shadow-none print:break-inside-avoid"
               >
                 <div className="p-6">
-                  {/* Header with Order Number */}
                   <div className="flex items-start gap-4 mb-4">
                     <div className="w-14 h-14 rounded-full bg-gradient-to-br from-purple-600 to-pink-600 text-white flex items-center justify-center font-bold text-xl shadow-lg flex-shrink-0">
                       {stop.order}
                     </div>
                     <div className="flex-1">
                       <h3 className="text-2xl font-bold text-gray-900 mb-1">
-                        {winery.name}
+                        {winery!.name}
                       </h3>
                       <p className="text-sm text-gray-500 flex items-center gap-2">
                         <Clock className="w-4 h-4" />
@@ -155,10 +196,8 @@ export default function TrailResults({ trail, onReset }: TrailResultsProps) {
                     </div>
                   </div>
 
-                  {/* Description */}
-                  <p className="text-gray-600 mb-4">{winery.description}</p>
+                  <p className="text-gray-600 mb-4">{winery!.description}</p>
 
-                  {/* Why Included - Highlighted */}
                   <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-4 mb-4">
                     <p className="text-sm font-semibold text-purple-900 mb-1 flex items-center gap-2">
                       <Sparkles className="w-4 h-4" />
@@ -169,41 +208,38 @@ export default function TrailResults({ trail, onReset }: TrailResultsProps) {
                     </p>
                   </div>
 
-                  {/* What to Try */}
                   <div className="bg-gray-50 rounded-lg p-4 mb-4">
                     <p className="text-sm font-semibold text-gray-900 mb-1">
-                      🍷 What to try:
+                      What to try:
                     </p>
                     <p className="text-sm text-gray-700">{stop.whatToTry}</p>
                   </div>
 
-                  {/* Tags and Features */}
                   <div className="flex flex-wrap gap-2 mb-4">
-                    {winery.vibeTags.slice(0, 3).map(tag => (
-                      <span 
-                        key={tag} 
+                    {winery!.vibeTags.slice(0, 3).map((tag) => (
+                      <span
+                        key={tag}
                         className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium"
                       >
                         {tag}
                       </span>
                     ))}
-                    {winery.scenic && (
+                    {winery!.scenic && (
                       <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium flex items-center gap-1">
                         <MapPin className="w-3 h-3" />
                         Scenic views
                       </span>
                     )}
-                    {winery.lunchNearby && (
+                    {winery!.lunchNearby && (
                       <span className="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-xs font-medium">
-                        🍽️ Lunch nearby
+                        Lunch nearby
                       </span>
                     )}
                   </div>
 
-                  {/* Website Link */}
-                  {winery.website && (
+                  {winery!.website && (
                     <a
-                      href={winery.website}
+                      href={winery!.website}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-2 text-purple-600 hover:text-purple-700 font-medium transition-colors print:hidden"
@@ -214,8 +250,7 @@ export default function TrailResults({ trail, onReset }: TrailResultsProps) {
                   )}
                 </div>
               </div>
-            );
-          })}
+            ))}
         </div>
 
         {/* Map Placeholder */}
@@ -224,40 +259,48 @@ export default function TrailResults({ trail, onReset }: TrailResultsProps) {
             <MapPin className="w-6 h-6 text-purple-600" />
             Your Route Map
           </h3>
-          <div className="bg-gray-100 rounded-lg h-64 flex items-center justify-center">
+          <div className="bg-gray-100 rounded-lg h-64 flex items-center justify-center print:hidden">
             <div className="text-center text-gray-500">
               <MapPin className="w-12 h-12 mx-auto mb-2 opacity-50" />
               <p className="font-medium">Interactive map coming soon</p>
-              <p className="text-sm mt-1">Use your favorite maps app to navigate between stops</p>
+              <p className="text-sm mt-1">
+                Tap the green button above for instant navigation
+              </p>
             </div>
           </div>
         </div>
 
-        {/* Tips Section */}
+        {/* Winter Tips – December 2025 */}
         <div className="bg-white rounded-2xl shadow-xl p-8 mt-6 print:break-inside-avoid">
           <h3 className="text-xl font-bold text-gray-900 mb-4">
-            💡 Tips for Your Wine Trail
+            Winter Tips for Your Yadkin Valley Trail (Dec 2025)
           </h3>
           <ul className="space-y-3 text-gray-700">
             <li className="flex items-start gap-3">
               <span className="text-purple-600 font-bold">•</span>
-              <span>Start early (around 11 AM) to enjoy the full experience without rushing</span>
+              <span>Most wineries open at noon or 1 PM on Sundays and close at 5 PM — start midday to fit everything in before sunset (~5:15 PM)</span>
             </li>
             <li className="flex items-start gap-3">
               <span className="text-purple-600 font-bold">•</span>
-              <span>Designate a driver or consider hiring a wine tour service</span>
+              <span>Cozy indoor tastings are perfect now — hearty reds shine, and many spots have holiday lights & events</span>
             </li>
             <li className="flex items-start gap-3">
               <span className="text-purple-600 font-bold">•</span>
-              <span>Call ahead to confirm hours and availability, especially for groups</span>
+              <span>
+                <strong>Yadkin Valley Winter Wine & Beer Passport</strong> is active (through March 30, 2025) — free tastings at 9 wineries + discounts!
+              </span>
             </li>
             <li className="flex items-start gap-3">
               <span className="text-purple-600 font-bold">•</span>
-              <span>Bring a cooler if you plan to purchase bottles along the way</span>
+              <span>Always call ahead or check websites/Facebook for exact hours & reservations</span>
             </li>
             <li className="flex items-start gap-3">
               <span className="text-purple-600 font-bold">•</span>
-              <span>Stay hydrated and have snacks between stops</span>
+              <span>Dress in layers and bring a designated driver — roads are scenic but winding</span>
+            </li>
+            <li className="flex items-start gap-3">
+              <span className="text-purple-600 font-bold">•</span>
+              <span>Winter perk: fewer crowds = more personal attention!</span>
             </li>
           </ul>
         </div>
@@ -276,28 +319,18 @@ export default function TrailResults({ trail, onReset }: TrailResultsProps) {
         <div className="text-center mt-8 text-gray-500 text-sm print:mt-6">
           <p>Created by Valley Somm • Your AI Wine Trail Guide</p>
           <p className="mt-1">Discover Yadkin Valley, North Carolina</p>
-	  <p>© 2025 Yadkin Data Partners LLC. All rights reserved.</p>
+          <p>© 2025 Yadkin Data Partners LLC. All rights reserved.</p>
         </div>
       </div>
 
       {/* Print Styles */}
       <style jsx global>{`
         @media print {
-          body {
-            background: white;
-          }
-          .print\\:hidden {
-            display: none !important;
-          }
-          .print\\:shadow-none {
-            box-shadow: none !important;
-          }
-          .print\\:break-inside-avoid {
-            break-inside: avoid;
-          }
-          .print\\:break-before-page {
-            break-before: page;
-          }
+          body { background: white; }
+          .print\\:hidden { display: none !important; }
+          .print\\:shadow-none { box-shadow: none !important; }
+          .print\\:break-inside-avoid { break-inside: avoid; }
+          .print\\:break-before-page { break-before: page; }
         }
       `}</style>
     </div>
