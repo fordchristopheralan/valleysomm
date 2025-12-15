@@ -218,11 +218,11 @@ Do not invent any new ones. If unsure, use 'shelton', 'jolo', or 'raffaldini'.`
       id: trailId
     });
 
-  } catch (error) {
+    } catch (error) {
     console.error('Trail generation error:', error);
 
-    const fallback = getFallbackTrail(3); // default to 3 stops in worst-case scenario
-    let trailId: string;
+    const fallback = getFallbackTrail(3);
+    let trailId = nanoid(); // Always have a short ID
 
     const metadata = {
       userAgent: request.headers.get('user-agent') || undefined,
@@ -232,10 +232,12 @@ Do not invent any new ones. If unsure, use 'shelton', 'jolo', or 'raffaldini'.`
         undefined
     };
 
+    // Optional: try to save fallback if possible
     try {
-      trailId = await saveTrail(input, fallback, metadata);
+      trailId = await saveTrail(null, fallback, metadata);
     } catch (dbError) {
-      trailId = nanoid();
+      console.warn('Fallback DB save failed, using generated ID:', dbError);
+      // trailId remains the nanoid() from above
     }
 
     return NextResponse.json({
