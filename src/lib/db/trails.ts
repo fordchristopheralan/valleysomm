@@ -99,18 +99,32 @@ export async function getTrailById(id: string): Promise<StoredTrail | null> {
     if (result.length === 0) return null;
     
     const row = result[0];
+
     return {
-      ...row,
+      id: row.id,
+      createdAt: row.createdAt,
+      vibe: row.vibe,
+      winePreferences: row.winePreferences,
+      groupType: row.groupType,
+      stops: row.stops,
+      originCity: row.originCity,
+      specialRequests: row.specialRequests ?? undefined,
+      occasion: row.occasion ?? undefined,
+      trailName: row.trailName,
+      summary: row.summary,
+      estimatedDuration: row.estimatedDuration,
       wineries: typeof row.wineries === 'string' 
         ? JSON.parse(row.wineries) 
-        : row.wineries
+        : row.wineries,
+      viewCount: row.viewCount,
+      sharedCount: row.sharedCount,
+      lastViewedAt: row.lastViewedAt ?? undefined,
     };
   } catch (error) {
     console.error('Failed to get trail:', error);
     return null;
   }
 }
-
 // Increment view count
 export async function incrementViewCount(
   id: string,
