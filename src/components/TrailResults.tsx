@@ -66,9 +66,9 @@ export default function TrailResults({ trail, onReset }: TrailResultsProps) {
   const handlePrint = () => window.print();
 
   // One-click Google Maps navigation
-    const buildGoogleMapsLink = () => {
+  const buildGoogleMapsLink = () => {
     const orderedWineries = trail.wineries
-      .map((stop: { wineryId: string }) => getWineryById(stop.wineryId))
+      .map((stop) => getWineryById(stop.wineryId))
       .filter(Boolean) as { latitude: number; longitude: number }[];
 
     if (orderedWineries.length < 2) return null;
@@ -77,7 +77,7 @@ export default function TrailResults({ trail, onReset }: TrailResultsProps) {
     const destination = orderedWineries[orderedWineries.length - 1];
 
     const waypoints = intermediates
-      .map((w: { latitude: number; longitude: number }) => `${w.latitude},${w.longitude}`)
+      .map((w) => `${w.latitude},${w.longitude}`)
       .join('|');
 
     const params = new URLSearchParams({
@@ -179,114 +179,169 @@ export default function TrailResults({ trail, onReset }: TrailResultsProps) {
           </div>
         </div>
 
-        {/* Winter Tips – Updated for December 15, 2025 */}
-        <div className="bg-white rounded-2xl shadow-xl p-8 mt-6 print:break-inside-avoid">
-          <h3 className="text-xl font-bold text-gray-900 mb-6">
+        {/* Wineries List - Now Fully Dynamic! */}
+        <div className="space-y-8 mb-8">
+          {trail.wineries
+            .map((stop) => ({
+              stop,
+              winery: getWineryById(stop.wineryId),
+            }))
+            .filter((item): item is { stop: typeof trail.wineries[0]; winery: NonNullable<ReturnType<typeof getWineryById>> } => 
+              item.winery !== undefined
+            )
+            .map(({ stop, winery }, index) => (
+              <div
+                key={stop.wineryId}
+                className="bg-white rounded-2xl shadow-xl overflow-hidden transition-all hover:shadow-2xl print:shadow-none print:break-inside-avoid"
+              >
+                {/* Winery Hero Image */}
+                <div className="h-64 bg-gray-200 relative overflow-hidden">
+                  <img
+                    src={
+                      winery.id === 'jolo'
+                        ? 'https://www.yadkinvalleync.com/media/original_images/jolo_vineyards_001a.jpg'
+                        : winery.id === 'laurel-gray'
+                        ? 'https://ncwine.org/wp-content/uploads/laurel-gray.jpg'
+                        : winery.id === 'raffaldini'
+                        ? 'https://assets.simpleviewinc.com/simpleview/image/upload/crm/winstonsalemnc/Raffaldini-Tuscan-Villa_cmyk_l_81BA8422-5056-A36A-0751D722BAA12CE1-81ba837a5056a36_81ba847d-5056-a36a-078c808a0aac31d5.jpg'
+                        : 'https://via.placeholder.com/800x400?text=' + winery.name
+                    }
+                    alt={winery.name}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute top-4 left-4 bg-white/90 backdrop-blur px-4 py-2 rounded-full shadow-lg">
+                    <span className="text-2xl font-bold text-purple-600">#{stop.order}</span>
+                  </div>
+                </div>
+
+                <div className="p-8">
+                  <div className="flex items-start justify-between mb-4">
+                    <div>
+                      <h3 className="text-3xl font-bold text-gray-900 mb-2">{winery.name}</h3>
+                      <p className="text-sm text-gray-500 flex items-center gap-2 mb-4">
+                        <Clock className="w-4 h-4" />
+                        Suggested arrival: {stop.suggestedArrivalTime}
+                      </p>
+                      <p className="text-gray-700 leading-relaxed mb-6">{winery.description}</p>
+                    </div>
+                  </div>
+
+                  {/* AI Recommendation */}
+                  <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-6 mb-6">
+                    <p className="font-semibold text-purple-900 mb-2 flex items-center gap-2">
+                      <Sparkles className="w-5 h-5" />
+                      Why Valley Somm picked this for you:
+                    </p>
+                    <p className="text-purple-800">{stop.whyItsIncluded}</p>
+                  </div>
+
+                  {/* What to Try */}
+                  <div className="bg-gray-50 rounded-xl p-6 mb-6">
+                    <p className="font-semibold text-gray-900 mb-2">🍷 What to try:</p>
+                    <p className="text-gray-700">{stop.whatToTry}</p>
+                  </div>
+
+                  {/* Tags & Badges */}
+                  <div className="flex flex-wrap gap-3 mb-6">
+                    {winery.vibeTags.slice(0, 4).map((tag) => (
+                      <span
+                        key={tag}
+                        className="px-4 py-2 bg-purple-100 text-purple-700 rounded-full text-sm font-medium"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                    {winery.scenic && (
+                      <span className="px-4 py-2 bg-green-100 text-green-700 rounded-full text-sm font-medium flex items-center gap-2">
+                        <MapPin className="w-4 h-4" />
+                        Scenic views
+                      </span>
+                    )}
+                    {winery.lunchNearby && (
+                      <span className="px-4 py-2 bg-orange-100 text-orange-700 rounded-full text-sm font-medium">
+                        🍽️ Lunch nearby
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Website Link */}
+                  {winery.website && (
+                    <a
+                      href={winery.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 text-purple-600 hover:text-purple-700 font-semibold transition-colors print:hidden"
+                    >
+                      Visit Website
+                      <ExternalLink className="w-5 h-5" />
+                    </a>
+                  )}
+                </div>
+              </div>
+            ))}
+        </div>
+
+        {/* Winter Tips – Updated for December 15, 2025 (Monday) */}
+        <div className="bg-white rounded-2xl shadow-xl p-8 mt-8 print:break-inside-avoid">
+          <h3 className="text-2xl font-bold text-gray-900 mb-6">
             ❄️ Winter Tips for Your Yadkin Valley Trail (December 2025)
           </h3>
 
-          {/* Holiday Vibes Gallery */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <img src="https://www.yadkinvalleync.com/media/images/agm_garden_2112-06701-2-web.max-700x500.jpg" alt="Holiday lights display in Yadkin Valley area" className="rounded-lg shadow-md object-cover h-64 w-full" />
-            <img src="https://carolinagetawaycabins.com/wp-content/uploads/2024/11/Yadkin-Valley-Lights-.jpg" alt="Festive holiday lights at a Yadkin Valley winery" className="rounded-lg shadow-md object-cover h-64 w-full" />
-            <img src="https://carolinagetawaycabins.com/wp-content/uploads/2024/11/Yadkin-Valley-Christmas-Lights.jpg" alt="Christmas lights illuminating Yadkin Valley scenery" className="rounded-lg shadow-md object-cover h-64 w-full" />
-            <img src="https://www.yadkinvalleync.com/media/original_images/Fairfield_Inn_Magic_of_Christmas_Elkin_NC.jpg" alt="Magic of Christmas holiday lights in Elkin" className="rounded-lg shadow-md object-cover h-64 w-full" />
+          {/* Holiday Lights Gallery */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <img src="https://www.yadkinvalleync.com/media/images/agm_garden_2112-06701-2-web.max-700x500.jpg" alt="Holiday lights in Yadkin Valley" className="rounded-xl shadow-lg object-cover h-80 w-full" />
+            <img src="https://carolinagetawaycabins.com/wp-content/uploads/2024/11/Yadkin-Valley-Lights-.jpg" alt="Festive winery holiday lights" className="rounded-xl shadow-lg object-cover h-80 w-full" />
+            <img src="https://carolinagetawaycabins.com/wp-content/uploads/2024/11/Yadkin-Valley-Christmas-Lights.jpg" alt="Christmas lights in the valley" className="rounded-xl shadow-lg object-cover h-80 w-full" />
+            <img src="https://www.yadkinvalleync.com/media/original_images/Fairfield_Inn_Magic_of_Christmas_Elkin_NC.jpg" alt="Magic of Christmas in Elkin" className="rounded-xl shadow-lg object-cover h-80 w-full" />
           </div>
 
-          <ul className="space-y-3 text-gray-700 mb-6">
-            <li className="flex items-start gap-3">
-              <span className="text-purple-600 font-bold">•</span>
-              <span>Today is Monday — most wineries are closed or by appointment only (a few open limited hours). Full hours typically Thursday–Sunday. Always verify!</span>
+          <ul className="space-y-4 text-gray-700 text-lg mb-8">
+            <li className="flex items-start gap-4">
+              <span className="text-purple-600 font-bold text-xl">•</span>
+              <span>Today is <strong>Monday</strong> — most wineries are closed or by appointment only (a few open limited hours). Full hours typically Thursday–Sunday. Always check ahead!</span>
             </li>
-            <li className="flex items-start gap-3">
-              <span className="text-purple-600 font-bold">•</span>
-              <span>Cozy indoor tastings are perfect — hearty reds shine in winter, with many spots featuring holiday lights & festive events</span>
+            <li className="flex items-start gap-4">
+              <span className="text-purple-600 font-bold text-xl">•</span>
+              <span>Cozy indoor tastings are perfect — hearty reds shine in winter, with many spots glowing with holiday lights & festive events</span>
             </li>
-            <li className="flex items-start gap-3">
-              <span className="text-purple-600 font-bold">•</span>
+            <li className="flex items-start gap-4">
+              <span className="text-purple-600 font-bold text-xl">•</span>
               <span>The <strong>Yadkin Valley Winter Wine & Beer Passport</strong> is active (Nov 29, 2024 – March 30, 2025) — tastings at 9 wineries + 3 breweries, plus lodging/food discounts</span>
             </li>
-            <li className="flex items-start gap-3">
-              <span className="text-purple-600 font-bold">•</span>
-              <span>Call ahead or check websites/Facebook for exact hours & reservations (sunset ~5:15 PM)</span>
+            <li className="flex items-start gap-4">
+              <span className="text-purple-600 font-bold text-xl">•</span>
+              <span>Call ahead or check websites/Facebook for exact hours (sunset ~5:15 PM)</span>
             </li>
-            <li className="flex items-start gap-3">
-              <span className="text-purple-600 font-bold">•</span>
+            <li className="flex items-start gap-4">
+              <span className="text-purple-600 font-bold text-xl">•</span>
               <span>Dress in layers and designate a driver — roads are beautiful but winding</span>
             </li>
-            <li className="flex items-start gap-3">
-              <span className="text-purple-600 font-bold">•</span>
-              <span>Winter bonus: fewer crowds mean more personal attention from staff!</span>
+            <li className="flex items-start gap-4">
+              <span className="text-purple-600 font-bold text-xl">•</span>
+              <span>Winter bonus: fewer crowds = more personal attention from staff!</span>
             </li>
           </ul>
 
-          {/* Dormant Vine Landscapes */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <img src="https://www.vaninblack.com/wp-content/uploads/2018/12/Dormant-Overmountain-Vineyard.jpg" alt="Dormant vines in a serene winter vineyard" className="rounded-lg shadow-md object-cover h-64 w-full" />
-            <img src="https://www.platypustours.com/wp-content/uploads/2022/01/landscape-g9f857f9b5_1280-1080x675.jpg" alt="Peaceful winter landscape with bare grape vines" className="rounded-lg shadow-md object-cover h-64 w-full" />
-            <img src="https://ancientpeaks.com/wp-content/uploads/2024/02/AP_Winter_Vineyard.jpg" alt="Quiet off-season vineyard in winter" className="rounded-lg shadow-md object-cover h-64 w-full" />
+          {/* Dormant Vines Gallery */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <img src="https://www.vaninblack.com/wp-content/uploads/2018/12/Dormant-Overmountain-Vineyard.jpg" alt="Dormant vines in winter" className="rounded-xl shadow-lg object-cover h-64 w-full" />
+            <img src="https://www.platypustours.com/wp-content/uploads/2022/01/landscape-g9f857f9b5_1280.jpg" alt="Peaceful winter vineyard" className="rounded-xl shadow-lg object-cover h-64 w-full" />
+            <img src="https://ancientpeaks.com/wp-content/uploads/2024/02/AP_Winter_Vineyard.jpg" alt="Quiet off-season vines" className="rounded-xl shadow-lg object-cover h-64 w-full" />
           </div>
         </div>
 
         {/* Map Placeholder */}
-        <div className="bg-white rounded-2xl shadow-xl p-8 mt-6 print:break-before-page">
-          <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <MapPin className="w-6 h-6 text-purple-600" />
+        <div className="bg-white rounded-2xl shadow-xl p-8 mt-8 print:break-before-page">
+          <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+            <MapPin className="w-7 h-7 text-purple-600" />
             Your Route Map
           </h3>
-          <div className="bg-gray-100 rounded-lg h-64 flex items-center justify-center print:hidden">
+          <div className="bg-gray-100 rounded-xl h-80 flex items-center justify-center print:hidden">
             <div className="text-center text-gray-500">
-              <MapPin className="w-12 h-12 mx-auto mb-2 opacity-50" />
-              <p className="font-medium">Interactive map coming soon</p>
-              <p className="text-sm mt-1">
-                Tap the green button above for instant navigation
-              </p>
+              <MapPin className="w-16 h-16 mx-auto mb-4 opacity-50" />
+              <p className="text-lg font-medium">Interactive map coming soon</p>
+              <p className="text-sm mt-2">Use the green button above for instant navigation!</p>
             </div>
-          </div>
-        </div>
-
-        {/* Winter Tips – Updated for December 14, 2025 */}
-        <div className="bg-white rounded-2xl shadow-xl p-8 mt-6 print:break-inside-avoid">
-          <h3 className="text-xl font-bold text-gray-900 mb-6">
-            ❄️ Winter Tips for Your Yadkin Valley Trail (December 2025)
-          </h3>
-
-          {/* Holiday Vibes Gallery */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-
-          </div>
-
-          <ul className="space-y-3 text-gray-700 mb-6">
-            <li className="flex items-start gap-3">
-              <span className="text-purple-600 font-bold">•</span>
-              <span>Today is Sunday — most wineries open at noon or 1 PM and close at 5 PM (sunset around 5:15 PM). Plan a midday start!</span>
-            </li>
-            <li className="flex items-start gap-3">
-              <span className="text-purple-600 font-bold">•</span>
-              <span>Cozy indoor tastings are ideal now — hearty reds pair perfectly with the season, and many spots have holiday lights & events</span>
-            </li>
-            <li className="flex items-start gap-3">
-              <span className="text-purple-600 font-bold">•</span>
-              <span>The <strong>Yadkin Valley Winter Wine & Beer Passport</strong> is active (through March 30, 2025) — 9 wineries offer tastings + discounts on lodging/food</span>
-            </li>
-            <li className="flex items-start gap-3">
-              <span className="text-purple-600 font-bold">•</span>
-              <span>Always call ahead or check websites/Facebook for exact hours & reservations (e.g., Childress open earlier; others noon-5)</span>
-            </li>
-            <li className="flex items-start gap-3">
-              <span className="text-purple-600 font-bold">•</span>
-              <span>Dress in layers and designate a driver — roads are beautiful but winding</span>
-            </li>
-            <li className="flex items-start gap-3">
-              <span className="text-purple-600 font-bold">•</span>
-              <span>Winter bonus: fewer crowds mean more personal attention from staff!</span>
-            </li>
-          </ul>
-
-          {/* Dormant Vine Landscapes */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-
-
           </div>
         </div>
 
@@ -294,17 +349,17 @@ export default function TrailResults({ trail, onReset }: TrailResultsProps) {
         {onReset && (
           <button
             onClick={onReset}
-            className="w-full mt-6 py-4 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:border-gray-400 hover:bg-gray-50 transition-all print:hidden"
+            className="w-full mt-8 py-5 border-2 border-gray-300 text-gray-700 rounded-2xl text-lg font-semibold hover:border-gray-400 hover:bg-gray-50 transition-all print:hidden"
           >
             Plan Another Trail
           </button>
         )}
 
         {/* Footer */}
-        <div className="text-center mt-8 text-gray-500 text-sm print:mt-6">
+        <div className="text-center mt-12 text-gray-500 text-sm print:mt-8">
           <p>Created by Valley Somm • Your AI Wine Trail Guide</p>
-          <p className="mt-1">Discover Yadkin Valley, North Carolina</p>
-          <p>© 2025 Yadkin Data Partners LLC. All rights reserved.</p>
+          <p className="mt-2">Discover Yadkin Valley, North Carolina</p>
+          <p className="mt-2">© 2025 Yadkin Data Partners LLC. All rights reserved.</p>
         </div>
       </div>
 
