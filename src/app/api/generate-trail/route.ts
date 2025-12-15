@@ -218,27 +218,11 @@ Do not invent any new ones. If unsure, use 'shelton', 'jolo', or 'raffaldini'.`
       id: trailId
     });
 
-    } catch (error) {
+      } catch (error) {
     console.error('Trail generation error:', error);
 
     const fallback = getFallbackTrail(3);
-    let trailId = nanoid(); // Always have a short ID
-
-    const metadata = {
-      userAgent: request.headers.get('user-agent') || undefined,
-      ipAddress: 
-        request.headers.get('x-forwarded-for')?.split(',')[0].trim() ||
-        request.headers.get('x-real-ip') ||
-        undefined
-    };
-
-    // Optional: try to save fallback if possible
-    try {
-      trailId = await saveTrail(null, fallback, metadata);
-    } catch (dbError) {
-      console.warn('Fallback DB save failed, using generated ID:', dbError);
-      // trailId remains the nanoid() from above
-    }
+    const trailId = nanoid(); // Always generate a short ID — no DB needed in worst case
 
     return NextResponse.json({
       ...fallback,
