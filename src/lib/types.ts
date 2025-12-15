@@ -1,10 +1,10 @@
 // Core data types for Valley Somm
 // DO NOT MODIFY - These match the PRD specification exactly
-import { z } from 'zod';  // ← ADD THIS LINE
+import { z } from 'zod';
 import { AIInputSchema, AITrailResponseSchema } from './schema';
 
 export type AIInput = z.infer<typeof AIInputSchema>;
-export type AITrailResponse = z.infer<typeof AITrailResponseSchema>;
+export type AITrailResponse = z.infer<typeof AITrailResponseSchema> & { id: string };  // ← ADD & { id: string }
 
 export type Winery = {
   id: string;
