@@ -29,6 +29,8 @@ Return JSON ONLY in the provided schema.`;
 
 // Build user prompt with preferences and winery data
 function buildUserPrompt(input: AIInput): string {
+  const validIds = WINERIES.map(w => w.id).sort().join(', ');
+
   return `Visitor preferences:
 - Vibe: ${input.vibe}
 - Wine preferences: ${input.winePreferences.join(', ')}
@@ -37,13 +39,19 @@ function buildUserPrompt(input: AIInput): string {
 - Traveling from: ${input.originCity}
 ${input.dislikes ? `- Dislikes: ${input.dislikes}` : ''}
 
-Available wineries:
+Available wineries (ONLY use these exact IDs):
 ${JSON.stringify(WINERIES, null, 2)}
+
+CRITICAL RULES - YOU MUST FOLLOW EXACTLY:
+1. You may ONLY use these exact winery IDs: ${validIds}
+2. Do NOT invent, typo, or modify any IDs (e.g., no 'surrystore', 'surry', etc.)
+3. Every "wineryId" in your response MUST appear exactly as listed above
+4. If you cannot find matching wineries, use safe defaults like 'shelton', 'jolo', 'raffaldini'
 
 Requirements:
 - Choose exactly ${input.stops} wineries from the dataset above
 - Optimize for minimal driving distance
-- Match the requested vibe and wine preferences
+- Match the requested vibe and wine preferences as closely as possible
 - Suggest a logical visit order (morning to evening)
 - Use friendly, non-technical language
 - Provide specific arrival times (e.g., "11:00 AM", "1:30 PM")
@@ -51,22 +59,21 @@ Requirements:
 
 Return JSON only matching this exact structure:
 {
-  "trailName": "Creative name for the trail (e.g., 'Mountain View Wine Adventure')",
+  "trailName": "Creative name for the trail",
   "summary": "2-3 sentence overview of the day",
   "totalStops": ${input.stops},
   "estimatedDurationHours": ${input.stops + 1},
   "wineries": [
     {
-      "wineryId": "exact ID from dataset (e.g., 'jolo')",
+      "wineryId": "EXACT ID from list above",
       "order": 1,
-      "whyItsIncluded": "Specific reason matching their preferences",
-      "suggestedArrivalTime": "Time in format like '11:00 AM'",
+      "whyItsIncluded": "Specific reason matching preferences",
+      "suggestedArrivalTime": "Time like '11:00 AM'",
       "whatToTry": "Specific wine recommendation"
     }
   ]
 }`;
 }
-
 // Fallback trail if AI fails
 function getFallbackTrail(stops: number): AITrailResponse {
   const fallbackWineries = [
@@ -184,7 +191,9 @@ export async function POST(request: Request) {
           { role: 'system', content: SYSTEM_PROMPT },
           { 
             role: 'user', 
-            content: buildUserPrompt(input) + '\n\nIMPORTANT: Only use winery IDs that appear in the dataset above. Do not make up IDs.' 
+            content: buildUserPrompt(input) + `\n\nYOU PREVIOUSLY USED INVALID IDs LIKE 'surrystore'. THIS IS NOT ALLOWED. 
+You MUST only use these exact IDs: ${validIds.join(', ')}. 
+Do not invent any new ones. If unsure, use 'shelton', 'jolo', or 'raffaldini'.`
           }
         ],
         model: 'llama-3.1-8b-instant',
