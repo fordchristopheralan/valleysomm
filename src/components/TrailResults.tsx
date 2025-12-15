@@ -291,20 +291,6 @@ export default function TrailResults({ trail, onReset }: TrailResultsProps) {
           {/* Holiday Vibes Gallery */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
 
-<grok-card data-id="798375" data-type="image_card"></grok-card>
-
-
-
-<grok-card data-id="6ef5f9" data-type="image_card"></grok-card>
-
-
-
-<grok-card data-id="4cedd6" data-type="image_card"></grok-card>
-
-
-
-<grok-card data-id="b5ba23" data-type="image_card"></grok-card>
-
           </div>
 
           <ul className="space-y-3 text-gray-700 mb-6">
@@ -337,15 +323,6 @@ export default function TrailResults({ trail, onReset }: TrailResultsProps) {
           {/* Dormant Vine Landscapes */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 
-<grok-card data-id="6b82e7" data-type="image_card"></grok-card>
-
-
-
-<grok-card data-id="b927ab" data-type="image_card"></grok-card>
-
-
-
-<grok-card data-id="c701aa" data-type="image_card"></grok-card>
 
           </div>
         </div>
