@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import Groq from 'groq-sdk';
 import { WINERIES } from '@/lib/wineries';
 import { AIInputSchema, AITrailResponseSchema } from '@/lib/schema';
