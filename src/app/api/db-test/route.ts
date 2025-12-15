@@ -29,7 +29,7 @@ export async function GET() {
     return NextResponse.json({
       status: 'error',
       error: error instanceof Error ? error.message : 'Unknown error',
-      message: 'Database connection failed'
+      message: 'Database connection failed, try again!'
     }, { status: 500 });
   }
 }
