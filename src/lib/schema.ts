@@ -48,7 +48,7 @@ export const DayItinerarySchema = z.object({
     lunch: z.string().optional(),
     dinner: z.string().optional(),
     accommodation: z.string().optional(),
-  }).optional(),
+  }),
 });
 
 // Weather information schema
