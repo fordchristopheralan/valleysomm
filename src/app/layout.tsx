@@ -14,17 +14,70 @@ const montserrat = Montserrat({
   weight: ["400", "600"],
 });
 
-export const metadata = {
-  title: 'Valley Somm - AI Wine Trail Guide for Yadkin Valley',
-  description: 'Get a personalized wine trail in Yadkin Valley, NC. Answer 5 questions and discover your perfect wine tasting route.',
-  openGraph: {
-    title: 'Valley Somm - Your AI Wine Trail Guide',
-    description: 'Personalized wine trails for Yadkin Valley',
-    url: 'https://www.valleysomm.com',
-    siteName: 'Valley Somm',
-    images: ['/hero.jpg'],
+export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
+  title: {
+    default: 'Valley Somm - AI-Powered Yadkin Valley Wine Trails',
+    template: '%s | Valley Somm'
   },
-}
+  description: 'Create personalized wine trails through North Carolina\'s Yadkin Valley in under 2 minutes. AI-powered recommendations matching your taste, schedule, and preferences.',
+  keywords: [
+    'Yadkin Valley wineries',
+    'North Carolina wine trails',
+    'wine tasting NC',
+    'Yadkin Valley wine tours',
+    'AI wine recommendations',
+    'personalized wine trail',
+    'NC wine country',
+    'Elkin NC wineries',
+    'Mount Airy wineries'
+  ],
+  authors: [{ name: 'Valley Somm' }],
+  creator: 'Valley Somm',
+  publisher: 'Valley Somm',
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    url: '/',
+    siteName: 'Valley Somm',
+    title: 'Valley Somm - AI-Powered Yadkin Valley Wine Trails',
+    description: 'Create personalized wine trails through North Carolina\'s Yadkin Valley in under 2 minutes.',
+    images: [
+      {
+        url: '/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Valley Somm - Yadkin Valley Wine Trails',
+      }
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Valley Somm - AI-Powered Wine Trails',
+    description: 'Personalized Yadkin Valley wine trails in under 2 minutes',
+    images: ['/og-image.jpg'],
+    creator: '@valleysomm',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  verification: {
+    google: 'your-google-verification-code',
+  },
+};
 
 export default function RootLayout({
   children,

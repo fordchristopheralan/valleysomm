@@ -6,6 +6,26 @@ import type { AIInput, AITrailResponse, WineryFromDB } from '@/lib/types';
 import { saveTrail } from '@/lib/db/trails';
 import { customAlphabet } from 'nanoid';
 
+
+// Timeout configuration
+const GENERATION_TIMEOUT = 45000; // 45 seconds
+const GROQ_TIMEOUT = 30000; // 30 seconds for Groq API
+
+// Timeout wrapper utility
+function withTimeout<T>(
+  promise: Promise<T>,
+  timeoutMs: number,
+  errorMessage: string
+): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) =>
+      setTimeout(() => reject(new Error(errorMessage)), timeoutMs)
+    ),
+  ]);
+}
+
+
 // Short ID generator — 10 chars, lowercase letters + numbers
 const nanoid = customAlphabet('abcdefghijklmnopqrstuvwxyz0123456789', 10);
 

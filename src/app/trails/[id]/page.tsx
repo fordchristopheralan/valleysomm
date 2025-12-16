@@ -4,6 +4,48 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import TrailResults from '@/components/TrailResults';
 import type { AITrailResponse } from '@/lib/types';
+import type { Metadata } from 'next';
+
+type Props = {
+  params: { id: string };
+};
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const trail = await getTrailById(params.id);
+  
+  if (!trail) {
+    return {
+      title: 'Trail Not Found',
+    };
+  }
+
+  const wineryNames = trail.stops.map(s => s.winery.name).join(', ');
+  
+  return {
+    title: trail.trailName,
+    description: `${trail.summary} Featuring ${wineryNames}`,
+    openGraph: {
+      title: trail.trailName,
+      description: trail.summary,
+      type: 'article',
+      url: `/trails/${params.id}`,
+      images: [
+        {
+          url: '/og-trail-image.jpg', // Can generate dynamic OG images later
+          width: 1200,
+          height: 630,
+          alt: trail.trailName,
+        }
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: trail.trailName,
+      description: trail.summary,
+      images: ['/og-trail-image.jpg'],
+    },
+  };
+}
 
 export default function TrailPage() {
   const params = useParams();
