@@ -1,130 +1,63 @@
-'use client';
-
-import { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import TrailResults from '@/components/TrailResults';
-import type { AITrailResponse } from '@/lib/types';
-import type { Metadata } from 'next';
+import { Metadata } from 'next';
+import TrailPageClient from './TrailPageClient';
 
 type Props = {
   params: { id: string };
 };
 
+// Server-side metadata generation
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const trail = await getTrailById(params.id);
-  
-  if (!trail) {
-    return {
-      title: 'Trail Not Found',
-    };
-  }
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/trails/${params.id}`,
+      { cache: 'no-store' }
+    );
 
-  const wineryNames = trail.stops.map(s => s.winery.name).join(', ');
-  
-  return {
-    title: trail.trailName,
-    description: `${trail.summary} Featuring ${wineryNames}`,
-    openGraph: {
-      title: trail.trailName,
-      description: trail.summary,
-      type: 'article',
-      url: `/trails/${params.id}`,
-      images: [
-        {
-          url: '/og-trail-image.jpg', // Can generate dynamic OG images later
-          width: 1200,
-          height: 630,
-          alt: trail.trailName,
-        }
-      ],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: trail.trailName,
-      description: trail.summary,
-      images: ['/og-trail-image.jpg'],
-    },
-  };
-}
-
-export default function TrailPage() {
-  const params = useParams();
-  const router = useRouter();
-  const [trail, setTrail] = useState<AITrailResponse | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-
-  useEffect(() => {
-    if (!params?.id) {
-      setError(true);
-      setLoading(false);
-      return;
+    if (!response.ok) {
+      return {
+        title: 'Trail Not Found | Valley Somm',
+        description: 'This wine trail could not be found.',
+      };
     }
 
-    const trailId = params.id as string;
+    const trail = await response.json();
 
-    const fetchTrail = async () => {
-      try {
-        const response = await fetch(`/api/trails/${trailId}`, {
-          cache: 'no-store'
-        });
+    const wineryNames = trail.stops?.map((s: any) => s.winery.name).join(', ') || '';
 
-        if (response.ok) {
-          const data = await response.json();
-          setTrail(data);
-
-          // Track view
-          await fetch(`/api/trails/${trailId}/view`, { 
-            method: 'POST',
-            cache: 'no-store'
-          });
-        } else {
-          throw new Error(`Trail not found (status ${response.status})`);
-        }
-      } catch (err) {
-        console.error('Failed to load trail:', err);
-        setError(true);
-      } finally {
-        setLoading(false);
-      }
+    return {
+      title: `${trail.trailName} | Valley Somm`,
+      description: `${trail.summary} Featuring ${wineryNames}`,
+      openGraph: {
+        title: trail.trailName,
+        description: trail.summary,
+        type: 'article',
+        url: `/trails/${params.id}`,
+        images: [
+          {
+            url: '/og-image.jpg',
+            width: 1200,
+            height: 630,
+            alt: trail.trailName,
+          }
+        ],
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: trail.trailName,
+        description: trail.summary,
+        images: ['/og-image.jpg'],
+      },
     };
-
-    fetchTrail();
-  }, [params?.id]);
-
-  const handleReset = () => {
-    router.push('/');
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-xl font-semibold text-gray-900">Loading your trail...</p>
-        </div>
-      </div>
-    );
+  } catch (error) {
+    console.error('Error generating metadata:', error);
+    return {
+      title: 'Valley Somm Wine Trails',
+      description: 'AI-powered wine trail planning for Yadkin Valley',
+    };
   }
+}
 
-  if (error || !trail) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 flex items-center justify-center px-4">
-        <div className="text-center max-w-md">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Trail Not Found</h1>
-          <p className="text-gray-600 mb-6">
-            We couldn't find this trail. It may have been deleted or the link is incorrect.
-          </p>
-          <button
-            onClick={handleReset}
-            className="bg-purple-600 text-white px-8 py-3 rounded-xl font-semibold hover:bg-purple-700 transition-colors"
-          >
-            Create a New Trail
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  return <TrailResults trail={trail} onReset={handleReset} />;
+// Server component that renders the client component
+export default function TrailPage({ params }: Props) {
+  return <TrailPageClient params={params} />;
 }
