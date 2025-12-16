@@ -8,10 +8,8 @@ type Props = {
 // Server-side metadata generation
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/trails/${params.id}`,
-      { cache: 'no-store' }
-    );
+    import { getTrailById } from '@/lib/db/trails';
+const trail = await getTrailById(params.id);
 
     if (!response.ok) {
       return {
