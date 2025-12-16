@@ -248,7 +248,7 @@ export function getSeasonalHighlights(date: string): string[] {
   
   const highlights: { [key: number]: string[] } = {
     0: ['Cozy indoor tastings', 'Bold red wines', 'Fewer crowds', 'Winter specials'],
-    1: ['Valentine\\'s Day events', 'Intimate tastings', 'Winter wine sales'],
+    1: ['Valentine\'s Day events', 'Intimate tastings', 'Winter wine sales'],
     2: ['Early spring blooms', 'Barrel tastings', 'Vineyard walks'],
     3: ['Spring festivals', 'New release wines', 'Outdoor patios open', 'Vineyard tours'],
     4: ['Memorial Day events', 'Outdoor concerts', 'Picnic season', 'Rosé season begins'],
@@ -258,7 +258,7 @@ export function getSeasonalHighlights(date: string): string[] {
     8: ['HARVEST SEASON!', 'Grape picking', 'Crush events', 'Harvest festivals', 'Behind-the-scenes tours'],
     9: ['Fall foliage', 'Harvest celebrations', 'Pumpkin patches nearby', 'Barrel tastings', 'Best weather of the year!'],
     10: ['Thanksgiving events', 'Wine & food pairings', 'Holiday wine sales', 'Cozy season begins'],
-    11: ['Holiday events', 'Gift baskets', 'Festive decorations', 'New Year\\'s celebrations', 'Winter wine releases']
+    11: ['Holiday events', 'Gift baskets', 'Festive decorations', 'New Year\'s celebrations', 'Winter wine releases']
   };
 
   return highlights[month] || [];
