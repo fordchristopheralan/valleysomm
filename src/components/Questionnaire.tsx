@@ -34,7 +34,7 @@ const QUESTIONS: Question[] = [
   // 2. Occasion (establishes mood/vibe before wine preferences)
   {
     id: 'occasion',
-    question: 'What's bringing you to Yadkin Valley?',
+    question: 'What\'s bringing you to Yadkin Valley?',
     icon: <PartyPopper className="w-6 h-6" />,
     type: 'single',
     options: [
@@ -52,7 +52,7 @@ const QUESTIONS: Question[] = [
   // 3. Vibe (now informed by occasion)
   {
     id: 'vibe',
-    question: 'What's your ideal wine tasting vibe?',
+    question: 'What\'s your ideal wine tasting vibe?',
     icon: <Wine className="w-6 h-6" />,
     type: 'single',
     options: [
@@ -81,7 +81,7 @@ const QUESTIONS: Question[] = [
   // 5. Group Type
   {
     id: 'groupType',
-    question: 'Who's joining you?',
+    question: 'Who\'s joining you?',
     icon: <Users className="w-6 h-6" />,
     type: 'single',
     options: [
