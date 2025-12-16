@@ -12,8 +12,13 @@ export type StoredTrail = {
   groupType: string;
   stops: number;
   originCity: string;
-  specialRequests?: string;
+  
+  // Enhanced questionnaire fields
+  visitDateStart?: string;
+  visitDateEnd?: string;
   occasion?: string;
+  specialRequests?: string;
+  
   trailName: string;
   summary: string;
   estimatedDuration: number;
@@ -45,7 +50,8 @@ export async function saveTrail(
     await sql`
       INSERT INTO trails (
         id, vibe, wine_preferences, group_type, stops, origin_city,
-        special_requests, trail_name, summary, estimated_duration,
+        visit_date_start, visit_date_end, occasion, special_requests,
+        trail_name, summary, estimated_duration,
         wineries, user_agent, ip_address
       ) VALUES (
         ${id},
@@ -54,7 +60,10 @@ export async function saveTrail(
         ${input.groupType},
         ${input.stops},
         ${input.originCity},
-        ${null},
+        ${input.visitDateStart || null},
+        ${input.visitDateEnd || null},
+        ${input.occasion || null},
+        ${input.specialRequests || null},
         ${trail.trailName},
         ${trail.summary},
         ${trail.estimatedDurationHours},
@@ -83,8 +92,10 @@ export async function getTrailById(id: string): Promise<StoredTrail | null> {
         group_type as "groupType",
         stops,
         origin_city as "originCity",
-        special_requests as "specialRequests",
+        visit_date_start as "visitDateStart",
+        visit_date_end as "visitDateEnd",
         occasion,
+        special_requests as "specialRequests",
         trail_name as "trailName",
         summary,
         estimated_duration as "estimatedDuration",
@@ -108,8 +119,10 @@ export async function getTrailById(id: string): Promise<StoredTrail | null> {
       groupType: row.groupType,
       stops: row.stops,
       originCity: row.originCity,
-      specialRequests: row.specialRequests ?? undefined,
+      visitDateStart: row.visitDateStart ?? undefined,
+      visitDateEnd: row.visitDateEnd ?? undefined,
       occasion: row.occasion ?? undefined,
+      specialRequests: row.specialRequests ?? undefined,
       trailName: row.trailName,
       summary: row.summary,
       estimatedDuration: row.estimatedDuration,

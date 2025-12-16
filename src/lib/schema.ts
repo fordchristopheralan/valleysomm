@@ -13,6 +13,12 @@ export const AIInputSchema = z.object({
   originCity: z.string().min(1, 'Origin city is required'),
   visitLength: z.string().optional(), // Not in current questionnaire
   priorities: z.array(z.string()).optional(), // Not in current questionnaire
+  
+  // NEW FIELDS - Enhanced questionnaire
+  visitDateStart: z.string().optional(), // ISO date string
+  visitDateEnd: z.string().optional(), // ISO date string
+  occasion: z.string().optional(), // casual, romantic, celebration, etc.
+  specialRequests: z.string().optional(), // free text for accessibility, dietary, etc.
 });
 
 export const TrailWineryStopSchema = z.object({
