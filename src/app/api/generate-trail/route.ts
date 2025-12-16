@@ -285,9 +285,28 @@ function getFallbackTrail(stops: number, multiDay: boolean = false, numDays: num
 // Validate winery IDs against database
 function validateWineryIds(trail: AITrailResponse, wineries: WineryFromDB[]): string[] {
   const validIds = new Set(wineries.map((w) => w.id));
-  return trail.wineries
-    .map((stop: { wineryId: string }) => stop.wineryId)
-    .filter((id: string) => !validIds.has(id));
+  
+  // Handle single-day trails with wineries array
+  if (trail.wineries) {
+    return trail.wineries
+      .map((stop: { wineryId: string }) => stop.wineryId)
+      .filter((id: string) => !validIds.has(id));
+  }
+  
+  // Handle multi-day trails with dailyItineraries
+  if (trail.isMultiDay && trail.dailyItineraries) {
+    const invalidIds: string[] = [];
+    trail.dailyItineraries.forEach((day: any) => {
+      day.stops?.forEach((stop: any) => {
+        if (!validIds.has(stop.wineryId)) {
+          invalidIds.push(stop.wineryId);
+        }
+      });
+    });
+    return invalidIds;
+  }
+  
+  return [];
 }
 
 // Main trail generation logic (wrapped for timeout)
