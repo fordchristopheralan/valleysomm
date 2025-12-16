@@ -7,8 +7,8 @@ import { saveTrail } from '@/lib/db/trails';
 import { customAlphabet } from 'nanoid';
 
 // Timeout configuration
-const GENERATION_TIMEOUT = 45000; // 45 seconds
-const GROQ_TIMEOUT = 30000; // 30 seconds for Groq API
+const GENERATION_TIMEOUT = 60000; // 60 seconds for multi-day
+const GROQ_TIMEOUT = 45000; // 45 seconds for Groq API (multi-day needs more time)
 
 // Timeout wrapper utility
 function withTimeout<T>(
@@ -165,6 +165,9 @@ MULTI-DAY TRIP INSTRUCTIONS:
 7. Suggest accommodation options (B&Bs, hotels in Mount Airy, Elkin, etc.)
 8. Optimize routes starting from ${input.originCity}
 
+CRITICAL: You MUST ONLY use these EXACT winery IDs: ${validIds}
+DO NOT use any other IDs. If you use an invalid ID, the system will fail.
+
 RESPONSE FORMAT (JSON only):
 {
   "trailName": "Creative name for the entire ${numDays}-day journey",
@@ -179,7 +182,7 @@ RESPONSE FORMAT (JSON only):
       "theme": "Descriptive theme for day 1 (e.g., 'Mountain Views & Bold Reds')",
       "stops": [
         {
-          "wineryId": "EXACT ID from list",
+          "wineryId": "EXACT ID from list (e.g., 'shelton', 'jolo', 'raffaldini')",
           "order": 1,
           "whyItsIncluded": "Why this winery fits the day's theme and their preferences",
           "suggestedArrivalTime": "10:30 AM",
@@ -270,14 +273,47 @@ function getFallbackTrail(stops: number, multiDay: boolean = false, numDays: num
     },
   ].slice(0, stops);
 
+  // For multi-day, organize into daily itineraries
+  if (multiDay && numDays > 1) {
+    const stopsPerDay = Math.ceil(stops / numDays);
+    const dailyItineraries = [];
+    
+    for (let day = 1; day <= numDays; day++) {
+      const dayStops = fallbackWineries.slice((day - 1) * stopsPerDay, day * stopsPerDay);
+      if (dayStops.length > 0) {
+        dailyItineraries.push({
+          day,
+          theme: day === 1 ? 'Classic Yadkin Valley Introduction' : `Day ${day} Wine Journey`,
+          stops: dayStops,
+          estimatedDuration: `${dayStops.length + 1} hours`,
+          recommendations: {
+            lunch: 'Local dining options available near wineries',
+            dinner: 'Mount Airy or Elkin restaurants',
+            accommodation: day < numDays ? 'Hampton Inn Mount Airy or local B&Bs' : undefined
+          }
+        });
+      }
+    }
+
+    return {
+      id: nanoid(),
+      trailName: `${numDays}-Day Yadkin Valley Experience`,
+      summary: `A curated ${numDays}-day journey through Yadkin Valley's finest wineries, featuring scenic views, award-winning wines, and unforgettable experiences.`,
+      totalStops: stops,
+      estimatedDurationHours: numDays * 6,
+      isMultiDay: true,
+      numberOfDays: numDays,
+      dailyItineraries,
+    };
+  }
+
+  // Single-day fallback
   return {
     id: nanoid(),
-    trailName: multiDay ? `${numDays}-Day Yadkin Valley Experience` : 'Classic Yadkin Valley Trail',
-    summary: multiDay 
-      ? `A curated ${numDays}-day journey through Yadkin Valley's finest wineries, featuring scenic views, award-winning wines, and unforgettable experiences.`
-      : 'A perfect introduction to the best of Yadkin Valley with iconic views, variety, and European flair.',
+    trailName: 'Classic Yadkin Valley Trail',
+    summary: 'A perfect introduction to the best of Yadkin Valley with iconic views, variety, and European flair.',
     totalStops: stops,
-    estimatedDurationHours: multiDay ? numDays * 6 : stops + 1,
+    estimatedDurationHours: stops + 1,
     wineries: fallbackWineries
   };
 }
