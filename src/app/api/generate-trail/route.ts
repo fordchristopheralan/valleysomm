@@ -252,7 +252,7 @@ export async function POST(request: NextRequest) {
     // If still invalid, use fallback
     if (invalidIds.length > 0) {
       console.error('AI failed to use valid IDs after retry, using fallback');
-      validated = getFallbackTrail(parseInt(input.stops));
+      validated = getFallbackTrail(input.stops);
     }
 
     // Save to DB with enhanced fields
