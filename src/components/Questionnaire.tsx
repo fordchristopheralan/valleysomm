@@ -15,7 +15,7 @@ type Question = {
   question: string;
   icon: React.ReactNode;
   type: 'single' | 'multiple' | 'date-range' | 'text';
-  options?: { value: string; label: string; emoji?: string }[];
+  options?: { value: string; label: string; emoji?: string; description?: string }[];
   placeholder?: string;
   helpText?: string;
 };
