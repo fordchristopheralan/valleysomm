@@ -6,10 +6,8 @@ type Props = {
   params: { id: string };
 };
 
-// Server-side metadata generation - fetches directly from database
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
-    // Direct database access - no HTTP call needed during build
     const trail = await getTrailById(params.id);
 
     if (!trail) {
@@ -19,7 +17,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       };
     }
 
-    // Format winery names from the stored trail data
     const wineryNames = trail.wineries
       ?.map((w: any) => w.name)
       .join(', ') || '';
@@ -58,7 +55,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-// Server component that renders the client component
 export default function TrailPage({ params }: Props) {
   return <TrailPageClient params={params} />;
 }
