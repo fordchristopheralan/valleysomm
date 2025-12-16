@@ -31,7 +31,7 @@ type QuestionOption = {
 };
 
 type Question = {
-  id: keyof AIInput | 'visitDates' | 'occasion';
+  id: string; // Changed from keyof AIInput to string to allow custom IDs
   question: string;
   options?: QuestionOption[];
   type: 'single' | 'multiple' | 'date-range' | 'text';
@@ -117,7 +117,7 @@ type QuestionnaireProps = {
 export default function Questionnaire({ onCancel }: QuestionnaireProps) {
   const router = useRouter();
   const [step, setStep] = useState(0);
-  const [answers, setAnswers] = useState<Partial<AIInput & { occasion?: string }>>({});
+  const [answers, setAnswers] = useState<Record<string, any>>({});
   const [isAnimating, setIsAnimating] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationError, setGenerationError] = useState(false);
@@ -214,7 +214,7 @@ export default function Questionnaire({ onCancel }: QuestionnaireProps) {
   const handleTextInput = () => {
     const newAnswers = {
       ...answers,
-      [currentQ.id]: textValue || undefined,
+      occasion: textValue || undefined,
     };
     setAnswers(newAnswers);
 
@@ -289,7 +289,7 @@ export default function Questionnaire({ onCancel }: QuestionnaireProps) {
     }
   };
 
-  const generateTrail = async (finalAnswers: Partial<AIInput>) => {
+  const generateTrail = async (finalAnswers: Record<string, any>) => {
     setIsGenerating(true);
 
     trackEvent('quiz_completed', {
