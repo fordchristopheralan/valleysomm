@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import TrailPageClient from './TrailPageClient';
+import { getTrailById } from '@/lib/db/trails';
 
 type Props = {
   params: { id: string };
@@ -8,7 +9,6 @@ type Props = {
 // Server-side metadata generation
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
-    import { getTrailById } from '@/lib/db/trails';
 const trail = await getTrailById(params.id);
 
     if (!response.ok) {
