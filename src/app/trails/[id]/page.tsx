@@ -1,35 +1,38 @@
 import { Metadata } from 'next';
-import TrailPageClient from './TrailPageClient';
 import { getTrailById } from '@/lib/db/trails';
+import TrailPageClient from './TrailPageClient';
 
 type Props = {
   params: { id: string };
 };
 
-// Server-side metadata generation
+// Server-side metadata generation - fetches directly from database
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
-const trail = await getTrailById(params.id);
+    // Direct database access - no HTTP call needed during build
+    const trail = await getTrailById(params.id);
 
-    if (!response.ok) {
+    if (!trail) {
       return {
         title: 'Trail Not Found | Valley Somm',
         description: 'This wine trail could not be found.',
       };
     }
 
-    const trail = await response.json();
-
-    const wineryNames = trail.stops?.map((s: any) => s.winery.name).join(', ') || '';
+    // Format winery names from the stored trail data
+    const wineryNames = trail.wineries
+      ?.map((w: any) => w.name)
+      .join(', ') || '';
 
     return {
       title: `${trail.trailName} | Valley Somm`,
-      description: `${trail.summary} Featuring ${wineryNames}`,
+      description: `${trail.summary} ${wineryNames ? `Featuring ${wineryNames}` : ''}`,
       openGraph: {
         title: trail.trailName,
         description: trail.summary,
         type: 'article',
         url: `/trails/${params.id}`,
+        siteName: 'Valley Somm',
         images: [
           {
             url: '/og-image.jpg',
