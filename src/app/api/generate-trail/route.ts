@@ -168,7 +168,9 @@ export async function POST(request: NextRequest) {
     const input = AIInputSchema.parse(await request.json());
 
     // Fetch wineries from database
-    const wineries = await sql<WineryFromDB[]>`
+    const wineries = await sql`
+  ...
+` as unknown as WineryFromDB[];
       SELECT 
         id, name, description, latitude, longitude, website,
         signature_wines, grape_varieties, wine_styles, tasting_notes,
