@@ -26,7 +26,7 @@ export function trackEvent(eventName: string, properties?: Record<string, any>):
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        event: eventName,
+        event_type: eventName,  // CORRECT
         properties: properties || {},
         timestamp: new Date().toISOString(),
       }),
