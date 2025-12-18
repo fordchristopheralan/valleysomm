@@ -123,17 +123,17 @@ export interface ExtractedPreferences {
 
 // Parse the AI response to extract the data block
 export function parseAIResponse(response: string): {
-  message: string;
+  response: string;
   extracted: ExtractedPreferences | null;
 } {
   const dataMatch = response.match(/---EXTRACTED_DATA---\s*([\s\S]*?)\s*---END_DATA---/);
   
   let extracted: ExtractedPreferences | null = null;
-  let message = response;
+  let cleanResponse = response;
   
   if (dataMatch) {
     // Remove the data block from the visible message
-    message = response.replace(/---EXTRACTED_DATA---[\s\S]*?---END_DATA---/, '').trim();
+    cleanResponse = response.replace(/---EXTRACTED_DATA---[\s\S]*?---END_DATA---/, '').trim();
     
     try {
       extracted = JSON.parse(dataMatch[1]);
@@ -142,7 +142,7 @@ export function parseAIResponse(response: string): {
     }
   }
   
-  return { message, extracted };
+  return { response: cleanResponse, extracted };
 }
 
 // Send a message to Claude and get a response
