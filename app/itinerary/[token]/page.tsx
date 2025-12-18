@@ -84,7 +84,10 @@ async function getItinerary(token: string) {
   });
 
   return {
-    ...itinerary,
+    id: itinerary.id as string,
+    title: (itinerary.title as string) || "My Yadkin Valley Trip",
+    narrative: itinerary.narrative as string | null,
+    created_at: itinerary.created_at as Date,
     days: Array.from(days.entries())
       .sort(([a], [b]) => a - b)
       .map(([day, stops]) => ({
