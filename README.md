@@ -1,6 +1,6 @@
 # Valley Somm
 
-AI-powered wine trip planning for North Carolina's Yadkin Valley wine region.
+AI-powered wine trip planning for North Carolina's Yadkin Valley wine region!
 
 ## Features
 
