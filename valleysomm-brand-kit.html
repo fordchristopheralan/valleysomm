@@ -1,0 +1,1621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ValleySomm Brand Identity Kit</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Primary Colors */
+            --wine-deep: #6B2D3F;
+            --wine-burgundy: #8B3A4D;
+            --wine-rose: #C4637A;
+            
+            /* Valley Greens */
+            --valley-deep: #2D4A3E;
+            --valley-sage: #5B7C6F;
+            --valley-mist: #8FA99E;
+            
+            /* Neutrals & Accents */
+            --cream: #FAF7F2;
+            --warm-beige: #E8E0D5;
+            --taupe: #B8A99A;
+            --gold-accent: #C9A962;
+            --slate: #4A4A50;
+            --charcoal: #2C2C30;
+            
+            /* Typography */
+            --font-display: 'Cormorant Garamond', Georgia, serif;
+            --font-body: 'DM Sans', system-ui, sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: #FDFCFA;
+            color: var(--charcoal);
+            line-height: 1.6;
+        }
+
+        /* Page Structure */
+        .page {
+            min-height: 100vh;
+            padding: 4rem 3rem;
+            position: relative;
+        }
+
+        .page-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Cover Page */
+        .cover {
+            background: linear-gradient(135deg, var(--wine-deep) 0%, var(--valley-deep) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cover::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            opacity: 0.03;
+        }
+
+        .cover-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .cover-logo {
+            margin-bottom: 2rem;
+        }
+
+        .cover h1 {
+            font-family: var(--font-display);
+            font-size: 5rem;
+            font-weight: 400;
+            letter-spacing: 0.02em;
+            margin-bottom: 0.5rem;
+        }
+
+        .cover h1 span {
+            font-weight: 600;
+        }
+
+        .cover-subtitle {
+            font-size: 1.1rem;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            opacity: 0.9;
+            margin-bottom: 3rem;
+        }
+
+        .cover-tagline {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-style: italic;
+            opacity: 0.85;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .cover-date {
+            position: absolute;
+            bottom: 3rem;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.85rem;
+            letter-spacing: 0.15em;
+            opacity: 0.6;
+        }
+
+        /* Section Headers */
+        .section-header {
+            margin-bottom: 3rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--warm-beige);
+        }
+
+        .section-number {
+            font-family: var(--font-display);
+            font-size: 0.9rem;
+            color: var(--wine-burgundy);
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+
+        .section-title {
+            font-family: var(--font-display);
+            font-size: 3rem;
+            font-weight: 500;
+            color: var(--charcoal);
+            letter-spacing: -0.01em;
+        }
+
+        .section-subtitle {
+            font-size: 1.1rem;
+            color: var(--slate);
+            margin-top: 0.75rem;
+            max-width: 600px;
+        }
+
+        /* Logo Section */
+        .logo-section {
+            background: var(--cream);
+        }
+
+        .logo-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 3rem;
+            margin-bottom: 4rem;
+        }
+
+        .logo-card {
+            background: white;
+            border-radius: 16px;
+            padding: 3rem;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+        }
+
+        .logo-card.primary {
+            grid-column: span 2;
+            text-align: center;
+            padding: 4rem;
+        }
+
+        .logo-card h3 {
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            color: var(--wine-burgundy);
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            margin-bottom: 1.5rem;
+        }
+
+        .logo-display {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 120px;
+        }
+
+        .logo-display.dark {
+            background: var(--charcoal);
+            border-radius: 12px;
+            padding: 2rem;
+        }
+
+        .logo-svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        /* Primary Logo SVG */
+        .primary-logo {
+            width: 400px;
+            height: auto;
+        }
+
+        .icon-logo {
+            width: 80px;
+            height: 80px;
+        }
+
+        .horizontal-logo {
+            width: 280px;
+        }
+
+        .badge-logo {
+            width: 140px;
+        }
+
+        /* Color Palette */
+        .color-section {
+            background: white;
+        }
+
+        .color-category {
+            margin-bottom: 3rem;
+        }
+
+        .color-category h3 {
+            font-family: var(--font-display);
+            font-size: 1.3rem;
+            color: var(--charcoal);
+            margin-bottom: 1.5rem;
+        }
+
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .color-card {
+            background: var(--cream);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .color-swatch {
+            height: 100px;
+            display: flex;
+            align-items: flex-end;
+            padding: 0.75rem;
+        }
+
+        .color-swatch span {
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.9);
+        }
+
+        .color-info {
+            padding: 1rem;
+        }
+
+        .color-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .color-codes {
+            font-size: 0.8rem;
+            color: var(--slate);
+            line-height: 1.7;
+        }
+
+        /* Typography Section */
+        .type-section {
+            background: var(--cream);
+        }
+
+        .type-showcase {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            margin-bottom: 3rem;
+        }
+
+        .type-card {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+        }
+
+        .type-card h3 {
+            font-size: 0.85rem;
+            color: var(--wine-burgundy);
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            margin-bottom: 1rem;
+        }
+
+        .type-sample-display {
+            font-family: var(--font-display);
+            font-size: 3.5rem;
+            color: var(--charcoal);
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .type-sample-body {
+            font-family: var(--font-body);
+            font-size: 2.5rem;
+            color: var(--charcoal);
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+
+        .type-name {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .type-details {
+            font-size: 0.9rem;
+            color: var(--slate);
+            line-height: 1.8;
+        }
+
+        .type-examples {
+            background: white;
+            padding: 3rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+        }
+
+        .type-example {
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--warm-beige);
+        }
+
+        .type-example:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .type-label {
+            font-size: 0.75rem;
+            color: var(--wine-burgundy);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.5rem;
+        }
+
+        .type-h1 {
+            font-family: var(--font-display);
+            font-size: 3rem;
+            font-weight: 500;
+            color: var(--charcoal);
+        }
+
+        .type-h2 {
+            font-family: var(--font-display);
+            font-size: 2.25rem;
+            font-weight: 500;
+            color: var(--charcoal);
+        }
+
+        .type-tagline {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-style: italic;
+            color: var(--slate);
+        }
+
+        .type-body {
+            font-family: var(--font-body);
+            font-size: 1rem;
+            color: var(--slate);
+            max-width: 60ch;
+            line-height: 1.7;
+        }
+
+        /* Taglines Section */
+        .tagline-section {
+            background: white;
+        }
+
+        .tagline-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .tagline-card {
+            background: linear-gradient(135deg, var(--cream) 0%, white 100%);
+            padding: 2rem;
+            border-radius: 12px;
+            border: 1px solid var(--warm-beige);
+            transition: all 0.3s ease;
+        }
+
+        .tagline-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(107, 45, 63, 0.1);
+        }
+
+        .tagline-card.featured {
+            grid-column: span 2;
+            background: linear-gradient(135deg, var(--wine-deep) 0%, var(--wine-burgundy) 100%);
+            color: white;
+            text-align: center;
+            padding: 3rem;
+        }
+
+        .tagline-text {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-style: italic;
+            color: var(--charcoal);
+            line-height: 1.4;
+        }
+
+        .tagline-card.featured .tagline-text {
+            font-size: 2rem;
+            color: white;
+        }
+
+        .tagline-use {
+            font-size: 0.8rem;
+            color: var(--wine-burgundy);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-top: 1rem;
+        }
+
+        .tagline-card.featured .tagline-use {
+            color: rgba(255,255,255,0.7);
+        }
+
+        .voice-guidelines {
+            background: var(--cream);
+            padding: 3rem;
+            border-radius: 16px;
+        }
+
+        .voice-guidelines h3 {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            color: var(--charcoal);
+            margin-bottom: 1.5rem;
+        }
+
+        .voice-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+        }
+
+        .voice-item h4 {
+            font-weight: 600;
+            color: var(--wine-burgundy);
+            margin-bottom: 0.5rem;
+        }
+
+        .voice-item p {
+            font-size: 0.9rem;
+            color: var(--slate);
+            line-height: 1.6;
+        }
+
+        /* Imagery Section */
+        .imagery-section {
+            background: var(--cream);
+        }
+
+        .mood-board {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(2, 200px);
+            gap: 1rem;
+            margin-bottom: 3rem;
+        }
+
+        .mood-item {
+            border-radius: 12px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mood-item::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.4) 0%, transparent 50%);
+        }
+
+        .mood-item span {
+            position: absolute;
+            bottom: 1rem;
+            left: 1rem;
+            color: white;
+            font-size: 0.8rem;
+            font-weight: 500;
+            z-index: 1;
+            letter-spacing: 0.05em;
+        }
+
+        .mood-item:nth-child(1) {
+            grid-column: span 2;
+            grid-row: span 2;
+            background: linear-gradient(135deg, var(--valley-deep) 0%, var(--valley-sage) 100%);
+        }
+
+        .mood-item:nth-child(2) { background: var(--wine-burgundy); }
+        .mood-item:nth-child(3) { background: var(--gold-accent); }
+        .mood-item:nth-child(4) { background: var(--valley-sage); }
+        .mood-item:nth-child(5) { background: var(--wine-rose); }
+
+        .imagery-guidelines {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 16px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+        }
+
+        .imagery-guideline h4 {
+            font-weight: 600;
+            color: var(--wine-burgundy);
+            margin-bottom: 0.75rem;
+        }
+
+        .imagery-guideline p {
+            font-size: 0.9rem;
+            color: var(--slate);
+            line-height: 1.6;
+        }
+
+        /* Applications Section */
+        .apps-section {
+            background: white;
+        }
+
+        .mockup-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+        }
+
+        .mockup-card {
+            background: var(--cream);
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .mockup-card.wide {
+            grid-column: span 2;
+        }
+
+        .mockup-card h4 {
+            font-size: 0.8rem;
+            color: var(--wine-burgundy);
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Business Card Mockup */
+        .business-card-mockup {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .bcard {
+            width: 280px;
+            height: 160px;
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bcard-front {
+            background: linear-gradient(135deg, var(--wine-deep) 0%, var(--valley-deep) 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            padding: 1.5rem;
+        }
+
+        .bcard-back {
+            background: white;
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .bcard-logo-small {
+            font-family: var(--font-display);
+            font-size: 1.8rem;
+            font-weight: 500;
+        }
+
+        .bcard-tagline {
+            font-size: 0.65rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            opacity: 0.8;
+            margin-top: 0.5rem;
+        }
+
+        .bcard-info {
+            font-size: 0.7rem;
+            color: var(--slate);
+            line-height: 1.6;
+        }
+
+        .bcard-info strong {
+            color: var(--charcoal);
+            font-weight: 600;
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        .bcard-website {
+            font-size: 0.75rem;
+            color: var(--wine-burgundy);
+            font-weight: 600;
+        }
+
+        /* App Icon Mockup */
+        .app-icon-display {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            align-items: flex-end;
+        }
+
+        .app-icon {
+            border-radius: 22%;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--wine-deep) 0%, var(--wine-burgundy) 100%);
+            color: white;
+        }
+
+        .app-icon.large {
+            width: 120px;
+            height: 120px;
+        }
+
+        .app-icon.medium {
+            width: 80px;
+            height: 80px;
+        }
+
+        .app-icon.small {
+            width: 48px;
+            height: 48px;
+        }
+
+        /* Social Banner */
+        .social-banner {
+            width: 100%;
+            height: 140px;
+            background: linear-gradient(135deg, var(--wine-deep) 0%, var(--valley-deep) 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .social-banner::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(201,169,98,0.2) 0%, transparent 70%);
+        }
+
+        .social-banner-content {
+            text-align: center;
+            z-index: 1;
+        }
+
+        .social-banner-logo {
+            font-family: var(--font-display);
+            font-size: 2rem;
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .social-banner-tag {
+            font-size: 0.75rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            opacity: 0.8;
+        }
+
+        /* Itinerary Card */
+        .itinerary-mockup {
+            width: 280px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+            overflow: hidden;
+        }
+
+        .itinerary-header {
+            background: linear-gradient(135deg, var(--wine-deep) 0%, var(--wine-burgundy) 100%);
+            color: white;
+            padding: 1.25rem;
+            text-align: center;
+        }
+
+        .itinerary-header h5 {
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .itinerary-header span {
+            font-size: 0.7rem;
+            opacity: 0.8;
+        }
+
+        .itinerary-body {
+            padding: 1rem;
+        }
+
+        .itinerary-stop {
+            display: flex;
+            gap: 0.75rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--warm-beige);
+        }
+
+        .itinerary-stop:last-child {
+            border-bottom: none;
+        }
+
+        .itinerary-num {
+            width: 24px;
+            height: 24px;
+            background: var(--wine-burgundy);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .itinerary-details {
+            font-size: 0.8rem;
+        }
+
+        .itinerary-details strong {
+            color: var(--charcoal);
+            display: block;
+            margin-bottom: 0.1rem;
+        }
+
+        .itinerary-details span {
+            color: var(--slate);
+            font-size: 0.7rem;
+        }
+
+        .itinerary-footer {
+            background: var(--cream);
+            padding: 0.75rem 1rem;
+            text-align: center;
+        }
+
+        .itinerary-cta {
+            font-size: 0.7rem;
+            color: var(--wine-burgundy);
+            font-weight: 600;
+            letter-spacing: 0.05em;
+        }
+
+        /* Email Signature */
+        .email-sig {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--wine-burgundy);
+            max-width: 400px;
+            margin: 0 auto;
+            text-align: left;
+        }
+
+        .email-sig-name {
+            font-weight: 600;
+            color: var(--charcoal);
+            margin-bottom: 0.25rem;
+        }
+
+        .email-sig-title {
+            font-size: 0.85rem;
+            color: var(--slate);
+            margin-bottom: 0.75rem;
+        }
+
+        .email-sig-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--warm-beige);
+        }
+
+        .email-sig-logo {
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            color: var(--wine-burgundy);
+            font-weight: 500;
+        }
+
+        .email-sig-info {
+            font-size: 0.75rem;
+            color: var(--slate);
+        }
+
+        /* Postcard */
+        .postcard-mockup {
+            width: 100%;
+            max-width: 450px;
+            margin: 0 auto;
+            aspect-ratio: 1.5;
+            background: linear-gradient(135deg, var(--wine-deep) 0%, var(--valley-deep) 100%);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .postcard-mockup::before {
+            content: '';
+            position: absolute;
+            top: -100px;
+            right: -100px;
+            width: 250px;
+            height: 250px;
+            background: radial-gradient(circle, rgba(201,169,98,0.15) 0%, transparent 70%);
+        }
+
+        .postcard-mockup::after {
+            content: '';
+            position: absolute;
+            bottom: -80px;
+            left: -80px;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(91,124,111,0.2) 0%, transparent 70%);
+        }
+
+        .postcard-content {
+            z-index: 1;
+        }
+
+        .postcard-logo {
+            font-family: var(--font-display);
+            font-size: 2.5rem;
+            font-weight: 500;
+            margin-bottom: 0.75rem;
+        }
+
+        .postcard-tagline {
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            font-style: italic;
+            opacity: 0.9;
+            margin-bottom: 1.5rem;
+            max-width: 280px;
+        }
+
+        .postcard-url {
+            font-size: 0.85rem;
+            letter-spacing: 0.15em;
+            padding: 0.5rem 1.25rem;
+            background: rgba(255,255,255,0.15);
+            border-radius: 50px;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Page Divider */
+        .page-divider {
+            height: 4px;
+            background: linear-gradient(90deg, var(--wine-burgundy), var(--valley-sage), var(--gold-accent));
+        }
+
+        /* Footer */
+        .kit-footer {
+            text-align: center;
+            padding: 3rem;
+            background: var(--charcoal);
+            color: white;
+        }
+
+        .kit-footer-logo {
+            font-family: var(--font-display);
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .kit-footer p {
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .logo-grid,
+            .type-showcase,
+            .tagline-grid,
+            .voice-grid,
+            .imagery-guidelines,
+            .mockup-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .logo-card.primary,
+            .tagline-card.featured,
+            .mockup-card.wide {
+                grid-column: span 1;
+            }
+
+            .mood-board {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .mood-item:nth-child(1) {
+                grid-column: span 2;
+                grid-row: span 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .page {
+                padding: 2rem 1.5rem;
+            }
+
+            .cover h1 {
+                font-size: 3rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .mood-board {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto;
+            }
+
+            .mood-item {
+                height: 150px;
+            }
+
+            .mood-item:nth-child(1) {
+                grid-column: span 1;
+                height: 200px;
+            }
+
+            .business-card-mockup {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Cover Page -->
+    <section class="page cover">
+        <div class="cover-content">
+            <div class="cover-logo">
+                <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M40 8C40 8 20 28 20 48C20 59.046 28.954 68 40 68C51.046 68 60 59.046 60 48C60 28 40 8 40 8Z" stroke="rgba(255,255,255,0.9)" stroke-width="2" fill="none"/>
+                    <path d="M30 52C30 52 35 44 40 44C45 44 50 52 50 52" stroke="rgba(201,169,98,0.8)" stroke-width="2" fill="none" stroke-linecap="round"/>
+                    <path d="M40 68V76" stroke="rgba(255,255,255,0.7)" stroke-width="2"/>
+                    <path d="M32 76H48" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </div>
+            <h1>Valley<span>Somm</span></h1>
+            <p class="cover-subtitle">Brand Identity Kit</p>
+            <p class="cover-tagline">"Your AI sommelier for unforgettable Yadkin Valley wine adventures"</p>
+        </div>
+        <p class="cover-date">December 2025 • Version 1.0</p>
+    </section>
+
+    <div class="page-divider"></div>
+
+    <!-- Logo Section -->
+    <section class="page logo-section">
+        <div class="page-inner">
+            <div class="section-header">
+                <p class="section-number">01 — Logo</p>
+                <h2 class="section-title">Primary Logo & Variations</h2>
+                <p class="section-subtitle">A modern wordmark blending "Valley" and "Somm" with subtle wine country elements—versatile for digital and print applications.</p>
+            </div>
+
+            <div class="logo-grid">
+                <div class="logo-card primary">
+                    <h3>Primary Logo</h3>
+                    <div class="logo-display">
+                        <svg class="primary-logo" viewBox="0 0 400 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Valley curve underline -->
+                            <path d="M50 85C100 75 150 70 200 75C250 80 300 75 350 70" stroke="#C9A962" stroke-width="2" fill="none" stroke-linecap="round"/>
+                            
+                            <!-- Wine drop accent -->
+                            <path d="M380 20C380 20 372 32 372 40C372 44.418 375.582 48 380 48C384.418 48 388 44.418 388 40C388 32 380 20 380 20Z" fill="#8B3A4D"/>
+                            
+                            <!-- ValleySomm text -->
+                            <text x="20" y="60" font-family="Cormorant Garamond, Georgia, serif" font-size="52" font-weight="500" fill="#2C2C30">
+                                <tspan fill="#6B2D3F">Valley</tspan><tspan fill="#2D4A3E">Somm</tspan>
+                            </text>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="logo-card">
+                    <h3>Icon / App Symbol</h3>
+                    <div class="logo-display">
+                        <svg class="icon-logo" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="80" height="80" rx="18" fill="url(#iconGrad)"/>
+                            <path d="M40 16C40 16 24 32 24 48C24 56.837 31.163 64 40 64C48.837 64 56 56.837 56 48C56 32 40 16 40 16Z" stroke="white" stroke-width="2.5" fill="none"/>
+                            <path d="M32 50C32 50 36 44 40 44C44 44 48 50 48 50" stroke="#C9A962" stroke-width="2" fill="none" stroke-linecap="round"/>
+                            <defs>
+                                <linearGradient id="iconGrad" x1="0" y1="0" x2="80" y2="80" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#6B2D3F"/>
+                                    <stop offset="1" stop-color="#8B3A4D"/>
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="logo-card">
+                    <h3>Favicon / Small</h3>
+                    <div class="logo-display" style="gap: 1.5rem;">
+                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                            <rect width="32" height="32" rx="8" fill="#6B2D3F"/>
+                            <path d="M16 6C16 6 9 13 9 19C9 23.418 12.582 27 16 27C19.418 27 23 23.418 23 19C23 13 16 6 16 6Z" stroke="white" stroke-width="1.5" fill="none"/>
+                        </svg>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <rect width="24" height="24" rx="6" fill="#6B2D3F"/>
+                            <path d="M12 4C12 4 7 9 7 14C7 17.314 9.686 20 12 20C14.314 20 17 17.314 17 14C17 9 12 4 12 4Z" stroke="white" stroke-width="1.5" fill="none"/>
+                        </svg>
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <rect width="16" height="16" rx="4" fill="#6B2D3F"/>
+                            <path d="M8 3C8 3 4.5 6 4.5 9.5C4.5 11.985 6.015 13.5 8 13.5C9.985 13.5 11.5 11.985 11.5 9.5C11.5 6 8 3 8 3Z" stroke="white" stroke-width="1" fill="none"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="logo-card">
+                    <h3>Horizontal Layout</h3>
+                    <div class="logo-display">
+                        <svg class="horizontal-logo" viewBox="0 0 280 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M30 10C30 10 20 20 20 30C20 36.627 25.373 42 30 42C34.627 42 40 36.627 40 30C40 20 30 10 30 10Z" stroke="#6B2D3F" stroke-width="2" fill="none"/>
+                            <path d="M24 32C24 32 27 28 30 28C33 28 36 32 36 32" stroke="#C9A962" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                            <text x="52" y="34" font-family="Cormorant Garamond, Georgia, serif" font-size="28" font-weight="500">
+                                <tspan fill="#6B2D3F">Valley</tspan><tspan fill="#2D4A3E">Somm</tspan>
+                            </text>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="logo-card">
+                    <h3>Monochrome — Dark</h3>
+                    <div class="logo-display dark">
+                        <svg class="horizontal-logo" viewBox="0 0 280 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M30 10C30 10 20 20 20 30C20 36.627 25.373 42 30 42C34.627 42 40 36.627 40 30C40 20 30 10 30 10Z" stroke="white" stroke-width="2" fill="none"/>
+                            <path d="M24 32C24 32 27 28 30 28C33 28 36 32 36 32" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                            <text x="52" y="34" font-family="Cormorant Garamond, Georgia, serif" font-size="28" font-weight="500" fill="white">ValleySomm</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="logo-card">
+                    <h3>Badge / Emblem</h3>
+                    <div class="logo-display">
+                        <svg class="badge-logo" viewBox="0 0 140 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M70 10L130 40V100C130 130 70 150 70 150C70 150 10 130 10 100V40L70 10Z" stroke="#6B2D3F" stroke-width="2" fill="none"/>
+                            <path d="M70 35C70 35 50 55 50 75C50 86.046 58.954 95 70 95C81.046 95 90 86.046 90 75C90 55 70 35 70 35Z" stroke="#6B2D3F" stroke-width="2" fill="none"/>
+                            <path d="M58 80C58 80 63 72 70 72C77 72 82 80 82 80" stroke="#C9A962" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                            <text x="70" y="118" font-family="Cormorant Garamond, Georgia, serif" font-size="14" font-weight="600" fill="#2D4A3E" text-anchor="middle">VALLEYSOMM</text>
+                            <text x="70" y="132" font-family="DM Sans, sans-serif" font-size="8" fill="#5B7C6F" text-anchor="middle" letter-spacing="0.1em">YADKIN VALLEY</text>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="page-divider"></div>
+
+    <!-- Color Palette Section -->
+    <section class="page color-section">
+        <div class="page-inner">
+            <div class="section-header">
+                <p class="section-number">02 — Color Palette</p>
+                <h2 class="section-title">Brand Colors</h2>
+                <p class="section-subtitle">A harmonious palette inspired by wine country—rich burgundies, valley greens, warm neutrals, and premium gold accents.</p>
+            </div>
+
+            <div class="color-category">
+                <h3>Primary — Wine Tones</h3>
+                <div class="color-grid">
+                    <div class="color-card">
+                        <div class="color-swatch" style="background: #6B2D3F;">
+                            <span>Primary</span>
+                        </div>
+                        <div class="color-info">
+                            <p class="color-name">Wine Deep</p>
+                            <p class="color-codes">
+                                HEX: #6B2D3F<br>
+                                RGB: 107, 45, 63<br>
+                                HSL: 342°, 41%, 30%
+                            </p>
+                        </div>
+                    </div>
+                    <div class="color-card">
+                        <div class="color-swatch" style="background: #8B3A4D;">
+                            <span>Secondary</span>
+                        </div>
+                        <div class="color-info">
+                            <p class="color-name">Wine Burgundy</p>
+                            <p class="color-codes">
+                                HEX: #8B3A4D<br>
+                                RGB: 139, 58, 77<br>
+                                HSL: 346°, 41%, 39%
+                            </p>
+                        </div>
+                    </div>
+                    <div class="color-card">
+                        <div class="color-swatch" style="background: #C4637A;">
+                            <span>Accent</span>
+                        </div>
+                        <div class="color-info">
+                            <p class="color-name">Wine Rosé</p>
+                            <p class="color-codes">
+                                HEX: #C4637A<br>
+                                RGB: 196, 99, 122<br>
+                                HSL: 346°, 46%, 58%
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="color-category">
+                <h3>Primary — Valley Greens</h3>
+                <div class="color-grid">
+                    <div class="color-card">
+                        <div class="color-swatch" style="background: #2D4A3E;">
+                            <span style="color: white; background: rgba(0,0,0,0.5);">Primary</span>
+                        </div>
+                        <div class="color-info">
+                            <p class="color-name">Valley Deep</p>
+                            <p class="color-codes">
+                                HEX: #2D4A3E<br>
+                                RGB: 45, 74, 62<br>
+                                HSL: 155°, 24%, 23%
+                            </p>
+                        </div>
+                    </div>
+                    <div class="color-card">
+                        <div class="color-swatch" style="background: #5B7C6F;">
+                            <span>Secondary</span>
+                        </div>
+                        <div class="color-info">
+                            <p class="color-name">Valley Sage</p>
+                            <p class="color-codes">
+                                HEX: #5B7C6F<br>
+                                RGB: 91, 124, 111<br>
+                                HSL: 156°, 15%, 42%
+                            </p>
+                        </div>
+                    </div>
+                    <div class="color-card">
+                        <div class="color-swatch" style="background: #8FA99E;">
+                            <span>Tertiary</span>
+                        </div>
+                        <div class="color-info">
+                            <p class="color-name">Valley Mist</p>
+                            <p class="color-codes">
+                                HEX: #8FA99E<br>
+                                RGB: 143, 169, 158<br>
+                                HSL: 155°, 13%, 61%
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="color-category">
+                <h3>Neutrals & Accents</h3>
+                <div class="color-grid">
+                    <div class="color-card">
+                        <div class="color-swatch" style="background: #FAF7F2; border: 1px solid #E8E0D5;">
+                            <span>Background</span>
+                        </div>
+                        <div class="color-info">
+                            <p class="color-name">Cream</p>
+                            <p class="color-codes">
+                                HEX: #FAF7F2<br>
+                                RGB: 250, 247, 242
+                            </p>
+                        </div>
+                    </div>
+                    <div class="color-card">
+                        <div class="color-swatch" style="background: #E8E0D5;">
+                            <span>Borders</span>
+                        </div>
+                        <div class="color-info">
+                            <p class="color-name">Warm Beige</p>
+                            <p class="color-codes">
+                                HEX: #E8E0D5<br>
+                                RGB: 232, 224, 213
+                            </p>
+                        </div>
+                    </div>
+                    <div class="color-card">
+                        <div class="color-swatch" style="background: #C9A962;">
+                            <span>Premium</span>
+                        </div>
+                        <div class="color-info">
+                            <p class="color-name">Gold Accent</p>
+                            <p class="color-codes">
+                                HEX: #C9A962<br>
+                                RGB: 201, 169, 98
+                            </p>
+                        </div>
+                    </div>
+                    <div class="color-card">
+                        <div class="color-swatch" style="background: #4A4A50;">
+                            <span style="color: white; background: rgba(0,0,0,0.4);">Text</span>
+                        </div>
+                        <div class="color-info">
+                            <p class="color-name">Slate</p>
+                            <p class="color-codes">
+                                HEX: #4A4A50<br>
+                                RGB: 74, 74, 80
+                            </p>
+                        </div>
+                    </div>
+                    <div class="color-card">
+                        <div class="color-swatch" style="background: #2C2C30;">
+                            <span style="color: white; background: rgba(0,0,0,0.4);">Headings</span>
+                        </div>
+                        <div class="color-info">
+                            <p class="color-name">Charcoal</p>
+                            <p class="color-codes">
+                                HEX: #2C2C30<br>
+                                RGB: 44, 44, 48
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="page-divider"></div>
+
+    <!-- Typography Section -->
+    <section class="page type-section">
+        <div class="page-inner">
+            <div class="section-header">
+                <p class="section-number">03 — Typography</p>
+                <h2 class="section-title">Type System</h2>
+                <p class="section-subtitle">Elegant serif for display paired with a clean, modern sans-serif for body text and UI elements.</p>
+            </div>
+
+            <div class="type-showcase">
+                <div class="type-card">
+                    <h3>Display Font</h3>
+                    <p class="type-sample-display">Aa Bb Cc</p>
+                    <p class="type-name">Cormorant Garamond</p>
+                    <p class="type-details">
+                        Used for: Headlines, taglines, brand name, hero text<br>
+                        Weights: Regular (400), Medium (500), SemiBold (600)<br>
+                        Style: Elegant, sophisticated, wine-label inspired
+                    </p>
+                </div>
+                <div class="type-card">
+                    <h3>Body Font</h3>
+                    <p class="type-sample-body">Aa Bb Cc</p>
+                    <p class="type-name">DM Sans</p>
+                    <p class="type-details">
+                        Used for: Body text, UI elements, buttons, navigation<br>
+                        Weights: Regular (400), Medium (500), SemiBold (600), Bold (700)<br>
+                        Style: Clean, modern, highly readable
+                    </p>
+                </div>
+            </div>
+
+            <div class="type-examples">
+                <div class="type-example">
+                    <p class="type-label">Headline H1</p>
+                    <p class="type-h1">Discover Yadkin Valley's Hidden Gems</p>
+                </div>
+                <div class="type-example">
+                    <p class="type-label">Headline H2</p>
+                    <p class="type-h2">Your Personalized Wine Adventure Awaits</p>
+                </div>
+                <div class="type-example">
+                    <p class="type-label">Tagline / Italic</p>
+                    <p class="type-tagline">"Chat with AI. Plan your trip. Taste the best of North Carolina."</p>
+                </div>
+                <div class="type-example">
+                    <p class="type-label">Body Text</p>
+                    <p class="type-body">ValleySomm is your AI-powered sommelier for exploring North Carolina's premier wine region. Simply chat with our friendly AI to discover 50+ curated wineries, hidden gems, and create shareable itineraries in minutes—not hours.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="page-divider"></div>
+
+    <!-- Taglines Section -->
+    <section class="page tagline-section">
+        <div class="page-inner">
+            <div class="section-header">
+                <p class="section-number">04 — Messaging</p>
+                <h2 class="section-title">Taglines & Voice</h2>
+                <p class="section-subtitle">Brand messaging that captures the conversational, expert-yet-relaxed personality of ValleySomm.</p>
+            </div>
+
+            <div class="tagline-grid">
+                <div class="tagline-card featured">
+                    <p class="tagline-text">"Your AI Sommelier for Yadkin Valley Wine Adventures"</p>
+                    <p class="tagline-use">Primary Tagline</p>
+                </div>
+                <div class="tagline-card">
+                    <p class="tagline-text">"Chat. Plan. Taste. Yadkin Valley Made Easy."</p>
+                    <p class="tagline-use">Action-Oriented</p>
+                </div>
+                <div class="tagline-card">
+                    <p class="tagline-text">"Personalized Wine Trails in Minutes"</p>
+                    <p class="tagline-use">Value Proposition</p>
+                </div>
+                <div class="tagline-card">
+                    <p class="tagline-text">"Discover 50+ Wineries with AI Magic"</p>
+                    <p class="tagline-use">Discovery Focus</p>
+                </div>
+                <div class="tagline-card">
+                    <p class="tagline-text">"Your Wine-Loving Friend Who Knows Every Winery"</p>
+                    <p class="tagline-use">Personality-Driven</p>
+                </div>
+                <div class="tagline-card">
+                    <p class="tagline-text">"From 'Where Should I Go?' to Perfect Itinerary"</p>
+                    <p class="tagline-use">Problem-Solution</p>
+                </div>
+                <div class="tagline-card">
+                    <p class="tagline-text">"AI-Powered. Locally Curated. Effortlessly Planned."</p>
+                    <p class="tagline-use">Feature Highlight</p>
+                </div>
+                <div class="tagline-card">
+                    <p class="tagline-text">"Sip Smarter. Explore More. Plan in Minutes."</p>
+                    <p class="tagline-use">Concise Impact</p>
+                </div>
+            </div>
+
+            <div class="voice-guidelines">
+                <h3>Brand Voice Guidelines</h3>
+                <div class="voice-grid">
+                    <div class="voice-item">
+                        <h4>Conversational</h4>
+                        <p>Speak like a knowledgeable friend, not a formal guide. Use "you" and "your" to create personal connection.</p>
+                    </div>
+                    <div class="voice-item">
+                        <h4>Expert-Yet-Relaxed</h4>
+                        <p>Share wine knowledge confidently but accessibly. Avoid pretentious jargon—make wine approachable.</p>
+                    </div>
+                    <div class="voice-item">
+                        <h4>Exciting & Inspiring</h4>
+                        <p>Build anticipation for adventures. Use vivid language about landscapes, flavors, and discoveries.</p>
+                    </div>
+                    <div class="voice-item">
+                        <h4>Inclusive & Fun</h4>
+                        <p>Welcome all experience levels. Celebrate curiosity. Make planning feel like the start of an adventure.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="page-divider"></div>
+
+    <!-- Imagery Section -->
+    <section class="page imagery-section">
+        <div class="page-inner">
+            <div class="section-header">
+                <p class="section-number">05 — Imagery</p>
+                <h2 class="section-title">Visual Style & Mood</h2>
+                <p class="section-subtitle">Photography and illustration guidelines that capture Yadkin Valley's natural beauty with modern tech sensibility.</p>
+            </div>
+
+            <div class="mood-board">
+                <div class="mood-item" style="background: linear-gradient(180deg, #5B7C6F 0%, #2D4A3E 100%);">
+                    <span>Rolling Valley Landscapes</span>
+                </div>
+                <div class="mood-item" style="background: linear-gradient(135deg, #8B3A4D 0%, #C4637A 100%);">
+                    <span>Wine Close-ups</span>
+                </div>
+                <div class="mood-item" style="background: linear-gradient(135deg, #C9A962 0%, #E8E0D5 100%);">
+                    <span>Golden Hour Vineyard</span>
+                </div>
+                <div class="mood-item" style="background: linear-gradient(135deg, #5B7C6F 0%, #8FA99E 100%);">
+                    <span>Lush Vines</span>
+                </div>
+                <div class="mood-item" style="background: linear-gradient(135deg, #6B2D3F 0%, #8B3A4D 100%);">
+                    <span>Happy Tastings</span>
+                </div>
+            </div>
+
+            <div class="imagery-guidelines">
+                <div class="imagery-guideline">
+                    <h4>Landscapes & Scenery</h4>
+                    <p>Rolling NC hills, vineyard rows at golden hour, misty valley mornings, rustic winery exteriors with modern touches. Natural, warm lighting preferred.</p>
+                </div>
+                <div class="imagery-guideline">
+                    <h4>Wine & Tastings</h4>
+                    <p>Close-ups of wine in glasses with natural settings, grape clusters on vines, diverse groups enjoying tastings, candid moments of discovery and connection.</p>
+                </div>
+                <div class="imagery-guideline">
+                    <h4>Tech Integration</h4>
+                    <p>Clean app UI screenshots with chat bubbles, phone mockups in winery settings, subtle digital overlays. Tech should feel seamless, not intrusive.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="page-divider"></div>
+
+    <!-- Applications Section -->
+    <section class="page apps-section">
+        <div class="page-inner">
+            <div class="section-header">
+                <p class="section-number">06 — Applications</p>
+                <h2 class="section-title">Brand in Action</h2>
+                <p class="section-subtitle">Mockups demonstrating brand application across digital and print touchpoints.</p>
+            </div>
+
+            <div class="mockup-grid">
+                <div class="mockup-card wide">
+                    <h4>Business Card</h4>
+                    <div class="business-card-mockup">
+                        <div class="bcard bcard-front">
+                            <svg width="40" height="40" viewBox="0 0 80 80" fill="none">
+                                <path d="M40 16C40 16 24 32 24 48C24 56.837 31.163 64 40 64C48.837 64 56 56.837 56 48C56 32 40 16 40 16Z" stroke="white" stroke-width="2" fill="none"/>
+                                <path d="M32 50C32 50 36 44 40 44C44 44 48 50 48 50" stroke="#C9A962" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                            </svg>
+                            <p class="bcard-logo-small">ValleySomm</p>
+                            <p class="bcard-tagline">AI-Powered Wine Trip Planning</p>
+                        </div>
+                        <div class="bcard bcard-back">
+                            <div class="bcard-info">
+                                <strong>Chris Thompson</strong>
+                                Founder & Chief Sommelier<br>
+                                hello@valleysomm.com<br>
+                                (336) 555-WINE
+                            </div>
+                            <p class="bcard-website">valleysomm.com</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mockup-card">
+                    <h4>App Icons</h4>
+                    <div class="app-icon-display">
+                        <div class="app-icon large">
+                            <svg width="60" height="60" viewBox="0 0 80 80" fill="none">
+                                <path d="M40 16C40 16 24 32 24 48C24 56.837 31.163 64 40 64C48.837 64 56 56.837 56 48C56 32 40 16 40 16Z" stroke="white" stroke-width="2.5" fill="none"/>
+                                <path d="M32 50C32 50 36 44 40 44C44 44 48 50 48 50" stroke="#C9A962" stroke-width="2" fill="none" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                        <div class="app-icon medium">
+                            <svg width="40" height="40" viewBox="0 0 80 80" fill="none">
+                                <path d="M40 16C40 16 24 32 24 48C24 56.837 31.163 64 40 64C48.837 64 56 56.837 56 48C56 32 40 16 40 16Z" stroke="white" stroke-width="3" fill="none"/>
+                            </svg>
+                        </div>
+                        <div class="app-icon small">
+                            <svg width="24" height="24" viewBox="0 0 80 80" fill="none">
+                                <path d="M40 16C40 16 24 32 24 48C24 56.837 31.163 64 40 64C48.837 64 56 56.837 56 48C56 32 40 16 40 16Z" stroke="white" stroke-width="4" fill="none"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mockup-card wide">
+                    <h4>Social Media Banner</h4>
+                    <div class="social-banner">
+                        <div class="social-banner-content">
+                            <p class="social-banner-logo">ValleySomm</p>
+                            <p class="social-banner-tag">Your AI Sommelier for Yadkin Valley</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mockup-card">
+                    <h4>Shareable Itinerary Card</h4>
+                    <div class="itinerary-mockup">
+                        <div class="itinerary-header">
+                            <h5>Your Wine Adventure</h5>
+                            <span>Saturday, Jan 18 • 4 Wineries</span>
+                        </div>
+                        <div class="itinerary-body">
+                            <div class="itinerary-stop">
+                                <span class="itinerary-num">1</span>
+                                <div class="itinerary-details">
+                                    <strong>Round Peak Vineyards</strong>
+                                    <span>10:00 AM • Dry reds, scenic views</span>
+                                </div>
+                            </div>
+                            <div class="itinerary-stop">
+                                <span class="itinerary-num">2</span>
+                                <div class="itinerary-details">
+                                    <strong>Shelton Vineyards</strong>
+                                    <span>12:00 PM • Lunch & tasting</span>
+                                </div>
+                            </div>
+                            <div class="itinerary-stop">
+                                <span class="itinerary-num">3</span>
+                                <div class="itinerary-details">
+                                    <strong>RagApple Lassie</strong>
+                                    <span>2:30 PM • Award-winning rosé</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="itinerary-footer">
+                            <p class="itinerary-cta">Created with ValleySomm</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mockup-card">
+                    <h4>Email Signature</h4>
+                    <div class="email-sig">
+                        <p class="email-sig-name">Sarah Chen</p>
+                        <p class="email-sig-title">Wine Experience Curator</p>
+                        <div class="email-sig-brand">
+                            <p class="email-sig-logo">🍷 ValleySomm</p>
+                            <p class="email-sig-info">valleysomm.com</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mockup-card wide">
+                    <h4>Promotional Postcard</h4>
+                    <div class="postcard-mockup">
+                        <div class="postcard-content">
+                            <p class="postcard-logo">ValleySomm</p>
+                            <p class="postcard-tagline">"Your AI sommelier for unforgettable Yadkin Valley wine adventures"</p>
+                            <p class="postcard-url">valleysomm.com</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="kit-footer">
+        <p class="kit-footer-logo">ValleySomm</p>
+        <p>Brand Identity Kit • Version 1.0 • December 2025</p>
+        <p style="margin-top: 0.5rem; font-size: 0.8rem;">valleysomm.com • AI-Powered Yadkin Valley Wine Planning</p>
+    </footer>
+
+</body>
+</html>
