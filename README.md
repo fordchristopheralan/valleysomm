@@ -1,14 +1,92 @@
-# Valley Somm — Wine Country Trip Survey
+# 🍷 Valley Somm
 
-A simple survey app to understand wine country trip planning pain points. Built with Next.js, Tailwind CSS, and Supabase.
+**Understand what makes wine country trips great — and what doesn't.**
 
-## Quick Start
+Valley Somm is a survey application for collecting and analyzing wine trip planning pain points. Built for product research, it includes a public survey form, analytics dashboard, qualitative review tools, and feature prioritization with ICE scoring.
 
-### 1. Set up Supabase
+[![Live Demo](https://img.shields.io/badge/demo-valleysomm.com-amber)](https://www.valleysomm.com)
+[![Next.js](https://img.shields.io/badge/Next.js-16.1-black)](https://nextjs.org/)
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-1. Create a free account at [supabase.com](https://supabase.com)
-2. Create a new project
-3. Go to the SQL Editor and run this to create your table:
+---
+
+## Table of Contents
+
+- [Features](#features)
+- [Live Demo](#live-demo)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Supabase Setup](#supabase-setup)
+  - [Local Development](#local-development)
+  - [Deployment](#deployment)
+- [Project Structure](#project-structure)
+- [How It Works](#how-it-works)
+- [Configuration](#configuration)
+  - [Environment Variables](#environment-variables)
+  - [Survey Questions](#survey-questions)
+  - [Themes](#themes)
+- [Customization](#customization)
+- [Tech Stack](#tech-stack)
+- [Troubleshooting](#troubleshooting)
+- [Contributing](#contributing)
+- [License](#license)
+
+---
+
+## Features
+
+### 📋 Survey Collection
+- Multi-step survey with progress indicator
+- Support for multiple question types (single choice, multi-select, scale, free text)
+- Conditional "other" fields for custom responses
+- Optional email capture with gift card drawing entry
+- Mobile-responsive design
+
+### 📊 Analytics Dashboard
+- Real-time response metrics
+- Filter by source, email presence, and time period
+- Visual charts for all categorical questions
+- Response timeline tracking
+- "Other" response aggregation
+
+### 🏷️ Qualitative Review Tool
+- Tag open-ended responses with themes
+- Score pain intensity (1-5 scale)
+- Assign primary pain categories
+- Add review notes
+- Track review progress
+
+### 📈 Feature Analysis
+- **Pain Point Matrix**: Frequency, intensity, and willingness-to-pay by theme
+- **Segment Analysis**: Compare themes across group types, confidence levels, and sources
+- **ICE Scoring**: Prioritize feature concepts with Impact × Confidence × Ease
+
+---
+
+## Live Demo
+
+🔗 **Survey**: [valleysomm.com](https://www.valleysomm.com)
+
+The dashboard, review, and analysis pages are password-protected.
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js 20+ 
+- npm or yarn
+- A [Supabase](https://supabase.com) account (free tier works)
+
+### Supabase Setup
+
+1. Create a new project at [supabase.com](https://supabase.com)
+
+2. Go to **SQL Editor** and run the schema setup:
+
+<details>
+<summary>📄 Click to expand SQL schema</summary>
 
 ```sql
 -- Main survey responses table
@@ -91,11 +169,10 @@ ALTER TABLE survey_responses ENABLE ROW LEVEL SECURITY;
 ALTER TABLE themes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE feature_concepts ENABLE ROW LEVEL SECURITY;
 
--- Allow anonymous inserts for survey
+-- RLS Policies (permissive for MVP)
 CREATE POLICY "Allow anonymous inserts" ON survey_responses
   FOR INSERT WITH CHECK (true);
 
--- Allow reads (dashboard is password-protected at app level)
 CREATE POLICY "Allow reads" ON survey_responses
   FOR SELECT USING (true);
 
@@ -109,94 +186,245 @@ CREATE POLICY "Allow all on features" ON feature_concepts
   FOR ALL USING (true);
 ```
 
-4. Go to Settings > API and copy your:
+</details>
+
+3. Go to **Settings → API** and copy your:
    - Project URL
    - `anon` public key
 
-### 2. Configure Environment
+### Local Development
 
 ```bash
+# Clone the repository
+git clone https://github.com/fordchristopheralan/valleysomm.git
+cd valleysomm
+
+# Install dependencies
+npm install
+
+# Set up environment variables
 cp .env.example .env.local
 ```
 
-Edit `.env.local` with your Supabase credentials:
+Edit `.env.local` with your credentials:
 
-```
+```env
 NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
+NEXT_PUBLIC_DASHBOARD_PASSWORD=choose-a-secure-password
 ```
 
-### 3. Run Locally
-
 ```bash
-npm install
+# Start development server
 npm run dev
 ```
 
 Visit [http://localhost:3000](http://localhost:3000)
 
-### 4. Deploy to Vercel
+### Deployment
 
-1. Push to GitHub
-2. Import the repo in [Vercel](https://vercel.com)
-3. Add your environment variables in Vercel's project settings:
+#### Vercel (Recommended)
+
+1. Push your code to GitHub
+2. Import the repository in [Vercel](https://vercel.com)
+3. Add environment variables in Project Settings:
    - `NEXT_PUBLIC_SUPABASE_URL`
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-   - `NEXT_PUBLIC_DASHBOARD_PASSWORD` (choose something secure!)
+   - `NEXT_PUBLIC_DASHBOARD_PASSWORD`
 4. Deploy!
 
-If you have a custom domain (valleysomm.com), add it in Vercel's domain settings.
+#### Custom Domain
 
-**URLs:**
-- Survey: `yourdomain.com` or `your-project.vercel.app`
-- Dashboard: `yourdomain.com/dashboard`
+Add your domain in Vercel's domain settings. The app will be available at:
+- **Survey**: `yourdomain.com`
+- **Dashboard**: `yourdomain.com/dashboard`
+- **Review**: `yourdomain.com/review`
+- **Analysis**: `yourdomain.com/analysis`
 
-## Viewing & Analyzing Responses
+---
 
-### Dashboard (`/dashboard`)
-Overview of all survey data with charts and metrics. Password-protected.
+## Project Structure
 
-### Review Tool (`/review`)
-Review individual responses and tag them with themes:
-- Assign themes to open-ended responses
-- Score intensity (1-5)
-- Set primary pain category
-- Add review notes
-- Navigate between unreviewed responses
+```
+valleysomm/
+├── app/
+│   ├── layout.js           # Root layout with metadata
+│   ├── page.js             # Survey form (public)
+│   ├── globals.css         # Tailwind CSS import
+│   ├── dashboard/
+│   │   └── page.js         # Analytics dashboard
+│   ├── review/
+│   │   └── page.js         # Response review tool
+│   └── analysis/
+│       └── page.js         # Pain point & feature analysis
+├── lib/
+│   └── supabase.js         # Supabase client configuration
+├── public/                 # Static assets
+├── .env.example            # Environment template
+├── next.config.js          # Next.js configuration
+├── tailwind.config.js      # Tailwind configuration
+├── postcss.config.js       # PostCSS configuration
+└── package.json
+```
 
-### Analysis (`/analysis`)
-Three analysis tabs:
-- **Pain Point Matrix**: Frequency, intensity, and WTP rates for each theme
-- **Segment Analysis**: Compare themes across group types, confidence levels, WTP, and sources
-- **Feature Concepts (ICE)**: Add and prioritize feature ideas with Impact × Confidence × Ease scoring
+---
 
-### Supabase Dashboard
-Go to your Supabase project > Table Editor to view raw data or export CSV.
+## How It Works
+
+### User Journey
+
+```
+┌─────────────┐     ┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+│   Survey    │ ──▶ │  Dashboard  │ ──▶ │   Review    │ ──▶ │  Analysis   │
+│  (Public)   │     │ (Overview)  │     │  (Tagging)  │     │ (Insights)  │
+└─────────────┘     └─────────────┘     └─────────────┘     └─────────────┘
+```
+
+1. **Survey** (`/`): Visitors complete the 4-step survey about their wine trip experiences
+2. **Dashboard** (`/dashboard`): View aggregate metrics, charts, and filter responses
+3. **Review** (`/review`): Manually tag open-ended responses with themes and score intensity
+4. **Analysis** (`/analysis`): See pain point rankings, segment breakdowns, and prioritize features
+
+### Survey Sections
+
+| Step | Title | Questions |
+|------|-------|-----------|
+| 1 | Your Experience | Regions visited, planning timeline, group type |
+| 2 | Planning & Discovery | Hardest part, discovery methods, confidence |
+| 3 | Logistics | Designated driver, reservations |
+| 4 | Insights & Wrap-up | What would help, surprises, WTP, source, email |
+
+---
+
+## Configuration
+
+### Environment Variables
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `NEXT_PUBLIC_SUPABASE_URL` | Yes | Your Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes | Supabase anonymous/public key |
+| `NEXT_PUBLIC_DASHBOARD_PASSWORD` | Yes | Password for admin pages |
+
+### Survey Questions
+
+Questions are configured in `app/page.js`. Each question object supports:
+
+```javascript
+{
+  id: 'field_name',           // Database column name
+  type: 'single',             // 'single' | 'multiselect' | 'textarea' | 'scale' | 'email_with_options'
+  question: 'Your question?',
+  options: ['Option A', 'Option B'],  // For single/multiselect
+  otherFields: {                       // Optional custom input
+    'Other': { id: 'field_other', placeholder: 'Please specify...' }
+  },
+  // Scale-specific
+  lowLabel: 'Low',
+  highLabel: 'High',
+  // Textarea-specific
+  placeholder: 'Enter your response...'
+}
+```
+
+**Adding a new question:**
+1. Add the column to `survey_responses` table in Supabase
+2. Add the question object to the `questions` array
+3. Include its index in the appropriate step in `steps` array
+4. Update `handleSubmit` to include the new field
+
+### Themes
+
+Default themes are seeded in the database. You can:
+- Add themes via SQL: `INSERT INTO themes (name) VALUES ('New Theme');`
+- Add themes in the Review UI using the "Add Custom Theme" feature
+
+---
 
 ## Customization
 
-### Change the Gift Card Amount
-Edit the text in `app/page.js` — search for "$50" and update.
+### Branding & Colors
 
-### Add/Remove Questions
-Edit the `questions` array in `app/page.js`. Each question needs:
-- `id`: unique identifier (used as database column)
-- `type`: 'single', 'multiselect', 'textarea', 'scale', or 'email'
-- `question`: the question text
-- `options`: array of choices (for single/multiselect)
+The app uses Tailwind's `amber` (primary) and `stone` (neutral) palettes. To change:
 
-If you add new question IDs, update the Supabase table schema to match.
+1. Search and replace color classes throughout the codebase
+2. Primary actions: `amber-500`, `amber-600`
+3. Backgrounds: `stone-100`, `stone-50`
+4. Text: `stone-800`, `stone-600`, `stone-400`
 
-### Change Colors
-The app uses Tailwind's `amber` and `stone` color palettes. Search and replace to customize.
+### Gift Card Amount
+
+Search for `$50` in `app/page.js` and update the amount.
+
+### Survey Deadline
+
+Update the deadline text in:
+- `app/page.js` (survey header)
+- `app/dashboard/page.js` (footer)
+
+### Meta Tags
+
+Edit `app/layout.js` to update:
+- Page title
+- Description
+- Open Graph tags
+
+---
 
 ## Tech Stack
 
-- **Next.js 14** — React framework
-- **Tailwind CSS** — Styling
-- **Supabase** — Database & auth
-- **Vercel** — Hosting
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| [Next.js](https://nextjs.org/) | 16.1 | React framework with App Router |
+| [React](https://react.dev/) | 19.2 | UI library |
+| [Tailwind CSS](https://tailwindcss.com/) | 4.1 | Utility-first CSS |
+| [Supabase](https://supabase.com/) | 2.89 | PostgreSQL database & API |
+| [Recharts](https://recharts.org/) | 3.6 | Charting library |
+| [Vercel](https://vercel.com/) | — | Hosting & deployment |
+
+---
+
+## Troubleshooting
+
+### "Error fetching data" on dashboard
+- Verify your Supabase URL and anon key are correct
+- Check that RLS policies are created
+- Ensure tables exist in your database
+
+### Survey submissions not saving
+- Check browser console for errors
+- Verify Supabase connection in Network tab
+- Ensure `survey_responses` table has the INSERT policy
+
+### Charts not rendering
+- Make sure you have responses in the database
+- Check that the field names match between code and database
+
+### Password not working
+- Environment variables require a redeploy to take effect
+- Clear browser cache/cookies
+- Check for typos in `NEXT_PUBLIC_DASHBOARD_PASSWORD`
+
+---
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+---
 
 ## License
 
 MIT — do whatever you want with it.
+
+---
+
+<p align="center">
+  Built with 🍷 for wine lovers everywhere
+</p>
