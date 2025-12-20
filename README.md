@@ -11,8 +11,8 @@
 </p>
 
 <p align="center">
-  <a href="https://valleysomm.vercel.app">
-    <img src="https://img.shields.io/badge/Live_Demo-valleysomm.vercel.app-C9A962?style=flat-square" alt="Live Demo" />
+  <a href="https://www.ValleySomm.com">
+    <img src="https://img.shields.io/badge/Live_Demo-valleysomm.vercel.app-C9A962?style=flat-square" alt="Live Site" />
   </a>
   <img src="https://img.shields.io/badge/Next.js-16-000000?style=flat-square&logo=next.js" alt="Next.js" />
   <img src="https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript" />
