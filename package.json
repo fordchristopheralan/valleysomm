@@ -1,7 +1,7 @@
 {
   "name": "valleysomm",
   "version": "1.0.0",
-  "description": "",
+  "description": "ValleySomm - Wine Country Trip Survey",
   "main": "index.js",
   "scripts": {
     "dev": "next dev",

@@ -17,7 +17,7 @@ import {
   Line,
 } from 'recharts'
 
-const COLORS = ['#f59e0b', '#d97706', '#b45309', '#92400e', '#78350f', '#fbbf24', '#fcd34d', '#fde68a', '#fef3c7', '#451a03']
+const COLORS = ['#6B2D3F', '#8B3A4D', '#C4637A', '#2D4A3E', '#5B7C6F', '#8FA99E', '#C9A962', '#B8A99A', '#4A4A50', '#E8E0D5']
 
 export default function Dashboard() {
   const [authenticated, setAuthenticated] = useState(false)
@@ -29,8 +29,8 @@ export default function Dashboard() {
   
   // Filters
   const [sourceFilter, setSourceFilter] = useState('all')
-  const [emailFilter, setEmailFilter] = useState('all') // 'all', 'with_email', 'anonymous'
-  const [timeFilter, setTimeFilter] = useState('all') // 'all', 'first_week', 'later'
+  const [emailFilter, setEmailFilter] = useState('all')
+  const [timeFilter, setTimeFilter] = useState('all')
 
   const correctPassword = process.env.NEXT_PUBLIC_DASHBOARD_PASSWORD || 'valleysomm2024'
 
@@ -66,7 +66,6 @@ export default function Dashboard() {
     }
   }, [authenticated])
 
-  // Calculate first week threshold (first response + 7 days)
   const firstWeekThreshold = useMemo(() => {
     if (data.length === 0) return null
     const sorted = [...data].sort((a, b) => new Date(a.submitted_at) - new Date(b.submitted_at))
@@ -74,28 +73,20 @@ export default function Dashboard() {
     return new Date(firstDate.getTime() + 7 * 24 * 60 * 60 * 1000)
   }, [data])
 
-  // Filter data based on selections
   const filteredData = useMemo(() => {
     return data.filter((r) => {
-      // Source filter
       if (sourceFilter !== 'all' && r.source !== sourceFilter) return false
-      
-      // Email filter
       if (emailFilter === 'with_email' && !r.email) return false
       if (emailFilter === 'anonymous' && r.email) return false
-      
-      // Time filter
       if (timeFilter !== 'all' && firstWeekThreshold) {
         const responseDate = new Date(r.submitted_at)
         if (timeFilter === 'first_week' && responseDate > firstWeekThreshold) return false
         if (timeFilter === 'later' && responseDate <= firstWeekThreshold) return false
       }
-      
       return true
     })
   }, [data, sourceFilter, emailFilter, timeFilter, firstWeekThreshold])
 
-  // Get unique sources for filter dropdown
   const uniqueSources = useMemo(() => {
     const sources = new Set(data.map((r) => r.source).filter(Boolean))
     return Array.from(sources)
@@ -104,22 +95,32 @@ export default function Dashboard() {
   // Password screen
   if (!authenticated) {
     return (
-      <div className="min-h-screen bg-stone-100 flex items-center justify-center p-6">
+      <div className="min-h-screen bg-cream flex items-center justify-center p-6">
         <div className="bg-white rounded-2xl shadow-xl p-8 max-w-sm w-full">
-          <h1 className="text-2xl font-bold text-stone-800 mb-2">Dashboard</h1>
-          <p className="text-stone-500 mb-6">Enter password to view survey results</p>
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <svg width="28" height="28" viewBox="0 0 80 80" fill="none">
+              <path d="M40 16C40 16 24 32 24 48C24 56.837 31.163 64 40 64C48.837 64 56 56.837 56 48C56 32 40 16 40 16Z" stroke="#6B2D3F" strokeWidth="2.5" fill="none"/>
+              <path d="M32 50C32 50 36 44 40 44C44 44 48 50 48 50" stroke="#C9A962" strokeWidth="2" fill="none" strokeLinecap="round"/>
+            </svg>
+            <span className="font-display text-xl font-medium">
+              <span className="text-wine-deep">Valley</span>
+              <span className="text-valley-deep">Somm</span>
+            </span>
+          </div>
+          <h1 className="font-display text-2xl font-medium text-charcoal mb-2 text-center">Dashboard</h1>
+          <p className="text-slate text-center mb-6">Enter password to view survey results</p>
           <form onSubmit={handleLogin}>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Password"
-              className="w-full p-3 rounded-lg border border-stone-200 focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none mb-4"
+              className="w-full p-3 rounded-lg border border-beige focus:border-wine-burgundy focus:ring-2 focus:ring-wine-rose/20 outline-none mb-4"
             />
-            {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+            {error && <p className="text-wine-deep text-sm mb-4">{error}</p>}
             <button
               type="submit"
-              className="w-full py-3 bg-amber-500 hover:bg-amber-600 text-white font-medium rounded-lg transition-colors"
+              className="w-full py-3 bg-wine-burgundy hover:bg-wine-deep text-white font-medium rounded-lg transition-colors"
             >
               Enter
             </button>
@@ -129,16 +130,15 @@ export default function Dashboard() {
     )
   }
 
-  // Loading state
   if (loading) {
     return (
-      <div className="min-h-screen bg-stone-100 flex items-center justify-center">
-        <div className="text-stone-500">Loading survey data...</div>
+      <div className="min-h-screen bg-cream flex items-center justify-center">
+        <div className="text-slate">Loading survey data...</div>
       </div>
     )
   }
 
-  // Calculate metrics (using filtered data)
+  // Calculate metrics
   const totalResponses = filteredData.length
   const totalUnfiltered = data.length
   const emailsCollected = filteredData.filter((r) => r.email).length
@@ -149,7 +149,6 @@ export default function Dashboard() {
     ? (filteredData.filter(r => r.confidence).reduce((sum, r) => sum + r.confidence, 0) / filteredData.filter(r => r.confidence).length).toFixed(1)
     : 0
 
-  // Count occurrences helper
   const countOccurrences = (field, isArray = false) => {
     const counts = {}
     filteredData.forEach((r) => {
@@ -166,7 +165,6 @@ export default function Dashboard() {
       .sort((a, b) => b.value - a.value)
   }
 
-  // Prepare chart data
   const regionsData = countOccurrences('regions', true)
   const planningData = countOccurrences('planning_time')
   const groupData = countOccurrences('group_type')
@@ -176,13 +174,11 @@ export default function Dashboard() {
   const payData = countOccurrences('pay')
   const sourceData = countOccurrences('source')
 
-  // Confidence distribution
   const confidenceData = [1, 2, 3, 4, 5].map((n) => ({
     name: n.toString(),
     value: filteredData.filter((r) => r.confidence === n).length,
   }))
 
-  // Responses over time (by day)
   const responsesByDay = {}
   filteredData.forEach((r) => {
     const day = new Date(r.submitted_at).toLocaleDateString()
@@ -192,20 +188,17 @@ export default function Dashboard() {
     .map(([date, count]) => ({ date, count }))
     .reverse()
 
-  // Willingness to pay percentage
   const willingToPay = filteredData.filter(
     (r) => r.pay === 'Yes — take my money' || r.pay === 'Maybe, depending on cost'
   ).length
   const payPercentage = totalResponses > 0 ? Math.round((willingToPay / totalResponses) * 100) : 0
 
-  // "Other" responses
   const otherRegionsUS = filteredData.filter((r) => r.regions_other_us).map((r) => r.regions_other_us)
   const otherRegionsIntl = filteredData.filter((r) => r.regions_international).map((r) => r.regions_international)
   const otherDiscovery = filteredData.filter((r) => r.discovery_other).map((r) => r.discovery_other)
   const otherDriver = filteredData.filter((r) => r.driver_other).map((r) => r.driver_other)
   const otherSource = filteredData.filter((r) => r.source_other).map((r) => r.source_other)
 
-  // Open-ended responses
   const hardestParts = filteredData.filter((r) => r.hardest_part).map((r) => ({ text: r.hardest_part, date: r.submitted_at, source: r.source }))
   const easierResponses = filteredData.filter((r) => r.easier).map((r) => ({ text: r.easier, date: r.submitted_at, source: r.source }))
   const surprises = filteredData.filter((r) => r.surprise).map((r) => ({ text: r.surprise, date: r.submitted_at, source: r.source }))
@@ -213,33 +206,43 @@ export default function Dashboard() {
   const isFiltered = sourceFilter !== 'all' || emailFilter !== 'all' || timeFilter !== 'all'
 
   return (
-    <div className="min-h-screen bg-stone-100 p-6">
+    <div className="min-h-screen bg-cream p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-stone-800">Valley Somm Dashboard</h1>
-            <p className="text-stone-500">Wine Country Trip Survey Results</p>
+          <div className="flex items-center gap-3">
+            <svg width="40" height="40" viewBox="0 0 80 80" fill="none">
+              <path d="M40 16C40 16 24 32 24 48C24 56.837 31.163 64 40 64C48.837 64 56 56.837 56 48C56 32 40 16 40 16Z" stroke="#6B2D3F" strokeWidth="2.5" fill="none"/>
+              <path d="M32 50C32 50 36 44 40 44C44 44 48 50 48 50" stroke="#C9A962" strokeWidth="2" fill="none" strokeLinecap="round"/>
+            </svg>
+            <div>
+              <h1 className="font-display text-3xl font-medium text-charcoal">
+                <span className="text-wine-deep">Valley</span>
+                <span className="text-valley-deep">Somm</span>
+                {' '}Dashboard
+              </h1>
+              <p className="text-slate">Wine Country Trip Survey Results</p>
+            </div>
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <a
               href="/review"
-              className="px-4 py-2 bg-stone-800 hover:bg-stone-900 text-white text-sm font-medium rounded-lg transition-colors"
+              className="px-4 py-2 bg-valley-deep hover:bg-charcoal text-white text-sm font-medium rounded-lg transition-colors"
             >
               Review Responses
             </a>
             <a
               href="/analysis"
-              className="px-4 py-2 bg-stone-800 hover:bg-stone-900 text-white text-sm font-medium rounded-lg transition-colors"
+              className="px-4 py-2 bg-valley-deep hover:bg-charcoal text-white text-sm font-medium rounded-lg transition-colors"
             >
               Analysis
             </a>
-            <span className="text-sm text-stone-400">
+            <span className="text-sm text-taupe">
               {lastRefresh?.toLocaleTimeString()}
             </span>
             <button
               onClick={fetchData}
-              className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-medium rounded-lg transition-colors"
+              className="px-4 py-2 bg-wine-burgundy hover:bg-wine-deep text-white text-sm font-medium rounded-lg transition-colors"
             >
               Refresh
             </button>
@@ -249,12 +252,12 @@ export default function Dashboard() {
         {/* Filters */}
         <div className="bg-white rounded-2xl shadow p-4 mb-6">
           <div className="flex flex-wrap items-center gap-4">
-            <span className="text-sm font-medium text-stone-700">Filters:</span>
+            <span className="text-sm font-medium text-charcoal">Filters:</span>
             
             <select
               value={sourceFilter}
               onChange={(e) => setSourceFilter(e.target.value)}
-              className="text-sm border border-stone-200 rounded-lg px-3 py-2 focus:border-amber-400 outline-none"
+              className="text-sm border border-beige rounded-lg px-3 py-2 focus:border-wine-burgundy outline-none"
             >
               <option value="all">All Sources</option>
               {uniqueSources.map((source) => (
@@ -265,7 +268,7 @@ export default function Dashboard() {
             <select
               value={emailFilter}
               onChange={(e) => setEmailFilter(e.target.value)}
-              className="text-sm border border-stone-200 rounded-lg px-3 py-2 focus:border-amber-400 outline-none"
+              className="text-sm border border-beige rounded-lg px-3 py-2 focus:border-wine-burgundy outline-none"
             >
               <option value="all">All Responses</option>
               <option value="with_email">With Email</option>
@@ -275,7 +278,7 @@ export default function Dashboard() {
             <select
               value={timeFilter}
               onChange={(e) => setTimeFilter(e.target.value)}
-              className="text-sm border border-stone-200 rounded-lg px-3 py-2 focus:border-amber-400 outline-none"
+              className="text-sm border border-beige rounded-lg px-3 py-2 focus:border-wine-burgundy outline-none"
             >
               <option value="all">All Time</option>
               <option value="first_week">First Week</option>
@@ -289,14 +292,14 @@ export default function Dashboard() {
                   setEmailFilter('all')
                   setTimeFilter('all')
                 }}
-                className="text-sm text-amber-600 hover:text-amber-700 font-medium"
+                className="text-sm text-wine-burgundy hover:text-wine-deep font-medium"
               >
                 Clear Filters
               </button>
             )}
 
             {isFiltered && (
-              <span className="text-sm text-stone-500">
+              <span className="text-sm text-slate">
                 Showing {totalResponses} of {totalUnfiltered} responses
               </span>
             )}
@@ -316,9 +319,9 @@ export default function Dashboard() {
         {/* Source Breakdown + Timeline */}
         <div className="grid md:grid-cols-2 gap-6 mb-6">
           <div className="bg-white rounded-2xl shadow p-6">
-            <h2 className="text-lg font-semibold text-stone-800 mb-4">Response Sources</h2>
+            <h2 className="font-display text-lg font-medium text-charcoal mb-4">Response Sources</h2>
             {sourceData.length === 0 ? (
-              <p className="text-stone-400 text-sm">No data yet</p>
+              <p className="text-taupe text-sm">No data yet</p>
             ) : (
               <ResponsiveContainer width="100%" height={200}>
                 <PieChart>
@@ -343,14 +346,14 @@ export default function Dashboard() {
 
           {timelineData.length > 0 && (
             <div className="bg-white rounded-2xl shadow p-6">
-              <h2 className="text-lg font-semibold text-stone-800 mb-4">Responses Over Time</h2>
+              <h2 className="font-display text-lg font-medium text-charcoal mb-4">Responses Over Time</h2>
               <ResponsiveContainer width="100%" height={200}>
                 <LineChart data={timelineData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e7e5e4" />
-                  <XAxis dataKey="date" tick={{ fontSize: 12 }} stroke="#a8a29e" />
-                  <YAxis tick={{ fontSize: 12 }} stroke="#a8a29e" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#E8E0D5" />
+                  <XAxis dataKey="date" tick={{ fontSize: 12 }} stroke="#B8A99A" />
+                  <YAxis tick={{ fontSize: 12 }} stroke="#B8A99A" />
                   <Tooltip />
-                  <Line type="monotone" dataKey="count" stroke="#f59e0b" strokeWidth={2} dot={{ fill: '#f59e0b' }} />
+                  <Line type="monotone" dataKey="count" stroke="#6B2D3F" strokeWidth={2} dot={{ fill: '#6B2D3F' }} />
                 </LineChart>
               </ResponsiveContainer>
             </div>
@@ -370,31 +373,31 @@ export default function Dashboard() {
         {/* Confidence & Pay Section */}
         <div className="grid md:grid-cols-2 gap-6 mb-6">
           <div className="bg-white rounded-2xl shadow p-6">
-            <h2 className="text-lg font-semibold text-stone-800 mb-4">Confidence in Winery Selection</h2>
-            <p className="text-sm text-stone-500 mb-4">1 = Total guesswork, 5 = Nailed it</p>
+            <h2 className="font-display text-lg font-medium text-charcoal mb-4">Confidence in Winery Selection</h2>
+            <p className="text-sm text-slate mb-4">1 = Total guesswork, 5 = Nailed it</p>
             <ResponsiveContainer width="100%" height={200}>
               <BarChart data={confidenceData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e7e5e4" />
-                <XAxis dataKey="name" stroke="#a8a29e" />
-                <YAxis stroke="#a8a29e" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#E8E0D5" />
+                <XAxis dataKey="name" stroke="#B8A99A" />
+                <YAxis stroke="#B8A99A" />
                 <Tooltip />
-                <Bar dataKey="value" fill="#f59e0b" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="value" fill="#6B2D3F" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
 
           <div className="bg-white rounded-2xl shadow p-6">
-            <h2 className="text-lg font-semibold text-stone-800 mb-4">Willingness to Pay</h2>
+            <h2 className="font-display text-lg font-medium text-charcoal mb-4">Willingness to Pay</h2>
             {payData.length === 0 ? (
-              <p className="text-stone-400 text-sm">No data yet</p>
+              <p className="text-taupe text-sm">No data yet</p>
             ) : (
               <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={payData} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e7e5e4" />
-                  <XAxis type="number" stroke="#a8a29e" />
-                  <YAxis type="category" dataKey="name" width={180} tick={{ fontSize: 11 }} stroke="#a8a29e" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#E8E0D5" />
+                  <XAxis type="number" stroke="#B8A99A" />
+                  <YAxis type="category" dataKey="name" width={180} tick={{ fontSize: 11 }} stroke="#B8A99A" />
                   <Tooltip />
-                  <Bar dataKey="value" fill="#f59e0b" radius={[0, 4, 4, 0]} />
+                  <Bar dataKey="value" fill="#2D4A3E" radius={[0, 4, 4, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             )}
@@ -404,44 +407,44 @@ export default function Dashboard() {
         {/* "Other" Responses */}
         {(otherRegionsUS.length > 0 || otherRegionsIntl.length > 0 || otherDiscovery.length > 0 || otherDriver.length > 0 || otherSource.length > 0) && (
           <div className="bg-white rounded-2xl shadow p-6 mb-6">
-            <h2 className="text-lg font-semibold text-stone-800 mb-4">&quot;Other&quot; Responses</h2>
+            <h2 className="font-display text-lg font-medium text-charcoal mb-4">&quot;Other&quot; Responses</h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {otherRegionsUS.length > 0 && (
                 <div>
-                  <h3 className="font-medium text-stone-700 mb-2">Other US Regions</h3>
-                  <ul className="text-sm text-stone-600 space-y-1">
+                  <h3 className="font-medium text-charcoal mb-2">Other US Regions</h3>
+                  <ul className="text-sm text-slate space-y-1">
                     {otherRegionsUS.map((r, i) => <li key={i}>• {r}</li>)}
                   </ul>
                 </div>
               )}
               {otherRegionsIntl.length > 0 && (
                 <div>
-                  <h3 className="font-medium text-stone-700 mb-2">International Regions</h3>
-                  <ul className="text-sm text-stone-600 space-y-1">
+                  <h3 className="font-medium text-charcoal mb-2">International Regions</h3>
+                  <ul className="text-sm text-slate space-y-1">
                     {otherRegionsIntl.map((r, i) => <li key={i}>• {r}</li>)}
                   </ul>
                 </div>
               )}
               {otherDiscovery.length > 0 && (
                 <div>
-                  <h3 className="font-medium text-stone-700 mb-2">Other Discovery Methods</h3>
-                  <ul className="text-sm text-stone-600 space-y-1">
+                  <h3 className="font-medium text-charcoal mb-2">Other Discovery Methods</h3>
+                  <ul className="text-sm text-slate space-y-1">
                     {otherDiscovery.map((r, i) => <li key={i}>• {r}</li>)}
                   </ul>
                 </div>
               )}
               {otherDriver.length > 0 && (
                 <div>
-                  <h3 className="font-medium text-stone-700 mb-2">Other Driver Solutions</h3>
-                  <ul className="text-sm text-stone-600 space-y-1">
+                  <h3 className="font-medium text-charcoal mb-2">Other Driver Solutions</h3>
+                  <ul className="text-sm text-slate space-y-1">
                     {otherDriver.map((r, i) => <li key={i}>• {r}</li>)}
                   </ul>
                 </div>
               )}
               {otherSource.length > 0 && (
                 <div>
-                  <h3 className="font-medium text-stone-700 mb-2">Other Sources</h3>
-                  <ul className="text-sm text-stone-600 space-y-1">
+                  <h3 className="font-medium text-charcoal mb-2">Other Sources</h3>
+                  <ul className="text-sm text-slate space-y-1">
                     {otherSource.map((r, i) => <li key={i}>• {r}</li>)}
                   </ul>
                 </div>
@@ -458,7 +461,7 @@ export default function Dashboard() {
         </div>
 
         {/* Footer */}
-        <p className="text-center text-sm text-stone-400 mt-8">
+        <p className="text-center text-sm text-taupe mt-8">
           Drawing ends January 20, 2025
         </p>
       </div>
@@ -469,8 +472,8 @@ export default function Dashboard() {
 function MetricCard({ label, value }) {
   return (
     <div className="bg-white rounded-2xl shadow p-6">
-      <p className="text-sm text-stone-500 mb-1">{label}</p>
-      <p className="text-3xl font-bold text-stone-800">{value}</p>
+      <p className="text-sm text-slate mb-1">{label}</p>
+      <p className="text-3xl font-display font-medium text-charcoal">{value}</p>
     </div>
   )
 }
@@ -479,28 +482,28 @@ function ChartCard({ title, data }) {
   if (data.length === 0) {
     return (
       <div className="bg-white rounded-2xl shadow p-6">
-        <h2 className="text-lg font-semibold text-stone-800 mb-4">{title}</h2>
-        <p className="text-stone-400 text-sm">No data yet</p>
+        <h2 className="font-display text-lg font-medium text-charcoal mb-4">{title}</h2>
+        <p className="text-taupe text-sm">No data yet</p>
       </div>
     )
   }
 
   return (
     <div className="bg-white rounded-2xl shadow p-6">
-      <h2 className="text-lg font-semibold text-stone-800 mb-4">{title}</h2>
+      <h2 className="font-display text-lg font-medium text-charcoal mb-4">{title}</h2>
       <ResponsiveContainer width="100%" height={Math.max(200, data.length * 35)}>
         <BarChart data={data} layout="vertical" margin={{ left: 20, right: 20 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#e7e5e4" />
-          <XAxis type="number" stroke="#a8a29e" />
+          <CartesianGrid strokeDasharray="3 3" stroke="#E8E0D5" />
+          <XAxis type="number" stroke="#B8A99A" />
           <YAxis 
             type="category" 
             dataKey="name" 
             width={150} 
             tick={{ fontSize: 12 }} 
-            stroke="#a8a29e"
+            stroke="#B8A99A"
           />
           <Tooltip />
-          <Bar dataKey="value" fill="#f59e0b" radius={[0, 4, 4, 0]} />
+          <Bar dataKey="value" fill="#8B3A4D" radius={[0, 4, 4, 0]} />
         </BarChart>
       </ResponsiveContainer>
     </div>
@@ -510,16 +513,16 @@ function ChartCard({ title, data }) {
 function OpenEndedCard({ title, responses }) {
   return (
     <div className="bg-white rounded-2xl shadow p-6">
-      <h2 className="text-lg font-semibold text-stone-800 mb-2">{title}</h2>
-      <p className="text-sm text-stone-400 mb-4">{responses.length} responses</p>
+      <h2 className="font-display text-lg font-medium text-charcoal mb-2">{title}</h2>
+      <p className="text-sm text-taupe mb-4">{responses.length} responses</p>
       <div className="space-y-4 max-h-96 overflow-y-auto">
         {responses.length === 0 ? (
-          <p className="text-stone-400 text-sm">No responses yet</p>
+          <p className="text-taupe text-sm">No responses yet</p>
         ) : (
           responses.map((r, i) => (
-            <div key={i} className="border-b border-stone-100 pb-3 last:border-0">
-              <p className="text-stone-700 text-sm">{r.text}</p>
-              <p className="text-stone-400 text-xs mt-1">
+            <div key={i} className="border-b border-beige pb-3 last:border-0">
+              <p className="text-charcoal text-sm">{r.text}</p>
+              <p className="text-taupe text-xs mt-1">
                 {new Date(r.date).toLocaleDateString()}
                 {r.source && <span className="ml-2">• {r.source}</span>}
               </p>

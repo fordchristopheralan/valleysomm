@@ -10,13 +10,7 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  ScatterChart,
-  Scatter,
-  ZAxis,
-  Cell,
 } from 'recharts'
-
-const COLORS = ['#f59e0b', '#d97706', '#b45309', '#92400e', '#78350f', '#fbbf24', '#fcd34d', '#fde68a']
 
 export default function AnalysisPage() {
   const [authenticated, setAuthenticated] = useState(false)
@@ -25,9 +19,8 @@ export default function AnalysisPage() {
   const [loading, setLoading] = useState(true)
   const [responses, setResponses] = useState([])
   const [features, setFeatures] = useState([])
-  const [activeTab, setActiveTab] = useState('matrix') // 'matrix', 'features', 'segments'
+  const [activeTab, setActiveTab] = useState('matrix')
   
-  // New feature form
   const [newFeature, setNewFeature] = useState({
     name: '',
     description: '',
@@ -53,7 +46,6 @@ export default function AnalysisPage() {
   const fetchData = async () => {
     setLoading(true)
     
-    // Fetch responses
     const { data: responseData } = await supabase
       .from('survey_responses')
       .select('*')
@@ -61,7 +53,6 @@ export default function AnalysisPage() {
 
     setResponses(responseData || [])
 
-    // Fetch feature concepts
     const { data: featureData, error: featureError } = await supabase
       .from('feature_concepts')
       .select('*')
@@ -80,12 +71,10 @@ export default function AnalysisPage() {
     }
   }, [authenticated])
 
-  // Calculate pain point matrix data
   const painPointMatrix = useMemo(() => {
     const reviewed = responses.filter((r) => r.reviewed)
     if (reviewed.length === 0) return []
 
-    // Count themes across all open-ended fields
     const themeCounts = {}
     const themeIntensity = {}
     const themeWTP = {}
@@ -101,13 +90,11 @@ export default function AnalysisPage() {
       uniqueThemes.forEach((theme) => {
         themeCounts[theme] = (themeCounts[theme] || 0) + 1
         
-        // Track intensity
         if (r.intensity_score) {
           if (!themeIntensity[theme]) themeIntensity[theme] = []
           themeIntensity[theme].push(r.intensity_score)
         }
         
-        // Track willingness to pay
         const wouldPay = r.pay === 'Yes — take my money' || r.pay === 'Maybe, depending on cost'
         if (!themeWTP[theme]) themeWTP[theme] = { yes: 0, total: 0 }
         themeWTP[theme].total++
@@ -115,7 +102,6 @@ export default function AnalysisPage() {
       })
     })
 
-    // Calculate scores for each theme
     return Object.keys(themeCounts).map((theme) => {
       const frequency = (themeCounts[theme] / reviewed.length) * 100
       const avgIntensity = themeIntensity[theme]?.length > 0
@@ -135,7 +121,6 @@ export default function AnalysisPage() {
     }).sort((a, b) => b.frequency - a.frequency)
   }, [responses])
 
-  // Segment analysis data
   const segmentAnalysis = useMemo(() => {
     const reviewed = responses.filter((r) => r.reviewed)
     if (reviewed.length === 0) return {}
@@ -148,27 +133,22 @@ export default function AnalysisPage() {
     }
 
     reviewed.forEach((r) => {
-      // By group type
       const groupType = r.group_type || 'Unknown'
       if (!segments.byGroupType[groupType]) segments.byGroupType[groupType] = []
       segments.byGroupType[groupType].push(r)
 
-      // By confidence (low = 1-2, high = 4-5)
       if (r.confidence <= 2) segments.byConfidence.low.push(r)
       else if (r.confidence >= 4) segments.byConfidence.high.push(r)
 
-      // By WTP
       const wouldPay = r.pay === 'Yes — take my money' || r.pay === 'Maybe, depending on cost'
       if (wouldPay) segments.byWTP.yes.push(r)
       else segments.byWTP.no.push(r)
 
-      // By source
       const source = r.source || 'Unknown'
       if (!segments.bySource[source]) segments.bySource[source] = []
       segments.bySource[source].push(r)
     })
 
-    // Calculate top themes for each segment
     const getTopThemes = (responses) => {
       const counts = {}
       responses.forEach((r) => {
@@ -291,22 +271,32 @@ export default function AnalysisPage() {
   // Password screen
   if (!authenticated) {
     return (
-      <div className="min-h-screen bg-stone-100 flex items-center justify-center p-6">
+      <div className="min-h-screen bg-cream flex items-center justify-center p-6">
         <div className="bg-white rounded-2xl shadow-xl p-8 max-w-sm w-full">
-          <h1 className="text-2xl font-bold text-stone-800 mb-2">Feature Analysis</h1>
-          <p className="text-stone-500 mb-6">Enter password to access analysis tools</p>
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <svg width="28" height="28" viewBox="0 0 80 80" fill="none">
+              <path d="M40 16C40 16 24 32 24 48C24 56.837 31.163 64 40 64C48.837 64 56 56.837 56 48C56 32 40 16 40 16Z" stroke="#6B2D3F" strokeWidth="2.5" fill="none"/>
+              <path d="M32 50C32 50 36 44 40 44C44 44 48 50 48 50" stroke="#C9A962" strokeWidth="2" fill="none" strokeLinecap="round"/>
+            </svg>
+            <span className="font-display text-xl font-medium">
+              <span className="text-wine-deep">Valley</span>
+              <span className="text-valley-deep">Somm</span>
+            </span>
+          </div>
+          <h1 className="font-display text-2xl font-medium text-charcoal mb-2 text-center">Feature Analysis</h1>
+          <p className="text-slate text-center mb-6">Enter password to access analysis tools</p>
           <form onSubmit={handleLogin}>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Password"
-              className="w-full p-3 rounded-lg border border-stone-200 focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none mb-4"
+              className="w-full p-3 rounded-lg border border-beige focus:border-wine-burgundy focus:ring-2 focus:ring-wine-rose/20 outline-none mb-4"
             />
-            {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+            {error && <p className="text-wine-deep text-sm mb-4">{error}</p>}
             <button
               type="submit"
-              className="w-full py-3 bg-amber-500 hover:bg-amber-600 text-white font-medium rounded-lg transition-colors"
+              className="w-full py-3 bg-wine-burgundy hover:bg-wine-deep text-white font-medium rounded-lg transition-colors"
             >
               Enter
             </button>
@@ -318,8 +308,8 @@ export default function AnalysisPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-stone-100 flex items-center justify-center">
-        <div className="text-stone-500">Loading analysis data...</div>
+      <div className="min-h-screen bg-cream flex items-center justify-center">
+        <div className="text-slate">Loading analysis data...</div>
       </div>
     )
   }
@@ -327,27 +317,33 @@ export default function AnalysisPage() {
   const reviewedCount = responses.filter((r) => r.reviewed).length
 
   return (
-    <div className="min-h-screen bg-stone-100 p-6">
+    <div className="min-h-screen bg-cream p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-stone-800">Feature Analysis</h1>
-            <p className="text-stone-500">Pain point matrix & ICE prioritization</p>
+          <div className="flex items-center gap-3">
+            <svg width="40" height="40" viewBox="0 0 80 80" fill="none">
+              <path d="M40 16C40 16 24 32 24 48C24 56.837 31.163 64 40 64C48.837 64 56 56.837 56 48C56 32 40 16 40 16Z" stroke="#6B2D3F" strokeWidth="2.5" fill="none"/>
+              <path d="M32 50C32 50 36 44 40 44C44 44 48 50 48 50" stroke="#C9A962" strokeWidth="2" fill="none" strokeLinecap="round"/>
+            </svg>
+            <div>
+              <h1 className="font-display text-3xl font-medium text-charcoal">Feature Analysis</h1>
+              <p className="text-slate">Pain point matrix & ICE prioritization</p>
+            </div>
           </div>
           <div className="flex items-center gap-4">
-            <span className="text-sm text-stone-500">
+            <span className="text-sm text-slate">
               {reviewedCount} responses reviewed
             </span>
             <a
               href="/review"
-              className="px-4 py-2 bg-stone-800 hover:bg-stone-900 text-white text-sm font-medium rounded-lg transition-colors"
+              className="px-4 py-2 bg-valley-deep hover:bg-charcoal text-white text-sm font-medium rounded-lg transition-colors"
             >
               Review Responses
             </a>
             <a
               href="/dashboard"
-              className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-medium rounded-lg transition-colors"
+              className="px-4 py-2 bg-wine-burgundy hover:bg-wine-deep text-white text-sm font-medium rounded-lg transition-colors"
             >
               Dashboard
             </a>
@@ -359,7 +355,7 @@ export default function AnalysisPage() {
           <button
             onClick={() => setActiveTab('matrix')}
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-              activeTab === 'matrix' ? 'bg-amber-500 text-white' : 'bg-white text-stone-600 hover:bg-stone-50'
+              activeTab === 'matrix' ? 'bg-wine-burgundy text-white' : 'bg-white text-slate hover:bg-cream'
             }`}
           >
             Pain Point Matrix
@@ -367,7 +363,7 @@ export default function AnalysisPage() {
           <button
             onClick={() => setActiveTab('segments')}
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-              activeTab === 'segments' ? 'bg-amber-500 text-white' : 'bg-white text-stone-600 hover:bg-stone-50'
+              activeTab === 'segments' ? 'bg-wine-burgundy text-white' : 'bg-white text-slate hover:bg-cream'
             }`}
           >
             Segment Analysis
@@ -375,7 +371,7 @@ export default function AnalysisPage() {
           <button
             onClick={() => setActiveTab('features')}
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-              activeTab === 'features' ? 'bg-amber-500 text-white' : 'bg-white text-stone-600 hover:bg-stone-50'
+              activeTab === 'features' ? 'bg-wine-burgundy text-white' : 'bg-white text-slate hover:bg-cream'
             }`}
           >
             Feature Concepts (ICE)
@@ -387,71 +383,70 @@ export default function AnalysisPage() {
           <div className="space-y-6">
             {reviewedCount === 0 ? (
               <div className="bg-white rounded-2xl shadow p-8 text-center">
-                <p className="text-stone-500 mb-4">No reviewed responses yet.</p>
-                <a href="/review" className="text-amber-600 hover:text-amber-700 font-medium">
+                <p className="text-slate mb-4">No reviewed responses yet.</p>
+                <a href="/review" className="text-wine-burgundy hover:text-wine-deep font-medium">
                   Start reviewing responses →
                 </a>
               </div>
             ) : (
               <>
-                {/* Matrix Table */}
                 <div className="bg-white rounded-2xl shadow overflow-hidden">
-                  <div className="p-6 border-b border-stone-100">
-                    <h2 className="text-lg font-semibold text-stone-800">Pain Point Scoring Matrix</h2>
-                    <p className="text-sm text-stone-500">Based on {reviewedCount} reviewed responses</p>
+                  <div className="p-6 border-b border-beige">
+                    <h2 className="font-display text-lg font-medium text-charcoal">Pain Point Scoring Matrix</h2>
+                    <p className="text-sm text-slate">Based on {reviewedCount} reviewed responses</p>
                   </div>
                   <div className="overflow-x-auto">
                     <table className="w-full">
-                      <thead className="bg-stone-50">
+                      <thead className="bg-cream">
                         <tr>
-                          <th className="text-left p-4 font-medium text-stone-600">Pain Point</th>
-                          <th className="text-center p-4 font-medium text-stone-600">Frequency</th>
-                          <th className="text-center p-4 font-medium text-stone-600">Avg Intensity</th>
-                          <th className="text-center p-4 font-medium text-stone-600">WTP Rate</th>
-                          <th className="text-center p-4 font-medium text-stone-600">Count</th>
+                          <th className="text-left p-4 font-medium text-slate">Pain Point</th>
+                          <th className="text-center p-4 font-medium text-slate">Frequency</th>
+                          <th className="text-center p-4 font-medium text-slate">Avg Intensity</th>
+                          <th className="text-center p-4 font-medium text-slate">WTP Rate</th>
+                          <th className="text-center p-4 font-medium text-slate">Count</th>
                         </tr>
                       </thead>
                       <tbody>
                         {painPointMatrix.map((row, i) => (
-                          <tr key={row.name} className="border-t border-stone-100">
+                          <tr key={row.name} className="border-t border-beige">
                             <td className="p-4">
                               <div className="flex items-center gap-2">
-                                <span className="w-6 h-6 rounded-full bg-amber-100 text-amber-700 text-xs flex items-center justify-center font-medium">
+                                <span className="w-6 h-6 rounded-full bg-wine-rose/20 text-wine-burgundy text-xs flex items-center justify-center font-medium">
                                   {i + 1}
                                 </span>
-                                <span className="font-medium text-stone-800">{row.name}</span>
+                                <span className="font-medium text-charcoal">{row.name}</span>
                               </div>
                             </td>
                             <td className="p-4 text-center">
                               <div className="inline-flex items-center gap-2">
-                                <div className="w-24 h-2 bg-stone-100 rounded-full overflow-hidden">
+                                <div className="w-24 h-2 bg-beige rounded-full overflow-hidden">
                                   <div 
-                                    className="h-full bg-amber-500" 
+                                    className="h-full bg-wine-burgundy" 
                                     style={{ width: `${row.frequency}%` }}
                                   />
                                 </div>
-                                <span className="text-sm text-stone-600">{row.frequency}%</span>
+                                <span className="text-sm text-slate">{row.frequency}%</span>
                               </div>
                             </td>
                             <td className="p-4 text-center">
                               <span className={`px-2 py-1 rounded text-sm ${
-                                row.intensity >= 4 ? 'bg-red-100 text-red-700' :
-                                row.intensity >= 3 ? 'bg-amber-100 text-amber-700' :
-                                'bg-stone-100 text-stone-600'
+                                row.intensity >= 4 ? 'bg-wine-deep/10 text-wine-deep' :
+                                row.intensity >= 3 ? 'bg-gold/20 text-charcoal' :
+                                'bg-beige text-slate'
                               }`}>
                                 {row.intensity}/5
                               </span>
                             </td>
                             <td className="p-4 text-center">
                               <span className={`px-2 py-1 rounded text-sm ${
-                                row.wtp >= 60 ? 'bg-green-100 text-green-700' :
-                                row.wtp >= 40 ? 'bg-amber-100 text-amber-700' :
-                                'bg-stone-100 text-stone-600'
+                                row.wtp >= 60 ? 'bg-valley-sage/20 text-valley-deep' :
+                                row.wtp >= 40 ? 'bg-gold/20 text-charcoal' :
+                                'bg-beige text-slate'
                               }`}>
                                 {row.wtp}%
                               </span>
                             </td>
-                            <td className="p-4 text-center text-stone-600">{row.count}</td>
+                            <td className="p-4 text-center text-slate">{row.count}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -459,16 +454,15 @@ export default function AnalysisPage() {
                   </div>
                 </div>
 
-                {/* Frequency Chart */}
                 <div className="bg-white rounded-2xl shadow p-6">
-                  <h2 className="text-lg font-semibold text-stone-800 mb-4">Pain Point Frequency</h2>
+                  <h2 className="font-display text-lg font-medium text-charcoal mb-4">Pain Point Frequency</h2>
                   <ResponsiveContainer width="100%" height={300}>
                     <BarChart data={painPointMatrix} layout="vertical">
-                      <CartesianGrid strokeDasharray="3 3" stroke="#e7e5e4" />
-                      <XAxis type="number" domain={[0, 100]} stroke="#a8a29e" />
-                      <YAxis type="category" dataKey="name" width={150} tick={{ fontSize: 12 }} stroke="#a8a29e" />
+                      <CartesianGrid strokeDasharray="3 3" stroke="#E8E0D5" />
+                      <XAxis type="number" domain={[0, 100]} stroke="#B8A99A" />
+                      <YAxis type="category" dataKey="name" width={150} tick={{ fontSize: 12 }} stroke="#B8A99A" />
                       <Tooltip formatter={(value) => `${value}%`} />
-                      <Bar dataKey="frequency" fill="#f59e0b" radius={[0, 4, 4, 0]} />
+                      <Bar dataKey="frequency" fill="#8B3A4D" radius={[0, 4, 4, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -482,8 +476,8 @@ export default function AnalysisPage() {
           <div className="space-y-6">
             {reviewedCount === 0 ? (
               <div className="bg-white rounded-2xl shadow p-8 text-center">
-                <p className="text-stone-500 mb-4">No reviewed responses yet.</p>
-                <a href="/review" className="text-amber-600 hover:text-amber-700 font-medium">
+                <p className="text-slate mb-4">No reviewed responses yet.</p>
+                <a href="/review" className="text-wine-burgundy hover:text-wine-deep font-medium">
                   Start reviewing responses →
                 </a>
               </div>
@@ -491,17 +485,17 @@ export default function AnalysisPage() {
               <div className="grid md:grid-cols-2 gap-6">
                 {/* By Group Type */}
                 <div className="bg-white rounded-2xl shadow p-6">
-                  <h2 className="text-lg font-semibold text-stone-800 mb-4">By Group Type</h2>
+                  <h2 className="font-display text-lg font-medium text-charcoal mb-4">By Group Type</h2>
                   <div className="space-y-4">
                     {segmentAnalysis.byGroupType?.map((seg) => (
-                      <div key={seg.name} className="border-b border-stone-100 pb-4 last:border-0">
+                      <div key={seg.name} className="border-b border-beige pb-4 last:border-0">
                         <div className="flex justify-between items-center mb-2">
-                          <span className="font-medium text-stone-800">{seg.name}</span>
-                          <span className="text-sm text-stone-500">{seg.count} responses</span>
+                          <span className="font-medium text-charcoal">{seg.name}</span>
+                          <span className="text-sm text-slate">{seg.count} responses</span>
                         </div>
                         <div className="flex flex-wrap gap-2">
                           {seg.topThemes.map((t) => (
-                            <span key={t.name} className="text-xs bg-amber-100 text-amber-700 px-2 py-1 rounded">
+                            <span key={t.name} className="text-xs bg-wine-rose/20 text-wine-burgundy px-2 py-1 rounded">
                               {t.name} ({t.pct}%)
                             </span>
                           ))}
@@ -513,16 +507,16 @@ export default function AnalysisPage() {
 
                 {/* By Confidence */}
                 <div className="bg-white rounded-2xl shadow p-6">
-                  <h2 className="text-lg font-semibold text-stone-800 mb-4">By Confidence Level</h2>
+                  <h2 className="font-display text-lg font-medium text-charcoal mb-4">By Confidence Level</h2>
                   <div className="space-y-4">
-                    <div className="border-b border-stone-100 pb-4">
+                    <div className="border-b border-beige pb-4">
                       <div className="flex justify-between items-center mb-2">
-                        <span className="font-medium text-stone-800">Low Confidence (1-2)</span>
-                        <span className="text-sm text-stone-500">{segmentAnalysis.byConfidence?.low?.count || 0} responses</span>
+                        <span className="font-medium text-charcoal">Low Confidence (1-2)</span>
+                        <span className="text-sm text-slate">{segmentAnalysis.byConfidence?.low?.count || 0} responses</span>
                       </div>
                       <div className="flex flex-wrap gap-2">
                         {segmentAnalysis.byConfidence?.low?.topThemes?.map((t) => (
-                          <span key={t.name} className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded">
+                          <span key={t.name} className="text-xs bg-wine-deep/10 text-wine-deep px-2 py-1 rounded">
                             {t.name} ({t.pct}%)
                           </span>
                         ))}
@@ -530,12 +524,12 @@ export default function AnalysisPage() {
                     </div>
                     <div>
                       <div className="flex justify-between items-center mb-2">
-                        <span className="font-medium text-stone-800">High Confidence (4-5)</span>
-                        <span className="text-sm text-stone-500">{segmentAnalysis.byConfidence?.high?.count || 0} responses</span>
+                        <span className="font-medium text-charcoal">High Confidence (4-5)</span>
+                        <span className="text-sm text-slate">{segmentAnalysis.byConfidence?.high?.count || 0} responses</span>
                       </div>
                       <div className="flex flex-wrap gap-2">
                         {segmentAnalysis.byConfidence?.high?.topThemes?.map((t) => (
-                          <span key={t.name} className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">
+                          <span key={t.name} className="text-xs bg-valley-sage/20 text-valley-deep px-2 py-1 rounded">
                             {t.name} ({t.pct}%)
                           </span>
                         ))}
@@ -546,16 +540,16 @@ export default function AnalysisPage() {
 
                 {/* By WTP */}
                 <div className="bg-white rounded-2xl shadow p-6">
-                  <h2 className="text-lg font-semibold text-stone-800 mb-4">By Willingness to Pay</h2>
+                  <h2 className="font-display text-lg font-medium text-charcoal mb-4">By Willingness to Pay</h2>
                   <div className="space-y-4">
-                    <div className="border-b border-stone-100 pb-4">
+                    <div className="border-b border-beige pb-4">
                       <div className="flex justify-between items-center mb-2">
-                        <span className="font-medium text-stone-800">Would Pay</span>
-                        <span className="text-sm text-stone-500">{segmentAnalysis.byWTP?.yes?.count || 0} responses</span>
+                        <span className="font-medium text-charcoal">Would Pay</span>
+                        <span className="text-sm text-slate">{segmentAnalysis.byWTP?.yes?.count || 0} responses</span>
                       </div>
                       <div className="flex flex-wrap gap-2">
                         {segmentAnalysis.byWTP?.yes?.topThemes?.map((t) => (
-                          <span key={t.name} className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">
+                          <span key={t.name} className="text-xs bg-valley-sage/20 text-valley-deep px-2 py-1 rounded">
                             {t.name} ({t.pct}%)
                           </span>
                         ))}
@@ -563,12 +557,12 @@ export default function AnalysisPage() {
                     </div>
                     <div>
                       <div className="flex justify-between items-center mb-2">
-                        <span className="font-medium text-stone-800">{"Wouldn't Pay"}</span>
-                        <span className="text-sm text-stone-500">{segmentAnalysis.byWTP?.no?.count || 0} responses</span>
+                        <span className="font-medium text-charcoal">{"Wouldn't Pay"}</span>
+                        <span className="text-sm text-slate">{segmentAnalysis.byWTP?.no?.count || 0} responses</span>
                       </div>
                       <div className="flex flex-wrap gap-2">
                         {segmentAnalysis.byWTP?.no?.topThemes?.map((t) => (
-                          <span key={t.name} className="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">
+                          <span key={t.name} className="text-xs bg-beige text-slate px-2 py-1 rounded">
                             {t.name} ({t.pct}%)
                           </span>
                         ))}
@@ -579,17 +573,17 @@ export default function AnalysisPage() {
 
                 {/* By Source */}
                 <div className="bg-white rounded-2xl shadow p-6">
-                  <h2 className="text-lg font-semibold text-stone-800 mb-4">By Source</h2>
+                  <h2 className="font-display text-lg font-medium text-charcoal mb-4">By Source</h2>
                   <div className="space-y-4">
                     {segmentAnalysis.bySource?.map((seg) => (
-                      <div key={seg.name} className="border-b border-stone-100 pb-4 last:border-0">
+                      <div key={seg.name} className="border-b border-beige pb-4 last:border-0">
                         <div className="flex justify-between items-center mb-2">
-                          <span className="font-medium text-stone-800">{seg.name}</span>
-                          <span className="text-sm text-stone-500">{seg.count} responses</span>
+                          <span className="font-medium text-charcoal">{seg.name}</span>
+                          <span className="text-sm text-slate">{seg.count} responses</span>
                         </div>
                         <div className="flex flex-wrap gap-2">
                           {seg.topThemes.map((t) => (
-                            <span key={t.name} className="text-xs bg-amber-100 text-amber-700 px-2 py-1 rounded">
+                            <span key={t.name} className="text-xs bg-wine-rose/20 text-wine-burgundy px-2 py-1 rounded">
                               {t.name} ({t.pct}%)
                             </span>
                           ))}
@@ -608,37 +602,37 @@ export default function AnalysisPage() {
           <div className="space-y-6">
             {/* Add/Edit Feature Form */}
             <div className="bg-white rounded-2xl shadow p-6">
-              <h2 className="text-lg font-semibold text-stone-800 mb-4">
+              <h2 className="font-display text-lg font-medium text-charcoal mb-4">
                 {editingFeature ? 'Edit Feature Concept' : 'Add Feature Concept'}
               </h2>
               
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-stone-600 mb-1">Feature Name</label>
+                    <label className="block text-sm font-medium text-slate mb-1">Feature Name</label>
                     <input
                       type="text"
                       value={newFeature.name}
                       onChange={(e) => setNewFeature({ ...newFeature, name: e.target.value })}
                       placeholder="e.g., Wine Personality Quiz"
-                      className="w-full p-3 rounded-lg border border-stone-200 focus:border-amber-400 outline-none"
+                      className="w-full p-3 rounded-lg border border-beige focus:border-wine-burgundy outline-none"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-stone-600 mb-1">Description</label>
+                    <label className="block text-sm font-medium text-slate mb-1">Description</label>
                     <textarea
                       value={newFeature.description}
                       onChange={(e) => setNewFeature({ ...newFeature, description: e.target.value })}
                       placeholder="What does this feature do?"
-                      className="w-full p-3 rounded-lg border border-stone-200 focus:border-amber-400 outline-none h-24 resize-none"
+                      className="w-full p-3 rounded-lg border border-beige focus:border-wine-burgundy outline-none h-24 resize-none"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-stone-600 mb-1">Pain Point Addressed</label>
+                    <label className="block text-sm font-medium text-slate mb-1">Pain Point Addressed</label>
                     <select
                       value={newFeature.pain_point}
                       onChange={(e) => setNewFeature({ ...newFeature, pain_point: e.target.value })}
-                      className="w-full p-3 rounded-lg border border-stone-200 focus:border-amber-400 outline-none"
+                      className="w-full p-3 rounded-lg border border-beige focus:border-wine-burgundy outline-none"
                     >
                       <option value="">Select pain point...</option>
                       {painPointMatrix.map((p) => (
@@ -650,7 +644,7 @@ export default function AnalysisPage() {
 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-stone-600 mb-2">
+                    <label className="block text-sm font-medium text-slate mb-2">
                       Impact (1-10): How much does this reduce the pain?
                     </label>
                     <input
@@ -659,17 +653,17 @@ export default function AnalysisPage() {
                       max="10"
                       value={newFeature.impact}
                       onChange={(e) => setNewFeature({ ...newFeature, impact: parseInt(e.target.value) })}
-                      className="w-full"
+                      className="w-full accent-wine-burgundy"
                     />
-                    <div className="flex justify-between text-xs text-stone-400">
+                    <div className="flex justify-between text-xs text-taupe">
                       <span>Minimal</span>
-                      <span className="font-medium text-stone-700">{newFeature.impact}</span>
+                      <span className="font-medium text-charcoal">{newFeature.impact}</span>
                       <span>Game-changing</span>
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-stone-600 mb-2">
+                    <label className="block text-sm font-medium text-slate mb-2">
                       Confidence (1-10): How sure are you this solves it?
                     </label>
                     <input
@@ -678,17 +672,17 @@ export default function AnalysisPage() {
                       max="10"
                       value={newFeature.confidence}
                       onChange={(e) => setNewFeature({ ...newFeature, confidence: parseInt(e.target.value) })}
-                      className="w-full"
+                      className="w-full accent-wine-burgundy"
                     />
-                    <div className="flex justify-between text-xs text-stone-400">
+                    <div className="flex justify-between text-xs text-taupe">
                       <span>Guessing</span>
-                      <span className="font-medium text-stone-700">{newFeature.confidence}</span>
+                      <span className="font-medium text-charcoal">{newFeature.confidence}</span>
                       <span>Validated</span>
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-stone-600 mb-2">
+                    <label className="block text-sm font-medium text-slate mb-2">
                       Ease (1-10): How fast can you build an MVP?
                     </label>
                     <input
@@ -697,19 +691,19 @@ export default function AnalysisPage() {
                       max="10"
                       value={newFeature.ease}
                       onChange={(e) => setNewFeature({ ...newFeature, ease: parseInt(e.target.value) })}
-                      className="w-full"
+                      className="w-full accent-wine-burgundy"
                     />
-                    <div className="flex justify-between text-xs text-stone-400">
+                    <div className="flex justify-between text-xs text-taupe">
                       <span>Months</span>
-                      <span className="font-medium text-stone-700">{newFeature.ease}</span>
+                      <span className="font-medium text-charcoal">{newFeature.ease}</span>
                       <span>Weekend</span>
                     </div>
                   </div>
 
                   <div className="pt-4">
-                    <div className="text-center p-4 bg-amber-50 rounded-lg">
-                      <span className="text-sm text-stone-600">ICE Score: </span>
-                      <span className="text-2xl font-bold text-amber-600">
+                    <div className="text-center p-4 bg-wine-rose/10 rounded-lg">
+                      <span className="text-sm text-slate">ICE Score: </span>
+                      <span className="text-2xl font-display font-medium text-wine-burgundy">
                         {newFeature.impact * newFeature.confidence * newFeature.ease}
                       </span>
                     </div>
@@ -721,7 +715,7 @@ export default function AnalysisPage() {
                 {editingFeature && (
                   <button
                     onClick={resetFeatureForm}
-                    className="px-4 py-2 text-stone-600 hover:text-stone-800"
+                    className="px-4 py-2 text-slate hover:text-charcoal"
                   >
                     Cancel
                   </button>
@@ -729,7 +723,7 @@ export default function AnalysisPage() {
                 <button
                   onClick={saveFeature}
                   disabled={!newFeature.name}
-                  className="px-6 py-2 bg-amber-500 hover:bg-amber-600 disabled:bg-stone-300 text-white font-medium rounded-lg transition-colors"
+                  className="px-6 py-2 bg-wine-burgundy hover:bg-wine-deep disabled:bg-taupe text-white font-medium rounded-lg transition-colors"
                 >
                   {editingFeature ? 'Update Feature' : 'Add Feature'}
                 </button>
@@ -738,51 +732,51 @@ export default function AnalysisPage() {
 
             {/* Feature List */}
             <div className="bg-white rounded-2xl shadow overflow-hidden">
-              <div className="p-6 border-b border-stone-100">
-                <h2 className="text-lg font-semibold text-stone-800">Feature Prioritization</h2>
-                <p className="text-sm text-stone-500">Ranked by ICE score (Impact × Confidence × Ease)</p>
+              <div className="p-6 border-b border-beige">
+                <h2 className="font-display text-lg font-medium text-charcoal">Feature Prioritization</h2>
+                <p className="text-sm text-slate">Ranked by ICE score (Impact × Confidence × Ease)</p>
               </div>
               
               {features.length === 0 ? (
-                <div className="p-8 text-center text-stone-500">
+                <div className="p-8 text-center text-slate">
                   No feature concepts yet. Add one above!
                 </div>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full">
-                    <thead className="bg-stone-50">
+                    <thead className="bg-cream">
                       <tr>
-                        <th className="text-left p-4 font-medium text-stone-600">Rank</th>
-                        <th className="text-left p-4 font-medium text-stone-600">Feature</th>
-                        <th className="text-left p-4 font-medium text-stone-600">Pain Point</th>
-                        <th className="text-center p-4 font-medium text-stone-600">I</th>
-                        <th className="text-center p-4 font-medium text-stone-600">C</th>
-                        <th className="text-center p-4 font-medium text-stone-600">E</th>
-                        <th className="text-center p-4 font-medium text-stone-600">ICE</th>
-                        <th className="text-right p-4 font-medium text-stone-600">Actions</th>
+                        <th className="text-left p-4 font-medium text-slate">Rank</th>
+                        <th className="text-left p-4 font-medium text-slate">Feature</th>
+                        <th className="text-left p-4 font-medium text-slate">Pain Point</th>
+                        <th className="text-center p-4 font-medium text-slate">I</th>
+                        <th className="text-center p-4 font-medium text-slate">C</th>
+                        <th className="text-center p-4 font-medium text-slate">E</th>
+                        <th className="text-center p-4 font-medium text-slate">ICE</th>
+                        <th className="text-right p-4 font-medium text-slate">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
                       {features.map((feature, i) => (
-                        <tr key={feature.id} className="border-t border-stone-100">
+                        <tr key={feature.id} className="border-t border-beige">
                           <td className="p-4">
                             <span className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${
-                              i === 0 ? 'bg-amber-500 text-white' :
-                              i === 1 ? 'bg-amber-200 text-amber-800' :
-                              i === 2 ? 'bg-amber-100 text-amber-700' :
-                              'bg-stone-100 text-stone-600'
+                              i === 0 ? 'bg-wine-burgundy text-white' :
+                              i === 1 ? 'bg-wine-rose/30 text-wine-deep' :
+                              i === 2 ? 'bg-wine-rose/20 text-wine-burgundy' :
+                              'bg-beige text-slate'
                             }`}>
                               {i + 1}
                             </span>
                           </td>
                           <td className="p-4">
-                            <div className="font-medium text-stone-800">{feature.name}</div>
+                            <div className="font-medium text-charcoal">{feature.name}</div>
                             {feature.description && (
-                              <div className="text-sm text-stone-500 mt-1">{feature.description}</div>
+                              <div className="text-sm text-slate mt-1">{feature.description}</div>
                             )}
                           </td>
                           <td className="p-4">
-                            <span className="text-sm bg-stone-100 text-stone-600 px-2 py-1 rounded">
+                            <span className="text-sm bg-beige text-slate px-2 py-1 rounded">
                               {feature.pain_point || 'Not set'}
                             </span>
                           </td>
@@ -790,18 +784,18 @@ export default function AnalysisPage() {
                           <td className="p-4 text-center font-medium">{feature.confidence}</td>
                           <td className="p-4 text-center font-medium">{feature.ease}</td>
                           <td className="p-4 text-center">
-                            <span className="text-lg font-bold text-amber-600">{feature.ice_score}</span>
+                            <span className="text-lg font-display font-medium text-wine-burgundy">{feature.ice_score}</span>
                           </td>
                           <td className="p-4 text-right">
                             <button
                               onClick={() => editFeature(feature)}
-                              className="text-sm text-amber-600 hover:text-amber-700 mr-3"
+                              className="text-sm text-wine-burgundy hover:text-wine-deep mr-3"
                             >
                               Edit
                             </button>
                             <button
                               onClick={() => deleteFeature(feature.id)}
-                              className="text-sm text-red-600 hover:text-red-700"
+                              className="text-sm text-wine-deep hover:text-charcoal"
                             >
                               Delete
                             </button>

@@ -1,1 +1,59 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
+
+:root {
+  /* Primary Colors - Wine Tones */
+  --wine-deep: #6B2D3F;
+  --wine-burgundy: #8B3A4D;
+  --wine-rose: #C4637A;
+  
+  /* Valley Greens */
+  --valley-deep: #2D4A3E;
+  --valley-sage: #5B7C6F;
+  --valley-mist: #8FA99E;
+  
+  /* Neutrals & Accents */
+  --cream: #FAF7F2;
+  --warm-beige: #E8E0D5;
+  --taupe: #B8A99A;
+  --gold-accent: #C9A962;
+  --slate: #4A4A50;
+  --charcoal: #2C2C30;
+  
+  /* Typography */
+  --font-display: 'Cormorant Garamond', Georgia, serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+}
+
+body {
+  font-family: var(--font-body);
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+/* Custom scrollbar for wine theme */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--cream);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--valley-sage);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--valley-deep);
+}
+
+/* Selection color */
+::selection {
+  background: var(--wine-rose);
+  color: white;
+}
