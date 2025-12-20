@@ -11,6 +11,9 @@ coverage/
 out/
 build/
 
+# Production
+dist/
+
 # Misc
 .DS_Store
 *.pem

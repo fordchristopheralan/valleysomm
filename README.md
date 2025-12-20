@@ -1,194 +1,202 @@
-# Valley Somm
+# Valley Somm — Wine Country Trip Survey
 
-AI-powered wine trip planning for North Carolina's Yadkin Valley wine region!
+A simple survey app to understand wine country trip planning pain points. Built with Next.js, Tailwind CSS, and Supabase.
 
-## Features
+## Quick Start
 
-- 🤖 **AI Sommelier** - Chat naturally with Claude to plan your wine trip
-- 🍷 **50+ Wineries** - Complete database of Yadkin Valley wineries
-- 📍 **Smart Itineraries** - Save and share your personalized trip plans
-- 📊 **Analytics** - Track user behavior and preferences
+### 1. Set up Supabase
 
-## Tech Stack
+1. Create a free account at [supabase.com](https://supabase.com)
+2. Create a new project
+3. Go to the SQL Editor and run this to create your table:
 
-- **Frontend**: Next.js 14, TypeScript, Tailwind CSS
-- **Database**: Neon (PostgreSQL)
-- **AI**: Anthropic Claude API
-- **Hosting**: Vercel
+```sql
+-- Main survey responses table
+CREATE TABLE survey_responses (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  
+  -- Survey answers
+  regions TEXT[] DEFAULT '{}',
+  regions_other_us TEXT,
+  regions_international TEXT,
+  planning_time TEXT,
+  group_type TEXT,
+  hardest_part TEXT,
+  discovery TEXT[] DEFAULT '{}',
+  discovery_other TEXT,
+  confidence INTEGER,
+  driver TEXT,
+  driver_other TEXT,
+  reservations TEXT,
+  easier TEXT,
+  surprise TEXT,
+  pay TEXT,
+  source TEXT,
+  source_other TEXT,
+  email TEXT,
+  wants_drawing BOOLEAN DEFAULT FALSE,
+  wants_results BOOLEAN DEFAULT FALSE,
+  
+  -- Review/analysis fields
+  hardest_part_themes TEXT[] DEFAULT '{}',
+  easier_themes TEXT[] DEFAULT '{}',
+  surprise_themes TEXT[] DEFAULT '{}',
+  intensity_score INTEGER,
+  pain_category TEXT,
+  review_notes TEXT,
+  reviewed BOOLEAN DEFAULT FALSE,
+  reviewed_at TIMESTAMPTZ,
+  
+  -- Timestamps
+  submitted_at TIMESTAMPTZ DEFAULT NOW(),
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
 
-## Getting Started
+-- Themes table for custom theme management
+CREATE TABLE themes (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  name TEXT NOT NULL UNIQUE,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
 
-### Prerequisites
+-- Insert default themes
+INSERT INTO themes (name) VALUES
+  ('Discovery / Matching'),
+  ('Logistics / Routing'),
+  ('Transportation / DD'),
+  ('Reservations'),
+  ('Group Coordination'),
+  ('Information Gaps'),
+  ('Food / Lodging'),
+  ('Budget / Pricing'),
+  ('Time Management'),
+  ('Overwhelm / Too Many Options');
 
-- Node.js 18+
-- A [Neon](https://neon.tech) database
-- An [Anthropic](https://console.anthropic.com) API key
+-- Feature concepts for ICE scoring
+CREATE TABLE feature_concepts (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  name TEXT NOT NULL,
+  description TEXT,
+  pain_point TEXT,
+  impact INTEGER DEFAULT 5,
+  confidence INTEGER DEFAULT 5,
+  ease INTEGER DEFAULT 5,
+  ice_score INTEGER GENERATED ALWAYS AS (impact * confidence * ease) STORED,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
 
-### 1. Clone and Install
+-- Enable Row Level Security
+ALTER TABLE survey_responses ENABLE ROW LEVEL SECURITY;
+ALTER TABLE themes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE feature_concepts ENABLE ROW LEVEL SECURITY;
 
-```bash
-git clone https://github.com/yourusername/valley-somm.git
-cd valley-somm
-npm install
+-- Allow anonymous inserts for survey
+CREATE POLICY "Allow anonymous inserts" ON survey_responses
+  FOR INSERT WITH CHECK (true);
+
+-- Allow reads (dashboard is password-protected at app level)
+CREATE POLICY "Allow reads" ON survey_responses
+  FOR SELECT USING (true);
+
+CREATE POLICY "Allow updates" ON survey_responses
+  FOR UPDATE USING (true);
+
+CREATE POLICY "Allow all on themes" ON themes
+  FOR ALL USING (true);
+
+CREATE POLICY "Allow all on features" ON feature_concepts
+  FOR ALL USING (true);
 ```
 
-### 2. Set Up Neon Database
+4. Go to Settings > API and copy your:
+   - Project URL
+   - `anon` public key
 
-1. Create a new project at [console.neon.tech](https://console.neon.tech)
-2. Copy your connection string
-3. Run the schema in the Neon SQL Editor:
-
-```bash
-# Copy contents of db/schema.sql and run in Neon SQL Editor
-```
-
-4. Seed the winery data:
-
-```bash
-# Copy contents of db/seed.sql and run in Neon SQL Editor
-```
-
-### 3. Configure Environment Variables
-
-Create a `.env.local` file:
+### 2. Configure Environment
 
 ```bash
 cp .env.example .env.local
 ```
 
-Edit `.env.local` with your credentials:
+Edit `.env.local` with your Supabase credentials:
 
-```env
-DATABASE_URL="postgresql://user:password@ep-xxx.region.aws.neon.tech/valley_somm?sslmode=require"
-ANTHROPIC_API_KEY="sk-ant-..."
-NEXT_PUBLIC_APP_URL="http://localhost:3000"
+```
+NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
 ```
 
-### 4. Run Development Server
+### 3. Run Locally
 
 ```bash
+npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000)
+Visit [http://localhost:3000](http://localhost:3000)
 
-## Deploying to Vercel
+### 4. Deploy to Vercel
 
-### 1. Push to GitHub
+1. Push to GitHub
+2. Import the repo in [Vercel](https://vercel.com)
+3. Add your environment variables in Vercel's project settings:
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - `NEXT_PUBLIC_DASHBOARD_PASSWORD` (choose something secure!)
+4. Deploy!
 
-```bash
-git add .
-git commit -m "Initial commit"
-git push origin main
-```
+If you have a custom domain (valleysomm.com), add it in Vercel's domain settings.
 
-### 2. Connect to Vercel
+**URLs:**
+- Survey: `yourdomain.com` or `your-project.vercel.app`
+- Dashboard: `yourdomain.com/dashboard`
 
-1. Go to [vercel.com](https://vercel.com)
-2. Import your GitHub repository
-3. Add environment variables:
-   - `DATABASE_URL` - Your Neon connection string
-   - `ANTHROPIC_API_KEY` - Your Claude API key
-   - `NEXT_PUBLIC_APP_URL` - Your production URL (e.g., `https://valley-somm.vercel.app`)
+## Viewing & Analyzing Responses
 
-### 3. Deploy
+### Dashboard (`/dashboard`)
+Overview of all survey data with charts and metrics. Password-protected.
 
-Vercel will automatically deploy on every push to `main`.
+### Review Tool (`/review`)
+Review individual responses and tag them with themes:
+- Assign themes to open-ended responses
+- Score intensity (1-5)
+- Set primary pain category
+- Add review notes
+- Navigate between unreviewed responses
 
-## Project Structure
+### Analysis (`/analysis`)
+Three analysis tabs:
+- **Pain Point Matrix**: Frequency, intensity, and WTP rates for each theme
+- **Segment Analysis**: Compare themes across group types, confidence levels, WTP, and sources
+- **Feature Concepts (ICE)**: Add and prioritize feature ideas with Impact × Confidence × Ease scoring
 
-```
-valley-somm/
-├── app/
-│   ├── api/
-│   │   ├── chat/          # AI conversation endpoint
-│   │   ├── itinerary/     # Itinerary CRUD
-│   │   ├── sessions/      # Session management
-│   │   └── wineries/      # Winery data
-│   ├── chat/              # Main AI chat interface
-│   ├── itinerary/[token]/ # Shareable itinerary view
-│   ├── wineries/          # Winery listing & details
-│   ├── layout.tsx
-│   ├── page.tsx           # Landing page
-│   └── globals.css
-├── components/            # Reusable UI components
-├── lib/
-│   ├── db.ts             # Database connection
-│   ├── ai.ts             # Claude API helpers
-│   └── utils.ts          # Utility functions
-├── db/
-│   ├── schema.sql        # Database schema
-│   └── seed.sql          # Winery seed data
-└── public/
-```
+### Supabase Dashboard
+Go to your Supabase project > Table Editor to view raw data or export CSV.
 
-## Database Schema
+## Customization
 
-### Tables
+### Change the Gift Card Amount
+Edit the text in `app/page.js` — search for "$50" and update.
 
-- **wineries** - All winery data (50 records)
-- **sessions** - Anonymous user sessions
-- **itineraries** - Saved trip plans
-- **conversations** - Chat history with AI
-- **events** - Analytics tracking
+### Add/Remove Questions
+Edit the `questions` array in `app/page.js`. Each question needs:
+- `id`: unique identifier (used as database column)
+- `type`: 'single', 'multiselect', 'textarea', 'scale', or 'email'
+- `question`: the question text
+- `options`: array of choices (for single/multiselect)
 
-### Key Analytics Queries
+If you add new question IDs, update the Supabase table schema to match.
 
-```sql
--- Sessions by input mode
-SELECT input_mode, COUNT(*) 
-FROM sessions 
-GROUP BY input_mode;
+### Change Colors
+The app uses Tailwind's `amber` and `stone` color palettes. Search and replace to customize.
 
--- Popular wineries in itineraries
-SELECT w.name, COUNT(*) as times_added
-FROM itineraries i, 
-     jsonb_array_elements(i.wineries) as iw,
-     wineries w
-WHERE w.id = (iw->>'winery_id')::uuid
-GROUP BY w.name
-ORDER BY times_added DESC;
+## Tech Stack
 
--- Chat engagement
-SELECT 
-  DATE_TRUNC('day', timestamp) as day,
-  COUNT(*) as messages
-FROM events
-WHERE event_type = 'chat_message'
-GROUP BY day
-ORDER BY day DESC;
-```
-
-## API Endpoints
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/sessions` | POST | Create anonymous session |
-| `/api/chat` | POST | Send message to AI |
-| `/api/wineries` | GET | List all wineries |
-| `/api/itinerary` | POST | Create itinerary |
-
-## Environment Variables
-
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `DATABASE_URL` | Neon PostgreSQL connection string | Yes |
-| `ANTHROPIC_API_KEY` | Claude API key | Yes |
-| `NEXT_PUBLIC_APP_URL` | App URL for share links | Yes |
-
-## Development
-
-```bash
-# Run dev server
-npm run dev
-
-# Type check
-npx tsc --noEmit
-
-# Lint
-npm run lint
-```
+- **Next.js 14** — React framework
+- **Tailwind CSS** — Styling
+- **Supabase** — Database & auth
+- **Vercel** — Hosting
 
 ## License
 
-MIT
+MIT — do whatever you want with it.
