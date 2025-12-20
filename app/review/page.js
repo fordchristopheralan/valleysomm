@@ -16,6 +16,14 @@ const DEFAULT_THEMES = [
   'Overwhelm / Too Many Options',
 ]
 
+// Wine drop logo SVG component
+const WineLogo = ({ className = "w-6 h-6" }) => (
+  <svg className={className} viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M40 8C40 8 20 28 20 48C20 59.046 28.954 68 40 68C51.046 68 60 59.046 60 48C60 28 40 8 40 8Z" stroke="currentColor" strokeWidth="3" fill="none"/>
+    <path d="M30 52C30 52 35 44 40 44C45 44 50 52 50 52" stroke="#C9A962" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
+  </svg>
+)
+
 export default function ReviewPage() {
   const [authenticated, setAuthenticated] = useState(false)
   const [password, setPassword] = useState('')
@@ -30,6 +38,7 @@ export default function ReviewPage() {
 
   const correctPassword = process.env.NEXT_PUBLIC_DASHBOARD_PASSWORD || 'valleysomm2024'
 
+  // Form state for selected response
   const [formData, setFormData] = useState({
     hardest_part_themes: [],
     easier_themes: [],
@@ -53,6 +62,7 @@ export default function ReviewPage() {
   const fetchData = async () => {
     setLoading(true)
     
+    // Fetch responses
     const { data: responseData, error: responseError } = await supabase
       .from('survey_responses')
       .select('*')
@@ -64,6 +74,7 @@ export default function ReviewPage() {
       setResponses(responseData || [])
     }
 
+    // Fetch themes
     const { data: themeData, error: themeError } = await supabase
       .from('themes')
       .select('*')
@@ -121,6 +132,7 @@ export default function ReviewPage() {
       setThemes([...themes, data[0]])
       setNewTheme('')
     } else {
+      // If table doesn't exist, just add locally
       setThemes([...themes, { id: Date.now(), name: newTheme.trim() }])
       setNewTheme('')
     }
@@ -149,6 +161,7 @@ export default function ReviewPage() {
       console.error('Error saving review:', error)
       setError('Failed to save review')
     } else {
+      // Update local state
       setResponses(responses.map((r) => 
         r.id === selectedResponse.id 
           ? { ...r, ...formData, reviewed: true }
@@ -193,25 +206,18 @@ export default function ReviewPage() {
     return (
       <div className="min-h-screen bg-cream flex items-center justify-center p-6">
         <div className="bg-white rounded-2xl shadow-xl p-8 max-w-sm w-full">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <svg width="28" height="28" viewBox="0 0 80 80" fill="none">
-              <path d="M40 16C40 16 24 32 24 48C24 56.837 31.163 64 40 64C48.837 64 56 56.837 56 48C56 32 40 16 40 16Z" stroke="#6B2D3F" strokeWidth="2.5" fill="none"/>
-              <path d="M32 50C32 50 36 44 40 44C44 44 48 50 48 50" stroke="#C9A962" strokeWidth="2" fill="none" strokeLinecap="round"/>
-            </svg>
-            <span className="font-display text-xl font-medium">
-              <span className="text-wine-deep">Valley</span>
-              <span className="text-valley-deep">Somm</span>
-            </span>
+          <div className="flex items-center gap-2 mb-4">
+            <WineLogo className="w-6 h-6 text-wine-burgundy" />
+            <h1 className="text-2xl font-display font-semibold text-charcoal">Review Responses</h1>
           </div>
-          <h1 className="font-display text-2xl font-medium text-charcoal mb-2 text-center">Review Responses</h1>
-          <p className="text-slate text-center mb-6">Enter password to review and tag responses</p>
+          <p className="text-slate mb-6">Enter password to review and tag responses</p>
           <form onSubmit={handleLogin}>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Password"
-              className="w-full p-3 rounded-lg border border-beige focus:border-wine-burgundy focus:ring-2 focus:ring-wine-rose/20 outline-none mb-4"
+              className="w-full p-3 rounded-lg border border-warm-beige focus:border-wine-rose focus:ring-2 focus:ring-wine-rose/20 outline-none mb-4"
             />
             {error && <p className="text-wine-deep text-sm mb-4">{error}</p>}
             <button
@@ -242,14 +248,11 @@ export default function ReviewPage() {
     <div className="min-h-screen bg-cream">
       <div className="flex h-screen">
         {/* Sidebar - Response List */}
-        <div className="w-80 bg-white border-r border-beige flex flex-col">
-          <div className="p-4 border-b border-beige">
-            <div className="flex items-center gap-2 mb-2">
-              <svg width="24" height="24" viewBox="0 0 80 80" fill="none">
-                <path d="M40 16C40 16 24 32 24 48C24 56.837 31.163 64 40 64C48.837 64 56 56.837 56 48C56 32 40 16 40 16Z" stroke="#6B2D3F" strokeWidth="2.5" fill="none"/>
-                <path d="M32 50C32 50 36 44 40 44C44 44 48 50 48 50" stroke="#C9A962" strokeWidth="2" fill="none" strokeLinecap="round"/>
-              </svg>
-              <h1 className="font-display text-xl font-medium text-charcoal">Review Responses</h1>
+        <div className="w-80 bg-white border-r border-warm-beige flex flex-col">
+          <div className="p-4 border-b border-warm-beige">
+            <div className="flex items-center gap-2 mb-1">
+              <WineLogo className="w-5 h-5 text-wine-burgundy" />
+              <h1 className="text-xl font-display font-semibold text-charcoal">Review Responses</h1>
             </div>
             <p className="text-sm text-slate">{reviewedCount} of {responses.length} reviewed</p>
             
@@ -257,7 +260,7 @@ export default function ReviewPage() {
               <select
                 value={filter}
                 onChange={(e) => setFilter(e.target.value)}
-                className="flex-1 text-sm border border-beige rounded-lg px-3 py-2 focus:border-wine-burgundy outline-none"
+                className="flex-1 text-sm border border-warm-beige rounded-lg px-3 py-2 focus:border-wine-rose outline-none"
               >
                 <option value="all">All ({responses.length})</option>
                 <option value="unreviewed">Unreviewed ({responses.length - reviewedCount})</option>
@@ -271,7 +274,7 @@ export default function ReviewPage() {
               <button
                 key={response.id}
                 onClick={() => selectResponse(response)}
-                className={`w-full p-4 text-left border-b border-beige/50 hover:bg-cream transition-colors ${
+                className={`w-full p-4 text-left border-b border-warm-beige hover:bg-cream transition-colors ${
                   selectedResponse?.id === response.id ? 'bg-wine-rose/10 border-l-4 border-l-wine-burgundy' : ''
                 }`}
               >
@@ -282,7 +285,7 @@ export default function ReviewPage() {
                   {response.reviewed ? (
                     <span className="text-xs bg-valley-sage/20 text-valley-deep px-2 py-0.5 rounded-full">Reviewed</span>
                   ) : (
-                    <span className="text-xs bg-beige text-slate px-2 py-0.5 rounded-full">Pending</span>
+                    <span className="text-xs bg-warm-beige text-slate px-2 py-0.5 rounded-full">Pending</span>
                   )}
                 </div>
                 <p className="text-sm text-charcoal line-clamp-2">
@@ -295,7 +298,7 @@ export default function ReviewPage() {
             ))}
           </div>
 
-          <div className="p-4 border-t border-beige">
+          <div className="p-4 border-t border-warm-beige space-y-2">
             <a
               href="/dashboard"
               className="block text-center text-sm text-wine-burgundy hover:text-wine-deep font-medium"
@@ -304,7 +307,7 @@ export default function ReviewPage() {
             </a>
             <a
               href="/analysis"
-              className="block text-center text-sm text-wine-burgundy hover:text-wine-deep font-medium mt-2"
+              className="block text-center text-sm text-wine-burgundy hover:text-wine-deep font-medium"
             >
               Feature Analysis →
             </a>
@@ -388,7 +391,7 @@ export default function ReviewPage() {
               {/* Open-Ended Responses with Theme Tagging */}
               {selectedResponse.hardest_part && (
                 <div className="bg-white rounded-2xl shadow p-6 mb-6">
-                  <h3 className="font-display text-lg font-medium text-charcoal mb-2">Hardest Part of Planning</h3>
+                  <h3 className="text-lg font-display font-semibold text-charcoal mb-2">Hardest Part of Planning</h3>
                   <p className="text-charcoal mb-4 p-4 bg-cream rounded-lg">{selectedResponse.hardest_part}</p>
                   
                   <div className="mb-2 text-sm font-medium text-slate">Assign Themes:</div>
@@ -400,7 +403,7 @@ export default function ReviewPage() {
                         className={`px-3 py-1 text-sm rounded-full transition-colors ${
                           formData.hardest_part_themes.includes(theme.name)
                             ? 'bg-wine-burgundy text-white'
-                            : 'bg-beige text-slate hover:bg-wine-rose/20'
+                            : 'bg-warm-beige text-slate hover:bg-wine-rose/20'
                         }`}
                       >
                         {theme.name}
@@ -412,7 +415,7 @@ export default function ReviewPage() {
 
               {selectedResponse.easier && (
                 <div className="bg-white rounded-2xl shadow p-6 mb-6">
-                  <h3 className="font-display text-lg font-medium text-charcoal mb-2">What Would Make It Easier</h3>
+                  <h3 className="text-lg font-display font-semibold text-charcoal mb-2">What Would Make It Easier</h3>
                   <p className="text-charcoal mb-4 p-4 bg-cream rounded-lg">{selectedResponse.easier}</p>
                   
                   <div className="mb-2 text-sm font-medium text-slate">Assign Themes:</div>
@@ -424,7 +427,7 @@ export default function ReviewPage() {
                         className={`px-3 py-1 text-sm rounded-full transition-colors ${
                           formData.easier_themes.includes(theme.name)
                             ? 'bg-wine-burgundy text-white'
-                            : 'bg-beige text-slate hover:bg-wine-rose/20'
+                            : 'bg-warm-beige text-slate hover:bg-wine-rose/20'
                         }`}
                       >
                         {theme.name}
@@ -436,7 +439,7 @@ export default function ReviewPage() {
 
               {selectedResponse.surprise && (
                 <div className="bg-white rounded-2xl shadow p-6 mb-6">
-                  <h3 className="font-display text-lg font-medium text-charcoal mb-2">Surprises (Good & Bad)</h3>
+                  <h3 className="text-lg font-display font-semibold text-charcoal mb-2">Surprises (Good & Bad)</h3>
                   <p className="text-charcoal mb-4 p-4 bg-cream rounded-lg">{selectedResponse.surprise}</p>
                   
                   <div className="mb-2 text-sm font-medium text-slate">Assign Themes:</div>
@@ -448,7 +451,7 @@ export default function ReviewPage() {
                         className={`px-3 py-1 text-sm rounded-full transition-colors ${
                           formData.surprise_themes.includes(theme.name)
                             ? 'bg-wine-burgundy text-white'
-                            : 'bg-beige text-slate hover:bg-wine-rose/20'
+                            : 'bg-warm-beige text-slate hover:bg-wine-rose/20'
                         }`}
                       >
                         {theme.name}
@@ -460,18 +463,25 @@ export default function ReviewPage() {
 
               {/* Add Custom Theme */}
               <div className="bg-white rounded-2xl shadow p-6 mb-6">
-                <h3 className="font-display text-lg font-medium text-charcoal mb-4">Add Custom Theme</h3>
+                <h3 className="text-lg font-display font-semibold text-charcoal mb-4">Add Custom Theme</h3>
                 <div className="flex gap-2">
                   <input
                     type="text"
                     value={newTheme}
                     onChange={(e) => setNewTheme(e.target.value)}
                     placeholder="New theme name..."
-                    className="flex-1 p-3 rounded-lg border border-beige focus:border-wine-burgundy focus:ring-2 focus:ring-wine-rose/20 outline-none"
+                    className="flex-1 p-3 rounded-lg border border-warm-beige focus:border-wine-rose focus:ring-2 focus:ring-wine-rose/20 outline-none"
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault()
+                        addCustomTheme()
+                      }
+                    }}
                   />
                   <button
                     onClick={addCustomTheme}
-                    className="px-4 py-2 bg-valley-deep hover:bg-charcoal text-white rounded-lg transition-colors"
+                    disabled={!newTheme.trim()}
+                    className="px-6 py-2 bg-valley-deep hover:bg-valley-sage disabled:bg-taupe text-white rounded-lg transition-colors font-medium"
                   >
                     Add
                   </button>
@@ -480,7 +490,7 @@ export default function ReviewPage() {
 
               {/* Intensity Score & Pain Category */}
               <div className="bg-white rounded-2xl shadow p-6 mb-6">
-                <h3 className="font-display text-lg font-medium text-charcoal mb-4">Pain Point Scoring</h3>
+                <h3 className="text-lg font-display font-semibold text-charcoal mb-4">Pain Point Scoring</h3>
                 
                 <div className="mb-6">
                   <div className="mb-2 text-sm font-medium text-slate">
@@ -494,7 +504,7 @@ export default function ReviewPage() {
                         className={`flex-1 py-3 rounded-lg font-medium transition-all ${
                           formData.intensity_score === n
                             ? 'bg-wine-burgundy text-white'
-                            : 'bg-cream text-slate hover:bg-wine-rose/10'
+                            : 'bg-warm-beige text-slate hover:bg-wine-rose/20'
                         }`}
                       >
                         {n}
@@ -512,7 +522,7 @@ export default function ReviewPage() {
                   <select
                     value={formData.pain_category}
                     onChange={(e) => setFormData({ ...formData, pain_category: e.target.value })}
-                    className="w-full p-3 rounded-lg border border-beige focus:border-wine-burgundy outline-none"
+                    className="w-full p-3 rounded-lg border border-warm-beige focus:border-wine-rose outline-none"
                   >
                     <option value="">Select primary category...</option>
                     {themes.map((theme) => (
@@ -524,12 +534,12 @@ export default function ReviewPage() {
 
               {/* Review Notes */}
               <div className="bg-white rounded-2xl shadow p-6 mb-6">
-                <h3 className="font-display text-lg font-medium text-charcoal mb-4">Review Notes</h3>
+                <h3 className="text-lg font-display font-semibold text-charcoal mb-4">Review Notes</h3>
                 <textarea
                   value={formData.review_notes}
                   onChange={(e) => setFormData({ ...formData, review_notes: e.target.value })}
                   placeholder="Any observations, patterns, or follow-up ideas..."
-                  className="w-full h-32 p-4 rounded-lg border border-beige focus:border-wine-burgundy focus:ring-2 focus:ring-wine-rose/20 outline-none resize-none"
+                  className="w-full h-32 p-4 rounded-lg border border-warm-beige focus:border-wine-rose focus:ring-2 focus:ring-wine-rose/20 outline-none resize-none"
                 />
               </div>
 

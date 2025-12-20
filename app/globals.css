@@ -1,36 +1,35 @@
 @import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
 
-:root {
+/* Tailwind v4 Theme Configuration */
+@theme {
   /* Primary Colors - Wine Tones */
-  --wine-deep: #6B2D3F;
-  --wine-burgundy: #8B3A4D;
-  --wine-rose: #C4637A;
+  --color-wine-deep: #6B2D3F;
+  --color-wine-burgundy: #8B3A4D;
+  --color-wine-rose: #C4637A;
   
   /* Valley Greens */
-  --valley-deep: #2D4A3E;
-  --valley-sage: #5B7C6F;
-  --valley-mist: #8FA99E;
+  --color-valley-deep: #2D4A3E;
+  --color-valley-sage: #5B7C6F;
+  --color-valley-mist: #8FA99E;
   
   /* Neutrals & Accents */
-  --cream: #FAF7F2;
-  --warm-beige: #E8E0D5;
-  --taupe: #B8A99A;
-  --gold-accent: #C9A962;
-  --slate: #4A4A50;
-  --charcoal: #2C2C30;
-  
-  /* Typography */
+  --color-cream: #FAF7F2;
+  --color-warm-beige: #E8E0D5;
+  --color-taupe: #B8A99A;
+  --color-gold: #C9A962;
+  --color-slate: #4A4A50;
+  --color-charcoal: #2C2C30;
+
+  /* Font families */
   --font-display: 'Cormorant Garamond', Georgia, serif;
   --font-body: 'DM Sans', system-ui, sans-serif;
 }
 
+/* Base styles */
 body {
   font-family: var(--font-body);
-}
-
-.font-display {
-  font-family: var(--font-display);
+  background-color: var(--color-cream);
 }
 
 /* Custom scrollbar for wine theme */
@@ -40,20 +39,36 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--cream);
+  background: var(--color-cream);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--valley-sage);
+  background: var(--color-valley-sage);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--valley-deep);
+  background: var(--color-valley-deep);
 }
 
 /* Selection color */
 ::selection {
-  background: var(--wine-rose);
+  background: var(--color-wine-rose);
   color: white;
+}
+
+/* Custom checkbox styling */
+input[type="checkbox"] {
+  accent-color: var(--color-wine-burgundy);
+}
+
+input[type="radio"] {
+  accent-color: var(--color-wine-burgundy);
+}
+
+/* Focus states */
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: var(--color-wine-rose) !important;
+  box-shadow: 0 0 0 3px rgba(196, 99, 122, 0.15);
 }

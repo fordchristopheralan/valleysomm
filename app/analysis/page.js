@@ -12,6 +12,14 @@ import {
   ResponsiveContainer,
 } from 'recharts'
 
+// Wine drop logo SVG component
+const WineLogo = ({ className = "w-6 h-6" }) => (
+  <svg className={className} viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M40 8C40 8 20 28 20 48C20 59.046 28.954 68 40 68C51.046 68 60 59.046 60 48C60 28 40 8 40 8Z" stroke="currentColor" strokeWidth="3" fill="none"/>
+    <path d="M30 52C30 52 35 44 40 44C45 44 50 52 50 52" stroke="#C9A962" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
+  </svg>
+)
+
 export default function AnalysisPage() {
   const [authenticated, setAuthenticated] = useState(false)
   const [password, setPassword] = useState('')
@@ -21,6 +29,7 @@ export default function AnalysisPage() {
   const [features, setFeatures] = useState([])
   const [activeTab, setActiveTab] = useState('matrix')
   
+  // New feature form
   const [newFeature, setNewFeature] = useState({
     name: '',
     description: '',
@@ -46,6 +55,7 @@ export default function AnalysisPage() {
   const fetchData = async () => {
     setLoading(true)
     
+    // Fetch responses
     const { data: responseData } = await supabase
       .from('survey_responses')
       .select('*')
@@ -53,6 +63,7 @@ export default function AnalysisPage() {
 
     setResponses(responseData || [])
 
+    // Fetch feature concepts
     const { data: featureData, error: featureError } = await supabase
       .from('feature_concepts')
       .select('*')
@@ -71,6 +82,7 @@ export default function AnalysisPage() {
     }
   }, [authenticated])
 
+  // Calculate pain point matrix data
   const painPointMatrix = useMemo(() => {
     const reviewed = responses.filter((r) => r.reviewed)
     if (reviewed.length === 0) return []
@@ -121,6 +133,7 @@ export default function AnalysisPage() {
     }).sort((a, b) => b.frequency - a.frequency)
   }, [responses])
 
+  // Segment analysis data
   const segmentAnalysis = useMemo(() => {
     const reviewed = responses.filter((r) => r.reviewed)
     if (reviewed.length === 0) return {}
@@ -273,25 +286,18 @@ export default function AnalysisPage() {
     return (
       <div className="min-h-screen bg-cream flex items-center justify-center p-6">
         <div className="bg-white rounded-2xl shadow-xl p-8 max-w-sm w-full">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <svg width="28" height="28" viewBox="0 0 80 80" fill="none">
-              <path d="M40 16C40 16 24 32 24 48C24 56.837 31.163 64 40 64C48.837 64 56 56.837 56 48C56 32 40 16 40 16Z" stroke="#6B2D3F" strokeWidth="2.5" fill="none"/>
-              <path d="M32 50C32 50 36 44 40 44C44 44 48 50 48 50" stroke="#C9A962" strokeWidth="2" fill="none" strokeLinecap="round"/>
-            </svg>
-            <span className="font-display text-xl font-medium">
-              <span className="text-wine-deep">Valley</span>
-              <span className="text-valley-deep">Somm</span>
-            </span>
+          <div className="flex items-center gap-2 mb-4">
+            <WineLogo className="w-6 h-6 text-wine-burgundy" />
+            <h1 className="text-2xl font-display font-semibold text-charcoal">Feature Analysis</h1>
           </div>
-          <h1 className="font-display text-2xl font-medium text-charcoal mb-2 text-center">Feature Analysis</h1>
-          <p className="text-slate text-center mb-6">Enter password to access analysis tools</p>
+          <p className="text-slate mb-6">Enter password to access analysis tools</p>
           <form onSubmit={handleLogin}>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Password"
-              className="w-full p-3 rounded-lg border border-beige focus:border-wine-burgundy focus:ring-2 focus:ring-wine-rose/20 outline-none mb-4"
+              className="w-full p-3 rounded-lg border border-warm-beige focus:border-wine-rose focus:ring-2 focus:ring-wine-rose/20 outline-none mb-4"
             />
             {error && <p className="text-wine-deep text-sm mb-4">{error}</p>}
             <button
@@ -321,15 +327,12 @@ export default function AnalysisPage() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-          <div className="flex items-center gap-3">
-            <svg width="40" height="40" viewBox="0 0 80 80" fill="none">
-              <path d="M40 16C40 16 24 32 24 48C24 56.837 31.163 64 40 64C48.837 64 56 56.837 56 48C56 32 40 16 40 16Z" stroke="#6B2D3F" strokeWidth="2.5" fill="none"/>
-              <path d="M32 50C32 50 36 44 40 44C44 44 48 50 48 50" stroke="#C9A962" strokeWidth="2" fill="none" strokeLinecap="round"/>
-            </svg>
-            <div>
-              <h1 className="font-display text-3xl font-medium text-charcoal">Feature Analysis</h1>
-              <p className="text-slate">Pain point matrix & ICE prioritization</p>
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <WineLogo className="w-6 h-6 text-wine-burgundy" />
+              <h1 className="text-3xl font-display font-semibold text-charcoal">Feature Analysis</h1>
             </div>
+            <p className="text-slate">Pain point matrix & ICE prioritization</p>
           </div>
           <div className="flex items-center gap-4">
             <span className="text-sm text-slate">
@@ -337,7 +340,7 @@ export default function AnalysisPage() {
             </span>
             <a
               href="/review"
-              className="px-4 py-2 bg-valley-deep hover:bg-charcoal text-white text-sm font-medium rounded-lg transition-colors"
+              className="px-4 py-2 bg-valley-deep hover:bg-valley-sage text-white text-sm font-medium rounded-lg transition-colors"
             >
               Review Responses
             </a>
@@ -350,12 +353,14 @@ export default function AnalysisPage() {
           </div>
         </div>
 
-        {/* Tabs */}
+        {/* Tabs - FIXED: All tab labels now visible */}
         <div className="flex gap-2 mb-6">
           <button
             onClick={() => setActiveTab('matrix')}
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-              activeTab === 'matrix' ? 'bg-wine-burgundy text-white' : 'bg-white text-slate hover:bg-cream'
+              activeTab === 'matrix' 
+                ? 'bg-wine-burgundy text-white' 
+                : 'bg-white text-slate hover:bg-cream border border-warm-beige'
             }`}
           >
             Pain Point Matrix
@@ -363,7 +368,9 @@ export default function AnalysisPage() {
           <button
             onClick={() => setActiveTab('segments')}
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-              activeTab === 'segments' ? 'bg-wine-burgundy text-white' : 'bg-white text-slate hover:bg-cream'
+              activeTab === 'segments' 
+                ? 'bg-wine-burgundy text-white' 
+                : 'bg-white text-slate hover:bg-cream border border-warm-beige'
             }`}
           >
             Segment Analysis
@@ -371,7 +378,9 @@ export default function AnalysisPage() {
           <button
             onClick={() => setActiveTab('features')}
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-              activeTab === 'features' ? 'bg-wine-burgundy text-white' : 'bg-white text-slate hover:bg-cream'
+              activeTab === 'features' 
+                ? 'bg-wine-burgundy text-white' 
+                : 'bg-white text-slate hover:bg-cream border border-warm-beige'
             }`}
           >
             Feature Concepts (ICE)
@@ -390,9 +399,10 @@ export default function AnalysisPage() {
               </div>
             ) : (
               <>
+                {/* Matrix Table */}
                 <div className="bg-white rounded-2xl shadow overflow-hidden">
-                  <div className="p-6 border-b border-beige">
-                    <h2 className="font-display text-lg font-medium text-charcoal">Pain Point Scoring Matrix</h2>
+                  <div className="p-6 border-b border-warm-beige">
+                    <h2 className="text-lg font-display font-semibold text-charcoal">Pain Point Scoring Matrix</h2>
                     <p className="text-sm text-slate">Based on {reviewedCount} reviewed responses</p>
                   </div>
                   <div className="overflow-x-auto">
@@ -408,7 +418,7 @@ export default function AnalysisPage() {
                       </thead>
                       <tbody>
                         {painPointMatrix.map((row, i) => (
-                          <tr key={row.name} className="border-t border-beige">
+                          <tr key={row.name} className="border-t border-warm-beige">
                             <td className="p-4">
                               <div className="flex items-center gap-2">
                                 <span className="w-6 h-6 rounded-full bg-wine-rose/20 text-wine-burgundy text-xs flex items-center justify-center font-medium">
@@ -419,7 +429,7 @@ export default function AnalysisPage() {
                             </td>
                             <td className="p-4 text-center">
                               <div className="inline-flex items-center gap-2">
-                                <div className="w-24 h-2 bg-beige rounded-full overflow-hidden">
+                                <div className="w-24 h-2 bg-warm-beige rounded-full overflow-hidden">
                                   <div 
                                     className="h-full bg-wine-burgundy" 
                                     style={{ width: `${row.frequency}%` }}
@@ -432,7 +442,7 @@ export default function AnalysisPage() {
                               <span className={`px-2 py-1 rounded text-sm ${
                                 row.intensity >= 4 ? 'bg-wine-deep/10 text-wine-deep' :
                                 row.intensity >= 3 ? 'bg-gold/20 text-charcoal' :
-                                'bg-beige text-slate'
+                                'bg-warm-beige text-slate'
                               }`}>
                                 {row.intensity}/5
                               </span>
@@ -441,7 +451,7 @@ export default function AnalysisPage() {
                               <span className={`px-2 py-1 rounded text-sm ${
                                 row.wtp >= 60 ? 'bg-valley-sage/20 text-valley-deep' :
                                 row.wtp >= 40 ? 'bg-gold/20 text-charcoal' :
-                                'bg-beige text-slate'
+                                'bg-warm-beige text-slate'
                               }`}>
                                 {row.wtp}%
                               </span>
@@ -454,8 +464,9 @@ export default function AnalysisPage() {
                   </div>
                 </div>
 
+                {/* Frequency Chart */}
                 <div className="bg-white rounded-2xl shadow p-6">
-                  <h2 className="font-display text-lg font-medium text-charcoal mb-4">Pain Point Frequency</h2>
+                  <h2 className="text-lg font-display font-semibold text-charcoal mb-4">Pain Point Frequency</h2>
                   <ResponsiveContainer width="100%" height={300}>
                     <BarChart data={painPointMatrix} layout="vertical">
                       <CartesianGrid strokeDasharray="3 3" stroke="#E8E0D5" />
@@ -485,10 +496,10 @@ export default function AnalysisPage() {
               <div className="grid md:grid-cols-2 gap-6">
                 {/* By Group Type */}
                 <div className="bg-white rounded-2xl shadow p-6">
-                  <h2 className="font-display text-lg font-medium text-charcoal mb-4">By Group Type</h2>
+                  <h2 className="text-lg font-display font-semibold text-charcoal mb-4">By Group Type</h2>
                   <div className="space-y-4">
                     {segmentAnalysis.byGroupType?.map((seg) => (
-                      <div key={seg.name} className="border-b border-beige pb-4 last:border-0">
+                      <div key={seg.name} className="border-b border-warm-beige pb-4 last:border-0">
                         <div className="flex justify-between items-center mb-2">
                           <span className="font-medium text-charcoal">{seg.name}</span>
                           <span className="text-sm text-slate">{seg.count} responses</span>
@@ -507,9 +518,9 @@ export default function AnalysisPage() {
 
                 {/* By Confidence */}
                 <div className="bg-white rounded-2xl shadow p-6">
-                  <h2 className="font-display text-lg font-medium text-charcoal mb-4">By Confidence Level</h2>
+                  <h2 className="text-lg font-display font-semibold text-charcoal mb-4">By Confidence Level</h2>
                   <div className="space-y-4">
-                    <div className="border-b border-beige pb-4">
+                    <div className="border-b border-warm-beige pb-4">
                       <div className="flex justify-between items-center mb-2">
                         <span className="font-medium text-charcoal">Low Confidence (1-2)</span>
                         <span className="text-sm text-slate">{segmentAnalysis.byConfidence?.low?.count || 0} responses</span>
@@ -540,9 +551,9 @@ export default function AnalysisPage() {
 
                 {/* By WTP */}
                 <div className="bg-white rounded-2xl shadow p-6">
-                  <h2 className="font-display text-lg font-medium text-charcoal mb-4">By Willingness to Pay</h2>
+                  <h2 className="text-lg font-display font-semibold text-charcoal mb-4">By Willingness to Pay</h2>
                   <div className="space-y-4">
-                    <div className="border-b border-beige pb-4">
+                    <div className="border-b border-warm-beige pb-4">
                       <div className="flex justify-between items-center mb-2">
                         <span className="font-medium text-charcoal">Would Pay</span>
                         <span className="text-sm text-slate">{segmentAnalysis.byWTP?.yes?.count || 0} responses</span>
@@ -562,7 +573,7 @@ export default function AnalysisPage() {
                       </div>
                       <div className="flex flex-wrap gap-2">
                         {segmentAnalysis.byWTP?.no?.topThemes?.map((t) => (
-                          <span key={t.name} className="text-xs bg-beige text-slate px-2 py-1 rounded">
+                          <span key={t.name} className="text-xs bg-warm-beige text-slate px-2 py-1 rounded">
                             {t.name} ({t.pct}%)
                           </span>
                         ))}
@@ -573,10 +584,10 @@ export default function AnalysisPage() {
 
                 {/* By Source */}
                 <div className="bg-white rounded-2xl shadow p-6">
-                  <h2 className="font-display text-lg font-medium text-charcoal mb-4">By Source</h2>
+                  <h2 className="text-lg font-display font-semibold text-charcoal mb-4">By Source</h2>
                   <div className="space-y-4">
                     {segmentAnalysis.bySource?.map((seg) => (
-                      <div key={seg.name} className="border-b border-beige pb-4 last:border-0">
+                      <div key={seg.name} className="border-b border-warm-beige pb-4 last:border-0">
                         <div className="flex justify-between items-center mb-2">
                           <span className="font-medium text-charcoal">{seg.name}</span>
                           <span className="text-sm text-slate">{seg.count} responses</span>
@@ -602,7 +613,7 @@ export default function AnalysisPage() {
           <div className="space-y-6">
             {/* Add/Edit Feature Form */}
             <div className="bg-white rounded-2xl shadow p-6">
-              <h2 className="font-display text-lg font-medium text-charcoal mb-4">
+              <h2 className="text-lg font-display font-semibold text-charcoal mb-4">
                 {editingFeature ? 'Edit Feature Concept' : 'Add Feature Concept'}
               </h2>
               
@@ -615,7 +626,7 @@ export default function AnalysisPage() {
                       value={newFeature.name}
                       onChange={(e) => setNewFeature({ ...newFeature, name: e.target.value })}
                       placeholder="e.g., Wine Personality Quiz"
-                      className="w-full p-3 rounded-lg border border-beige focus:border-wine-burgundy outline-none"
+                      className="w-full p-3 rounded-lg border border-warm-beige focus:border-wine-rose outline-none"
                     />
                   </div>
                   <div>
@@ -624,7 +635,7 @@ export default function AnalysisPage() {
                       value={newFeature.description}
                       onChange={(e) => setNewFeature({ ...newFeature, description: e.target.value })}
                       placeholder="What does this feature do?"
-                      className="w-full p-3 rounded-lg border border-beige focus:border-wine-burgundy outline-none h-24 resize-none"
+                      className="w-full p-3 rounded-lg border border-warm-beige focus:border-wine-rose outline-none h-24 resize-none"
                     />
                   </div>
                   <div>
@@ -632,7 +643,7 @@ export default function AnalysisPage() {
                     <select
                       value={newFeature.pain_point}
                       onChange={(e) => setNewFeature({ ...newFeature, pain_point: e.target.value })}
-                      className="w-full p-3 rounded-lg border border-beige focus:border-wine-burgundy outline-none"
+                      className="w-full p-3 rounded-lg border border-warm-beige focus:border-wine-rose outline-none"
                     >
                       <option value="">Select pain point...</option>
                       {painPointMatrix.map((p) => (
@@ -703,7 +714,7 @@ export default function AnalysisPage() {
                   <div className="pt-4">
                     <div className="text-center p-4 bg-wine-rose/10 rounded-lg">
                       <span className="text-sm text-slate">ICE Score: </span>
-                      <span className="text-2xl font-display font-medium text-wine-burgundy">
+                      <span className="text-2xl font-bold text-wine-burgundy">
                         {newFeature.impact * newFeature.confidence * newFeature.ease}
                       </span>
                     </div>
@@ -732,8 +743,8 @@ export default function AnalysisPage() {
 
             {/* Feature List */}
             <div className="bg-white rounded-2xl shadow overflow-hidden">
-              <div className="p-6 border-b border-beige">
-                <h2 className="font-display text-lg font-medium text-charcoal">Feature Prioritization</h2>
+              <div className="p-6 border-b border-warm-beige">
+                <h2 className="text-lg font-display font-semibold text-charcoal">Feature Prioritization</h2>
                 <p className="text-sm text-slate">Ranked by ICE score (Impact × Confidence × Ease)</p>
               </div>
               
@@ -758,13 +769,13 @@ export default function AnalysisPage() {
                     </thead>
                     <tbody>
                       {features.map((feature, i) => (
-                        <tr key={feature.id} className="border-t border-beige">
+                        <tr key={feature.id} className="border-t border-warm-beige">
                           <td className="p-4">
                             <span className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${
                               i === 0 ? 'bg-wine-burgundy text-white' :
                               i === 1 ? 'bg-wine-rose/30 text-wine-deep' :
                               i === 2 ? 'bg-wine-rose/20 text-wine-burgundy' :
-                              'bg-beige text-slate'
+                              'bg-warm-beige text-slate'
                             }`}>
                               {i + 1}
                             </span>
@@ -776,7 +787,7 @@ export default function AnalysisPage() {
                             )}
                           </td>
                           <td className="p-4">
-                            <span className="text-sm bg-beige text-slate px-2 py-1 rounded">
+                            <span className="text-sm bg-warm-beige text-slate px-2 py-1 rounded">
                               {feature.pain_point || 'Not set'}
                             </span>
                           </td>
@@ -784,7 +795,7 @@ export default function AnalysisPage() {
                           <td className="p-4 text-center font-medium">{feature.confidence}</td>
                           <td className="p-4 text-center font-medium">{feature.ease}</td>
                           <td className="p-4 text-center">
-                            <span className="text-lg font-display font-medium text-wine-burgundy">{feature.ice_score}</span>
+                            <span className="text-lg font-bold text-wine-burgundy">{feature.ice_score}</span>
                           </td>
                           <td className="p-4 text-right">
                             <button
@@ -795,7 +806,7 @@ export default function AnalysisPage() {
                             </button>
                             <button
                               onClick={() => deleteFeature(feature.id)}
-                              className="text-sm text-wine-deep hover:text-charcoal"
+                              className="text-sm text-wine-deep hover:text-wine-burgundy"
                             >
                               Delete
                             </button>

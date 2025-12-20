@@ -166,6 +166,14 @@ const steps = [
   { title: 'Insights & Wrap-up', questions: [8, 9, 10, 11, 12] },
 ]
 
+// Wine drop logo SVG component
+const WineLogo = ({ className = "w-6 h-6" }) => (
+  <svg className={className} viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M40 8C40 8 20 28 20 48C20 59.046 28.954 68 40 68C51.046 68 60 59.046 60 48C60 28 40 8 40 8Z" stroke="currentColor" strokeWidth="3" fill="none"/>
+    <path d="M30 52C30 52 35 44 40 44C45 44 50 52 50 52" stroke="#C9A962" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
+  </svg>
+)
+
 export default function SurveyPage() {
   const [currentStep, setCurrentStep] = useState(0)
   const [answers, setAnswers] = useState({})
@@ -247,6 +255,7 @@ export default function SurveyPage() {
     }
   }
 
+  // Check if an "other" option is selected for a given question
   const isOtherSelected = (questionId, optionName) => {
     const answer = answers[questionId]
     if (Array.isArray(answer)) {
@@ -262,22 +271,28 @@ export default function SurveyPage() {
           <div className="space-y-2">
             {q.options.map((opt) => (
               <div key={opt}>
-                <label className="flex items-center gap-3 p-3 rounded-lg border border-beige hover:border-wine-rose hover:bg-wine-rose/5 cursor-pointer transition-all">
+                <label 
+                  className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all duration-200
+                    ${(answers[q.id] || []).includes(opt) 
+                      ? 'border-wine-burgundy bg-wine-rose/10' 
+                      : 'border-warm-beige hover:border-wine-rose hover:bg-wine-rose/5'}`}
+                >
                   <input
                     type="checkbox"
                     checked={(answers[q.id] || []).includes(opt)}
                     onChange={() => handleMultiSelect(q.id, opt)}
-                    className="w-4 h-4 text-wine-burgundy rounded focus:ring-wine-rose accent-wine-burgundy"
+                    className="w-4 h-4 rounded border-warm-beige text-wine-burgundy focus:ring-wine-rose"
                   />
                   <span className="text-charcoal">{opt}</span>
                 </label>
+                {/* Show text input if this "other" option is selected */}
                 {q.otherFields?.[opt] && isOtherSelected(q.id, opt) && (
                   <input
                     type="text"
                     value={answers[q.otherFields[opt].id] || ''}
                     onChange={(e) => handleText(q.otherFields[opt].id, e.target.value)}
                     placeholder={q.otherFields[opt].placeholder}
-                    className="w-full mt-2 ml-7 p-3 rounded-lg border border-beige focus:border-wine-burgundy focus:ring-2 focus:ring-wine-rose/20 outline-none text-charcoal placeholder:text-taupe"
+                    className="w-full mt-2 ml-7 p-3 rounded-lg border border-warm-beige focus:border-wine-rose focus:ring-2 focus:ring-wine-rose/20 outline-none text-charcoal placeholder:text-taupe"
                     style={{ width: 'calc(100% - 1.75rem)' }}
                   />
                 )}
@@ -290,23 +305,29 @@ export default function SurveyPage() {
           <div className="space-y-2">
             {q.options.map((opt) => (
               <div key={opt}>
-                <label className="flex items-center gap-3 p-3 rounded-lg border border-beige hover:border-wine-rose hover:bg-wine-rose/5 cursor-pointer transition-all">
+                <label 
+                  className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all duration-200
+                    ${answers[q.id] === opt 
+                      ? 'border-wine-burgundy bg-wine-rose/10' 
+                      : 'border-warm-beige hover:border-wine-rose hover:bg-wine-rose/5'}`}
+                >
                   <input
                     type="radio"
                     name={q.id}
                     checked={answers[q.id] === opt}
                     onChange={() => handleSingle(q.id, opt)}
-                    className="w-4 h-4 text-wine-burgundy focus:ring-wine-rose accent-wine-burgundy"
+                    className="w-4 h-4 border-warm-beige text-wine-burgundy focus:ring-wine-rose"
                   />
                   <span className="text-charcoal">{opt}</span>
                 </label>
+                {/* Show text input if this "other" option is selected */}
                 {q.otherFields?.[opt] && isOtherSelected(q.id, opt) && (
                   <input
                     type="text"
                     value={answers[q.otherFields[opt].id] || ''}
                     onChange={(e) => handleText(q.otherFields[opt].id, e.target.value)}
                     placeholder={q.otherFields[opt].placeholder}
-                    className="w-full mt-2 ml-7 p-3 rounded-lg border border-beige focus:border-wine-burgundy focus:ring-2 focus:ring-wine-rose/20 outline-none text-charcoal placeholder:text-taupe"
+                    className="w-full mt-2 ml-7 p-3 rounded-lg border border-warm-beige focus:border-wine-rose focus:ring-2 focus:ring-wine-rose/20 outline-none text-charcoal placeholder:text-taupe"
                     style={{ width: 'calc(100% - 1.75rem)' }}
                   />
                 )}
@@ -320,7 +341,7 @@ export default function SurveyPage() {
             value={answers[q.id] || ''}
             onChange={(e) => handleText(q.id, e.target.value)}
             placeholder={q.placeholder}
-            className="w-full h-32 p-4 rounded-lg border border-beige focus:border-wine-burgundy focus:ring-2 focus:ring-wine-rose/20 outline-none resize-none text-charcoal placeholder:text-taupe"
+            className="w-full h-32 p-4 rounded-lg border border-warm-beige focus:border-wine-rose focus:ring-2 focus:ring-wine-rose/20 outline-none resize-none text-charcoal placeholder:text-taupe"
           />
         )
       case 'scale':
@@ -336,10 +357,10 @@ export default function SurveyPage() {
                   key={n}
                   type="button"
                   onClick={() => handleScale(q.id, n)}
-                  className={`flex-1 py-3 rounded-lg font-medium transition-all ${
+                  className={`flex-1 py-3 rounded-lg font-medium transition-all duration-200 ${
                     answers[q.id] === n
                       ? 'bg-wine-burgundy text-white'
-                      : 'bg-cream text-slate hover:bg-wine-rose/10'
+                      : 'bg-warm-beige text-slate hover:bg-wine-rose/20'
                   }`}
                 >
                   {n}
@@ -357,26 +378,36 @@ export default function SurveyPage() {
               value={answers.email || ''}
               onChange={(e) => handleText('email', e.target.value)}
               placeholder={q.placeholder}
-              className="w-full p-4 rounded-lg border border-beige focus:border-wine-burgundy focus:ring-2 focus:ring-wine-rose/20 outline-none text-charcoal placeholder:text-taupe"
+              className="w-full p-4 rounded-lg border border-warm-beige focus:border-wine-rose focus:ring-2 focus:ring-wine-rose/20 outline-none text-charcoal placeholder:text-taupe"
             />
             {answers.email && (
               <div className="space-y-2 pt-2">
                 <p className="text-sm text-charcoal font-medium">What would you like?</p>
-                <label className="flex items-center gap-3 p-3 rounded-lg border border-beige hover:border-wine-rose hover:bg-wine-rose/5 cursor-pointer transition-all">
+                <label 
+                  className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all duration-200
+                    ${(answers.email_options || []).includes('drawing') 
+                      ? 'border-wine-burgundy bg-wine-rose/10' 
+                      : 'border-warm-beige hover:border-wine-rose hover:bg-wine-rose/5'}`}
+                >
                   <input
                     type="checkbox"
                     checked={(answers.email_options || []).includes('drawing')}
                     onChange={() => toggleEmailOption('drawing')}
-                    className="w-4 h-4 text-wine-burgundy rounded focus:ring-wine-rose accent-wine-burgundy"
+                    className="w-4 h-4 rounded border-warm-beige text-wine-burgundy focus:ring-wine-rose"
                   />
                   <span className="text-charcoal">Enter the $50 gift card drawing</span>
                 </label>
-                <label className="flex items-center gap-3 p-3 rounded-lg border border-beige hover:border-wine-rose hover:bg-wine-rose/5 cursor-pointer transition-all">
+                <label 
+                  className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all duration-200
+                    ${(answers.email_options || []).includes('results') 
+                      ? 'border-wine-burgundy bg-wine-rose/10' 
+                      : 'border-warm-beige hover:border-wine-rose hover:bg-wine-rose/5'}`}
+                >
                   <input
                     type="checkbox"
                     checked={(answers.email_options || []).includes('results')}
                     onChange={() => toggleEmailOption('results')}
-                    className="w-4 h-4 text-wine-burgundy rounded focus:ring-wine-rose accent-wine-burgundy"
+                    className="w-4 h-4 rounded border-warm-beige text-wine-burgundy focus:ring-wine-rose"
                   />
                   <span className="text-charcoal">Send me the survey results</span>
                 </label>
@@ -395,10 +426,10 @@ export default function SurveyPage() {
     const wantsResults = emailOptions.includes('results')
 
     return (
-      <div className="min-h-screen bg-gradient-to-br from-cream to-beige flex items-center justify-center p-6">
+      <div className="min-h-screen bg-gradient-to-br from-cream to-warm-beige flex items-center justify-center p-6">
         <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md text-center">
           <div className="text-5xl mb-4">🍷</div>
-          <h2 className="font-display text-3xl font-medium text-charcoal mb-2">Thank you!</h2>
+          <h2 className="text-2xl font-display font-semibold text-charcoal mb-2">Thank you!</h2>
           <p className="text-slate mb-4">
             Your insights will help make wine country trips better for everyone. Cheers to that.
           </p>
@@ -416,40 +447,35 @@ export default function SurveyPage() {
   const currentQuestions = steps[currentStep].questions.map((i) => questions[i])
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cream to-beige p-6">
+    <div className="min-h-screen bg-gradient-to-br from-cream to-warm-beige p-6">
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-2 mb-3">
-            <svg width="32" height="32" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M40 16C40 16 24 32 24 48C24 56.837 31.163 64 40 64C48.837 64 56 56.837 56 48C56 32 40 16 40 16Z" stroke="#6B2D3F" strokeWidth="2.5" fill="none"/>
-              <path d="M32 50C32 50 36 44 40 44C44 44 48 50 48 50" stroke="#C9A962" strokeWidth="2" fill="none" strokeLinecap="round"/>
-            </svg>
-            <span className="font-display text-2xl font-medium">
-              <span className="text-wine-deep">Valley</span>
-              <span className="text-valley-deep">Somm</span>
-            </span>
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <WineLogo className="w-6 h-6 text-wine-burgundy" />
+            <span className="font-display text-lg text-charcoal">ValleySomm</span>
           </div>
-          <h1 className="font-display text-3xl font-medium text-charcoal mb-2">Wine Country Trip Survey</h1>
-          <p className="text-slate font-display text-lg italic">{"Help us understand what makes wine trips great (and what doesn't)"}</p>
-          <p className="text-sm text-taupe mt-2">4 minutes • Anonymous • Enter by Jan 20 to win a $50 gift card</p>
+          <h1 className="text-3xl font-display font-semibold text-charcoal mb-2">Wine Country Trip Survey</h1>
+          <p className="text-slate font-display italic">{"Help us understand what makes wine trips great (and what doesn't)"}</p>
+          <p className="text-sm text-taupe mt-1">4 minutes • Anonymous • Enter by Jan 20 to win a $50 gift card</p>
         </div>
 
         {/* Progress */}
         <div className="mb-8">
-          <div className="flex justify-between mb-2">
+          <div className="flex justify-between mb-2 gap-1">
             {steps.map((step, i) => (
               <div
                 key={i}
-                className={`text-xs sm:text-sm font-medium ${
+                className={`text-xs sm:text-sm font-medium text-center flex-1 ${
                   i === currentStep ? 'text-wine-burgundy' : i < currentStep ? 'text-wine-rose' : 'text-taupe'
                 }`}
               >
-                {step.title}
+                <span className="hidden sm:inline">{step.title}</span>
+                <span className="sm:hidden">{step.title.split(' ')[0]}</span>
               </div>
             ))}
           </div>
-          <div className="h-2 bg-beige rounded-full overflow-hidden">
+          <div className="h-2 bg-warm-beige rounded-full overflow-hidden">
             <div
               className="h-full bg-gradient-to-r from-wine-deep to-wine-burgundy transition-all duration-300"
               style={{ width: `${((currentStep + 1) / steps.length) * 100}%` }}
@@ -461,23 +487,23 @@ export default function SurveyPage() {
         <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 space-y-8">
           {currentQuestions.map((q) => (
             <div key={q.id} className="space-y-4">
-              <h3 className="font-display text-xl font-medium text-charcoal">{q.question}</h3>
+              <h3 className="text-lg font-display font-semibold text-charcoal">{q.question}</h3>
               {renderQuestion(q)}
             </div>
           ))}
 
           {/* Error message */}
           {error && (
-            <div className="p-4 bg-wine-rose/10 border border-wine-rose/30 rounded-lg text-wine-deep text-sm">{error}</div>
+            <div className="p-4 bg-wine-rose/10 border border-wine-rose rounded-lg text-wine-deep text-sm">{error}</div>
           )}
 
           {/* Navigation */}
-          <div className="flex justify-between pt-4 border-t border-beige">
+          <div className="flex justify-between pt-4 border-t border-warm-beige">
             {currentStep > 0 ? (
               <button
                 type="button"
                 onClick={() => setCurrentStep(currentStep - 1)}
-                className="px-6 py-2 text-slate hover:text-charcoal font-medium"
+                className="px-6 py-2 text-slate hover:text-charcoal font-medium transition-colors"
               >
                 ← Back
               </button>
@@ -498,7 +524,7 @@ export default function SurveyPage() {
                 type="button"
                 onClick={handleSubmit}
                 disabled={submitting}
-                className="px-6 py-3 bg-wine-deep hover:bg-valley-deep disabled:bg-taupe text-white font-medium rounded-lg transition-colors"
+                className="px-6 py-3 bg-wine-deep hover:bg-wine-burgundy disabled:bg-taupe text-white font-medium rounded-lg transition-colors"
               >
                 {submitting ? 'Submitting...' : 'Submit Survey 🍷'}
               </button>

@@ -19,6 +19,14 @@ import {
 
 const COLORS = ['#6B2D3F', '#8B3A4D', '#C4637A', '#2D4A3E', '#5B7C6F', '#8FA99E', '#C9A962', '#B8A99A', '#4A4A50', '#E8E0D5']
 
+// Wine drop logo SVG component
+const WineLogo = ({ className = "w-6 h-6" }) => (
+  <svg className={className} viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M40 8C40 8 20 28 20 48C20 59.046 28.954 68 40 68C51.046 68 60 59.046 60 48C60 28 40 8 40 8Z" stroke="currentColor" strokeWidth="3" fill="none"/>
+    <path d="M30 52C30 52 35 44 40 44C45 44 50 52 50 52" stroke="#C9A962" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
+  </svg>
+)
+
 export default function Dashboard() {
   const [authenticated, setAuthenticated] = useState(false)
   const [password, setPassword] = useState('')
@@ -66,6 +74,7 @@ export default function Dashboard() {
     }
   }, [authenticated])
 
+  // Calculate first week threshold (first response + 7 days)
   const firstWeekThreshold = useMemo(() => {
     if (data.length === 0) return null
     const sorted = [...data].sort((a, b) => new Date(a.submitted_at) - new Date(b.submitted_at))
@@ -73,6 +82,7 @@ export default function Dashboard() {
     return new Date(firstDate.getTime() + 7 * 24 * 60 * 60 * 1000)
   }, [data])
 
+  // Filter data based on selections
   const filteredData = useMemo(() => {
     return data.filter((r) => {
       if (sourceFilter !== 'all' && r.source !== sourceFilter) return false
@@ -87,6 +97,7 @@ export default function Dashboard() {
     })
   }, [data, sourceFilter, emailFilter, timeFilter, firstWeekThreshold])
 
+  // Get unique sources for filter dropdown
   const uniqueSources = useMemo(() => {
     const sources = new Set(data.map((r) => r.source).filter(Boolean))
     return Array.from(sources)
@@ -97,25 +108,15 @@ export default function Dashboard() {
     return (
       <div className="min-h-screen bg-cream flex items-center justify-center p-6">
         <div className="bg-white rounded-2xl shadow-xl p-8 max-w-sm w-full">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <svg width="28" height="28" viewBox="0 0 80 80" fill="none">
-              <path d="M40 16C40 16 24 32 24 48C24 56.837 31.163 64 40 64C48.837 64 56 56.837 56 48C56 32 40 16 40 16Z" stroke="#6B2D3F" strokeWidth="2.5" fill="none"/>
-              <path d="M32 50C32 50 36 44 40 44C44 44 48 50 48 50" stroke="#C9A962" strokeWidth="2" fill="none" strokeLinecap="round"/>
-            </svg>
-            <span className="font-display text-xl font-medium">
-              <span className="text-wine-deep">Valley</span>
-              <span className="text-valley-deep">Somm</span>
-            </span>
-          </div>
-          <h1 className="font-display text-2xl font-medium text-charcoal mb-2 text-center">Dashboard</h1>
-          <p className="text-slate text-center mb-6">Enter password to view survey results</p>
+          <h1 className="text-2xl font-display font-semibold text-charcoal mb-2">Dashboard</h1>
+          <p className="text-slate mb-6">Enter password to view survey results</p>
           <form onSubmit={handleLogin}>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Password"
-              className="w-full p-3 rounded-lg border border-beige focus:border-wine-burgundy focus:ring-2 focus:ring-wine-rose/20 outline-none mb-4"
+              className="w-full p-3 rounded-lg border border-warm-beige focus:border-wine-rose focus:ring-2 focus:ring-wine-rose/20 outline-none mb-4"
             />
             {error && <p className="text-wine-deep text-sm mb-4">{error}</p>}
             <button
@@ -130,6 +131,7 @@ export default function Dashboard() {
     )
   }
 
+  // Loading state
   if (loading) {
     return (
       <div className="min-h-screen bg-cream flex items-center justify-center">
@@ -138,7 +140,7 @@ export default function Dashboard() {
     )
   }
 
-  // Calculate metrics
+  // Calculate metrics (using filtered data)
   const totalResponses = filteredData.length
   const totalUnfiltered = data.length
   const emailsCollected = filteredData.filter((r) => r.email).length
@@ -149,6 +151,7 @@ export default function Dashboard() {
     ? (filteredData.filter(r => r.confidence).reduce((sum, r) => sum + r.confidence, 0) / filteredData.filter(r => r.confidence).length).toFixed(1)
     : 0
 
+  // Count occurrences helper
   const countOccurrences = (field, isArray = false) => {
     const counts = {}
     filteredData.forEach((r) => {
@@ -165,6 +168,7 @@ export default function Dashboard() {
       .sort((a, b) => b.value - a.value)
   }
 
+  // Prepare chart data
   const regionsData = countOccurrences('regions', true)
   const planningData = countOccurrences('planning_time')
   const groupData = countOccurrences('group_type')
@@ -174,11 +178,13 @@ export default function Dashboard() {
   const payData = countOccurrences('pay')
   const sourceData = countOccurrences('source')
 
+  // Confidence distribution
   const confidenceData = [1, 2, 3, 4, 5].map((n) => ({
     name: n.toString(),
     value: filteredData.filter((r) => r.confidence === n).length,
   }))
 
+  // Responses over time (by day)
   const responsesByDay = {}
   filteredData.forEach((r) => {
     const day = new Date(r.submitted_at).toLocaleDateString()
@@ -188,17 +194,20 @@ export default function Dashboard() {
     .map(([date, count]) => ({ date, count }))
     .reverse()
 
+  // Willingness to pay percentage
   const willingToPay = filteredData.filter(
     (r) => r.pay === 'Yes — take my money' || r.pay === 'Maybe, depending on cost'
   ).length
   const payPercentage = totalResponses > 0 ? Math.round((willingToPay / totalResponses) * 100) : 0
 
+  // "Other" responses
   const otherRegionsUS = filteredData.filter((r) => r.regions_other_us).map((r) => r.regions_other_us)
   const otherRegionsIntl = filteredData.filter((r) => r.regions_international).map((r) => r.regions_international)
   const otherDiscovery = filteredData.filter((r) => r.discovery_other).map((r) => r.discovery_other)
   const otherDriver = filteredData.filter((r) => r.driver_other).map((r) => r.driver_other)
   const otherSource = filteredData.filter((r) => r.source_other).map((r) => r.source_other)
 
+  // Open-ended responses
   const hardestParts = filteredData.filter((r) => r.hardest_part).map((r) => ({ text: r.hardest_part, date: r.submitted_at, source: r.source }))
   const easierResponses = filteredData.filter((r) => r.easier).map((r) => ({ text: r.easier, date: r.submitted_at, source: r.source }))
   const surprises = filteredData.filter((r) => r.surprise).map((r) => ({ text: r.surprise, date: r.submitted_at, source: r.source }))
@@ -211,29 +220,22 @@ export default function Dashboard() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
           <div className="flex items-center gap-3">
-            <svg width="40" height="40" viewBox="0 0 80 80" fill="none">
-              <path d="M40 16C40 16 24 32 24 48C24 56.837 31.163 64 40 64C48.837 64 56 56.837 56 48C56 32 40 16 40 16Z" stroke="#6B2D3F" strokeWidth="2.5" fill="none"/>
-              <path d="M32 50C32 50 36 44 40 44C44 44 48 50 48 50" stroke="#C9A962" strokeWidth="2" fill="none" strokeLinecap="round"/>
-            </svg>
+            <WineLogo className="w-8 h-8 text-wine-burgundy" />
             <div>
-              <h1 className="font-display text-3xl font-medium text-charcoal">
-                <span className="text-wine-deep">Valley</span>
-                <span className="text-valley-deep">Somm</span>
-                {' '}Dashboard
-              </h1>
+              <h1 className="text-3xl font-display font-semibold text-charcoal">ValleySomm Dashboard</h1>
               <p className="text-slate">Wine Country Trip Survey Results</p>
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <a
               href="/review"
-              className="px-4 py-2 bg-valley-deep hover:bg-charcoal text-white text-sm font-medium rounded-lg transition-colors"
+              className="px-4 py-2 bg-valley-deep hover:bg-valley-sage text-white text-sm font-medium rounded-lg transition-colors"
             >
               Review Responses
             </a>
             <a
               href="/analysis"
-              className="px-4 py-2 bg-valley-deep hover:bg-charcoal text-white text-sm font-medium rounded-lg transition-colors"
+              className="px-4 py-2 bg-valley-deep hover:bg-valley-sage text-white text-sm font-medium rounded-lg transition-colors"
             >
               Analysis
             </a>
@@ -257,7 +259,7 @@ export default function Dashboard() {
             <select
               value={sourceFilter}
               onChange={(e) => setSourceFilter(e.target.value)}
-              className="text-sm border border-beige rounded-lg px-3 py-2 focus:border-wine-burgundy outline-none"
+              className="text-sm border border-warm-beige rounded-lg px-3 py-2 focus:border-wine-rose outline-none"
             >
               <option value="all">All Sources</option>
               {uniqueSources.map((source) => (
@@ -268,7 +270,7 @@ export default function Dashboard() {
             <select
               value={emailFilter}
               onChange={(e) => setEmailFilter(e.target.value)}
-              className="text-sm border border-beige rounded-lg px-3 py-2 focus:border-wine-burgundy outline-none"
+              className="text-sm border border-warm-beige rounded-lg px-3 py-2 focus:border-wine-rose outline-none"
             >
               <option value="all">All Responses</option>
               <option value="with_email">With Email</option>
@@ -278,7 +280,7 @@ export default function Dashboard() {
             <select
               value={timeFilter}
               onChange={(e) => setTimeFilter(e.target.value)}
-              className="text-sm border border-beige rounded-lg px-3 py-2 focus:border-wine-burgundy outline-none"
+              className="text-sm border border-warm-beige rounded-lg px-3 py-2 focus:border-wine-rose outline-none"
             >
               <option value="all">All Time</option>
               <option value="first_week">First Week</option>
@@ -319,7 +321,7 @@ export default function Dashboard() {
         {/* Source Breakdown + Timeline */}
         <div className="grid md:grid-cols-2 gap-6 mb-6">
           <div className="bg-white rounded-2xl shadow p-6">
-            <h2 className="font-display text-lg font-medium text-charcoal mb-4">Response Sources</h2>
+            <h2 className="text-lg font-display font-semibold text-charcoal mb-4">Response Sources</h2>
             {sourceData.length === 0 ? (
               <p className="text-taupe text-sm">No data yet</p>
             ) : (
@@ -346,7 +348,7 @@ export default function Dashboard() {
 
           {timelineData.length > 0 && (
             <div className="bg-white rounded-2xl shadow p-6">
-              <h2 className="font-display text-lg font-medium text-charcoal mb-4">Responses Over Time</h2>
+              <h2 className="text-lg font-display font-semibold text-charcoal mb-4">Responses Over Time</h2>
               <ResponsiveContainer width="100%" height={200}>
                 <LineChart data={timelineData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#E8E0D5" />
@@ -373,7 +375,7 @@ export default function Dashboard() {
         {/* Confidence & Pay Section */}
         <div className="grid md:grid-cols-2 gap-6 mb-6">
           <div className="bg-white rounded-2xl shadow p-6">
-            <h2 className="font-display text-lg font-medium text-charcoal mb-4">Confidence in Winery Selection</h2>
+            <h2 className="text-lg font-display font-semibold text-charcoal mb-4">Confidence in Winery Selection</h2>
             <p className="text-sm text-slate mb-4">1 = Total guesswork, 5 = Nailed it</p>
             <ResponsiveContainer width="100%" height={200}>
               <BarChart data={confidenceData}>
@@ -387,7 +389,7 @@ export default function Dashboard() {
           </div>
 
           <div className="bg-white rounded-2xl shadow p-6">
-            <h2 className="font-display text-lg font-medium text-charcoal mb-4">Willingness to Pay</h2>
+            <h2 className="text-lg font-display font-semibold text-charcoal mb-4">Willingness to Pay</h2>
             {payData.length === 0 ? (
               <p className="text-taupe text-sm">No data yet</p>
             ) : (
@@ -397,7 +399,7 @@ export default function Dashboard() {
                   <XAxis type="number" stroke="#B8A99A" />
                   <YAxis type="category" dataKey="name" width={180} tick={{ fontSize: 11 }} stroke="#B8A99A" />
                   <Tooltip />
-                  <Bar dataKey="value" fill="#2D4A3E" radius={[0, 4, 4, 0]} />
+                  <Bar dataKey="value" fill="#6B2D3F" radius={[0, 4, 4, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             )}
@@ -407,7 +409,7 @@ export default function Dashboard() {
         {/* "Other" Responses */}
         {(otherRegionsUS.length > 0 || otherRegionsIntl.length > 0 || otherDiscovery.length > 0 || otherDriver.length > 0 || otherSource.length > 0) && (
           <div className="bg-white rounded-2xl shadow p-6 mb-6">
-            <h2 className="font-display text-lg font-medium text-charcoal mb-4">&quot;Other&quot; Responses</h2>
+            <h2 className="text-lg font-display font-semibold text-charcoal mb-4">&quot;Other&quot; Responses</h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {otherRegionsUS.length > 0 && (
                 <div>
@@ -473,7 +475,7 @@ function MetricCard({ label, value }) {
   return (
     <div className="bg-white rounded-2xl shadow p-6">
       <p className="text-sm text-slate mb-1">{label}</p>
-      <p className="text-3xl font-display font-medium text-charcoal">{value}</p>
+      <p className="text-3xl font-display font-semibold text-charcoal">{value}</p>
     </div>
   )
 }
@@ -482,7 +484,7 @@ function ChartCard({ title, data }) {
   if (data.length === 0) {
     return (
       <div className="bg-white rounded-2xl shadow p-6">
-        <h2 className="font-display text-lg font-medium text-charcoal mb-4">{title}</h2>
+        <h2 className="text-lg font-display font-semibold text-charcoal mb-4">{title}</h2>
         <p className="text-taupe text-sm">No data yet</p>
       </div>
     )
@@ -490,7 +492,7 @@ function ChartCard({ title, data }) {
 
   return (
     <div className="bg-white rounded-2xl shadow p-6">
-      <h2 className="font-display text-lg font-medium text-charcoal mb-4">{title}</h2>
+      <h2 className="text-lg font-display font-semibold text-charcoal mb-4">{title}</h2>
       <ResponsiveContainer width="100%" height={Math.max(200, data.length * 35)}>
         <BarChart data={data} layout="vertical" margin={{ left: 20, right: 20 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#E8E0D5" />
@@ -503,7 +505,7 @@ function ChartCard({ title, data }) {
             stroke="#B8A99A"
           />
           <Tooltip />
-          <Bar dataKey="value" fill="#8B3A4D" radius={[0, 4, 4, 0]} />
+          <Bar dataKey="value" fill="#6B2D3F" radius={[0, 4, 4, 0]} />
         </BarChart>
       </ResponsiveContainer>
     </div>
@@ -513,14 +515,14 @@ function ChartCard({ title, data }) {
 function OpenEndedCard({ title, responses }) {
   return (
     <div className="bg-white rounded-2xl shadow p-6">
-      <h2 className="font-display text-lg font-medium text-charcoal mb-2">{title}</h2>
+      <h2 className="text-lg font-display font-semibold text-charcoal mb-2">{title}</h2>
       <p className="text-sm text-taupe mb-4">{responses.length} responses</p>
       <div className="space-y-4 max-h-96 overflow-y-auto">
         {responses.length === 0 ? (
           <p className="text-taupe text-sm">No responses yet</p>
         ) : (
           responses.map((r, i) => (
-            <div key={i} className="border-b border-beige pb-3 last:border-0">
+            <div key={i} className="border-b border-warm-beige pb-3 last:border-0">
               <p className="text-charcoal text-sm">{r.text}</p>
               <p className="text-taupe text-xs mt-1">
                 {new Date(r.date).toLocaleDateString()}
