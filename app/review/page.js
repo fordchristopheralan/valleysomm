@@ -35,6 +35,7 @@ export default function ReviewPage() {
   const [filter, setFilter] = useState('unreviewed')
   const [saving, setSaving] = useState(false)
   const [newTheme, setNewTheme] = useState('')
+  const [sidebarOpen, setSidebarOpen] = useState(false) // Mobile sidebar toggle
 
   const correctPassword = process.env.NEXT_PUBLIC_DASHBOARD_PASSWORD || 'valleysomm2024'
 
@@ -109,6 +110,8 @@ export default function ReviewPage() {
       review_notes: response.review_notes || '',
       reviewed: response.reviewed || false,
     })
+    // Close sidebar on mobile after selection
+    setSidebarOpen(false)
   }
 
   const toggleTheme = (field, theme) => {
@@ -205,12 +208,12 @@ export default function ReviewPage() {
   if (!authenticated) {
     return (
       <div className="min-h-screen bg-cream flex items-center justify-center p-6">
-        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-sm w-full">
-          <div className="flex items-center gap-2 mb-4">
-            <WineLogo className="w-6 h-6 text-wine-burgundy" />
-            <h1 className="text-2xl font-display font-semibold text-charcoal">Review Responses</h1>
+        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-sm w-full border border-warm-beige">
+          <div className="flex justify-center mb-4">
+            <WineLogo className="w-12 h-12 text-wine-burgundy" />
           </div>
-          <p className="text-slate mb-6">Enter password to review and tag responses</p>
+          <h1 className="text-2xl font-display font-bold text-charcoal mb-2 text-center">Review Responses</h1>
+          <p className="text-slate mb-6 text-center">Enter password to review and tag responses</p>
           <form onSubmit={handleLogin}>
             <input
               type="password"
@@ -219,7 +222,7 @@ export default function ReviewPage() {
               placeholder="Password"
               className="w-full p-3 rounded-lg border border-warm-beige focus:border-wine-rose focus:ring-2 focus:ring-wine-rose/20 outline-none mb-4"
             />
-            {error && <p className="text-wine-deep text-sm mb-4">{error}</p>}
+            {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
             <button
               type="submit"
               className="w-full py-3 bg-wine-burgundy hover:bg-wine-deep text-white font-medium rounded-lg transition-colors"
@@ -246,17 +249,57 @@ export default function ReviewPage() {
 
   return (
     <div className="min-h-screen bg-cream">
-      <div className="flex h-screen">
-        {/* Sidebar - Response List */}
-        <div className="w-80 bg-white border-r border-warm-beige flex flex-col">
+      {/* Mobile Header with Hamburger */}
+      <div className="md:hidden bg-white border-b border-warm-beige p-4 sticky top-0 z-20">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="p-2 hover:bg-cream rounded-lg transition-colors"
+              aria-label="Toggle menu"
+            >
+              <svg className="w-6 h-6 text-charcoal" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {sidebarOpen ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                )}
+              </svg>
+            </button>
+            <h1 className="text-lg font-display font-bold text-charcoal">Review</h1>
+          </div>
+          <span className="text-xs text-slate">{reviewedCount}/{responses.length}</span>
+        </div>
+      </div>
+
+      <div className="flex h-screen md:h-auto">
+        {/* Sidebar - Hidden on mobile by default, overlay when open */}
+        <div className={`
+          fixed md:static inset-y-0 left-0 z-30
+          w-80 bg-white border-r border-warm-beige
+          transform transition-transform duration-300 ease-in-out
+          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+          flex flex-col
+          md:h-screen
+        `}>
+          {/* Sidebar Header */}
           <div className="p-4 border-b border-warm-beige">
-            <div className="flex items-center gap-2 mb-1">
-              <WineLogo className="w-5 h-5 text-wine-burgundy" />
-              <h1 className="text-xl font-display font-semibold text-charcoal">Review Responses</h1>
+            <div className="flex items-center justify-between mb-3">
+              <h1 className="text-xl font-display font-bold text-charcoal hidden md:block">Review Responses</h1>
+              {/* Close button for mobile */}
+              <button
+                onClick={() => setSidebarOpen(false)}
+                className="md:hidden p-2 hover:bg-cream rounded-lg transition-colors ml-auto"
+                aria-label="Close menu"
+              >
+                <svg className="w-5 h-5 text-slate" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
             </div>
-            <p className="text-sm text-slate">{reviewedCount} of {responses.length} reviewed</p>
+            <p className="text-sm text-slate mb-3">{reviewedCount} of {responses.length} reviewed</p>
             
-            <div className="mt-3 flex gap-2">
+            <div className="flex gap-2">
               <select
                 value={filter}
                 onChange={(e) => setFilter(e.target.value)}
@@ -269,6 +312,7 @@ export default function ReviewPage() {
             </div>
           </div>
 
+          {/* Response List */}
           <div className="flex-1 overflow-y-auto">
             {filteredResponses.map((response) => (
               <button
@@ -285,7 +329,7 @@ export default function ReviewPage() {
                   {response.reviewed ? (
                     <span className="text-xs bg-valley-sage/20 text-valley-deep px-2 py-0.5 rounded-full">Reviewed</span>
                   ) : (
-                    <span className="text-xs bg-warm-beige text-slate px-2 py-0.5 rounded-full">Pending</span>
+                    <span className="text-xs bg-wine-rose/20 text-wine-burgundy px-2 py-0.5 rounded-full">Pending</span>
                   )}
                 </div>
                 <p className="text-sm text-charcoal line-clamp-2">
@@ -298,10 +342,11 @@ export default function ReviewPage() {
             ))}
           </div>
 
-          <div className="p-4 border-t border-warm-beige space-y-2">
+          {/* Sidebar Footer */}
+          <div className="p-4 border-t border-warm-beige">
             <a
               href="/dashboard"
-              className="block text-center text-sm text-wine-burgundy hover:text-wine-deep font-medium"
+              className="block text-center text-sm text-wine-burgundy hover:text-wine-deep font-medium mb-2"
             >
               ← Back to Dashboard
             </a>
@@ -314,17 +359,25 @@ export default function ReviewPage() {
           </div>
         </div>
 
-        {/* Main Content - Response Detail */}
-        <div className="flex-1 overflow-y-auto p-6">
+        {/* Overlay for mobile sidebar */}
+        {sidebarOpen && (
+          <div
+            className="fixed inset-0 bg-black/50 z-20 md:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+
+        {/* Main Content */}
+        <div className="flex-1 overflow-y-auto p-4 md:p-6">
           {selectedResponse ? (
             <div className="max-w-4xl mx-auto">
               {/* Navigation */}
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
                 <div className="flex items-center gap-4">
                   <button
                     onClick={goToPrev}
                     disabled={currentIndex <= 0}
-                    className="px-3 py-1 text-sm text-slate hover:text-charcoal disabled:opacity-50"
+                    className="px-3 py-1 text-sm text-slate hover:text-charcoal disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     ← Prev
                   </button>
@@ -334,7 +387,7 @@ export default function ReviewPage() {
                   <button
                     onClick={goToNext}
                     disabled={currentIndex >= filteredResponses.length - 1}
-                    className="px-3 py-1 text-sm text-slate hover:text-charcoal disabled:opacity-50"
+                    className="px-3 py-1 text-sm text-slate hover:text-charcoal disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Next →
                   </button>
@@ -342,65 +395,65 @@ export default function ReviewPage() {
                 <button
                   onClick={saveReview}
                   disabled={saving}
-                  className="px-6 py-2 bg-wine-burgundy hover:bg-wine-deep disabled:bg-taupe text-white font-medium rounded-lg transition-colors"
+                  className="px-6 py-2 bg-wine-burgundy hover:bg-wine-deep disabled:bg-taupe text-white font-medium rounded-lg transition-colors text-sm md:text-base"
                 >
                   {saving ? 'Saving...' : formData.reviewed ? 'Update Review' : 'Save Review'}
                 </button>
               </div>
 
               {/* Response Meta */}
-              <div className="bg-white rounded-2xl shadow p-6 mb-6">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+              <div className="bg-white rounded-2xl shadow p-4 md:p-6 mb-6 border border-warm-beige">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 text-sm">
                   <div>
-                    <span className="text-slate">Date</span>
-                    <p className="font-medium text-charcoal">
-                      {new Date(selectedResponse.submitted_at).toLocaleString()}
+                    <span className="text-slate text-xs md:text-sm">Date</span>
+                    <p className="font-medium text-charcoal text-xs md:text-sm">
+                      {new Date(selectedResponse.submitted_at).toLocaleDateString()}
                     </p>
                   </div>
                   <div>
-                    <span className="text-slate">Source</span>
-                    <p className="font-medium text-charcoal">{selectedResponse.source || 'Unknown'}</p>
+                    <span className="text-slate text-xs md:text-sm">Source</span>
+                    <p className="font-medium text-charcoal text-xs md:text-sm">{selectedResponse.source || 'Unknown'}</p>
                   </div>
                   <div>
-                    <span className="text-slate">Group Type</span>
-                    <p className="font-medium text-charcoal">{selectedResponse.group_type || 'N/A'}</p>
+                    <span className="text-slate text-xs md:text-sm">Group Type</span>
+                    <p className="font-medium text-charcoal text-xs md:text-sm">{selectedResponse.group_type || 'N/A'}</p>
                   </div>
                   <div>
-                    <span className="text-slate">Confidence</span>
-                    <p className="font-medium text-charcoal">{selectedResponse.confidence || 'N/A'}/5</p>
+                    <span className="text-slate text-xs md:text-sm">Confidence</span>
+                    <p className="font-medium text-charcoal text-xs md:text-sm">{selectedResponse.confidence || 'N/A'}/5</p>
                   </div>
                   <div>
-                    <span className="text-slate">Would Pay</span>
-                    <p className="font-medium text-charcoal">{selectedResponse.pay || 'N/A'}</p>
+                    <span className="text-slate text-xs md:text-sm">Would Pay</span>
+                    <p className="font-medium text-charcoal text-xs md:text-sm truncate">{selectedResponse.pay || 'N/A'}</p>
                   </div>
                   <div>
-                    <span className="text-slate">Planning</span>
-                    <p className="font-medium text-charcoal">{selectedResponse.planning_time || 'N/A'}</p>
+                    <span className="text-slate text-xs md:text-sm">Planning</span>
+                    <p className="font-medium text-charcoal text-xs md:text-sm truncate">{selectedResponse.planning_time || 'N/A'}</p>
                   </div>
                   <div>
-                    <span className="text-slate">Driver</span>
-                    <p className="font-medium text-charcoal">{selectedResponse.driver || 'N/A'}</p>
+                    <span className="text-slate text-xs md:text-sm">Driver</span>
+                    <p className="font-medium text-charcoal text-xs md:text-sm truncate">{selectedResponse.driver || 'N/A'}</p>
                   </div>
                   <div>
-                    <span className="text-slate">Email</span>
-                    <p className="font-medium text-charcoal">{selectedResponse.email ? 'Yes' : 'Anonymous'}</p>
+                    <span className="text-slate text-xs md:text-sm">Email</span>
+                    <p className="font-medium text-charcoal text-xs md:text-sm">{selectedResponse.email ? 'Yes' : 'Anonymous'}</p>
                   </div>
                 </div>
               </div>
 
               {/* Open-Ended Responses with Theme Tagging */}
               {selectedResponse.hardest_part && (
-                <div className="bg-white rounded-2xl shadow p-6 mb-6">
-                  <h3 className="text-lg font-display font-semibold text-charcoal mb-2">Hardest Part of Planning</h3>
-                  <p className="text-charcoal mb-4 p-4 bg-cream rounded-lg">{selectedResponse.hardest_part}</p>
+                <div className="bg-white rounded-2xl shadow p-4 md:p-6 mb-6 border border-warm-beige">
+                  <h3 className="text-base md:text-lg font-display font-semibold text-charcoal mb-2">Hardest Part of Planning</h3>
+                  <p className="text-charcoal mb-4 p-3 md:p-4 bg-cream rounded-lg text-sm md:text-base">{selectedResponse.hardest_part}</p>
                   
-                  <div className="mb-2 text-sm font-medium text-slate">Assign Themes:</div>
+                  <div className="mb-2 text-xs md:text-sm font-medium text-slate">Assign Themes:</div>
                   <div className="flex flex-wrap gap-2">
                     {themes.map((theme) => (
                       <button
                         key={theme.id || theme.name}
                         onClick={() => toggleTheme('hardest_part_themes', theme.name)}
-                        className={`px-3 py-1 text-sm rounded-full transition-colors ${
+                        className={`px-2 md:px-3 py-1 text-xs md:text-sm rounded-full transition-colors ${
                           formData.hardest_part_themes.includes(theme.name)
                             ? 'bg-wine-burgundy text-white'
                             : 'bg-warm-beige text-slate hover:bg-wine-rose/20'
@@ -414,17 +467,17 @@ export default function ReviewPage() {
               )}
 
               {selectedResponse.easier && (
-                <div className="bg-white rounded-2xl shadow p-6 mb-6">
-                  <h3 className="text-lg font-display font-semibold text-charcoal mb-2">What Would Make It Easier</h3>
-                  <p className="text-charcoal mb-4 p-4 bg-cream rounded-lg">{selectedResponse.easier}</p>
+                <div className="bg-white rounded-2xl shadow p-4 md:p-6 mb-6 border border-warm-beige">
+                  <h3 className="text-base md:text-lg font-display font-semibold text-charcoal mb-2">What Would Make It Easier</h3>
+                  <p className="text-charcoal mb-4 p-3 md:p-4 bg-cream rounded-lg text-sm md:text-base">{selectedResponse.easier}</p>
                   
-                  <div className="mb-2 text-sm font-medium text-slate">Assign Themes:</div>
+                  <div className="mb-2 text-xs md:text-sm font-medium text-slate">Assign Themes:</div>
                   <div className="flex flex-wrap gap-2">
                     {themes.map((theme) => (
                       <button
                         key={theme.id || theme.name}
                         onClick={() => toggleTheme('easier_themes', theme.name)}
-                        className={`px-3 py-1 text-sm rounded-full transition-colors ${
+                        className={`px-2 md:px-3 py-1 text-xs md:text-sm rounded-full transition-colors ${
                           formData.easier_themes.includes(theme.name)
                             ? 'bg-wine-burgundy text-white'
                             : 'bg-warm-beige text-slate hover:bg-wine-rose/20'
@@ -438,17 +491,17 @@ export default function ReviewPage() {
               )}
 
               {selectedResponse.surprise && (
-                <div className="bg-white rounded-2xl shadow p-6 mb-6">
-                  <h3 className="text-lg font-display font-semibold text-charcoal mb-2">Surprises (Good & Bad)</h3>
-                  <p className="text-charcoal mb-4 p-4 bg-cream rounded-lg">{selectedResponse.surprise}</p>
+                <div className="bg-white rounded-2xl shadow p-4 md:p-6 mb-6 border border-warm-beige">
+                  <h3 className="text-base md:text-lg font-display font-semibold text-charcoal mb-2">Surprises (Good & Bad)</h3>
+                  <p className="text-charcoal mb-4 p-3 md:p-4 bg-cream rounded-lg text-sm md:text-base">{selectedResponse.surprise}</p>
                   
-                  <div className="mb-2 text-sm font-medium text-slate">Assign Themes:</div>
+                  <div className="mb-2 text-xs md:text-sm font-medium text-slate">Assign Themes:</div>
                   <div className="flex flex-wrap gap-2">
                     {themes.map((theme) => (
                       <button
                         key={theme.id || theme.name}
                         onClick={() => toggleTheme('surprise_themes', theme.name)}
-                        className={`px-3 py-1 text-sm rounded-full transition-colors ${
+                        className={`px-2 md:px-3 py-1 text-xs md:text-sm rounded-full transition-colors ${
                           formData.surprise_themes.includes(theme.name)
                             ? 'bg-wine-burgundy text-white'
                             : 'bg-warm-beige text-slate hover:bg-wine-rose/20'
@@ -462,15 +515,15 @@ export default function ReviewPage() {
               )}
 
               {/* Add Custom Theme */}
-              <div className="bg-white rounded-2xl shadow p-6 mb-6">
-                <h3 className="text-lg font-display font-semibold text-charcoal mb-4">Add Custom Theme</h3>
+              <div className="bg-white rounded-2xl shadow p-4 md:p-6 mb-6 border border-warm-beige">
+                <h3 className="text-base md:text-lg font-display font-semibold text-charcoal mb-4">Add Custom Theme</h3>
                 <div className="flex gap-2">
                   <input
                     type="text"
                     value={newTheme}
                     onChange={(e) => setNewTheme(e.target.value)}
                     placeholder="New theme name..."
-                    className="flex-1 p-3 rounded-lg border border-warm-beige focus:border-wine-rose focus:ring-2 focus:ring-wine-rose/20 outline-none"
+                    className="flex-1 p-2 md:p-3 rounded-lg border border-warm-beige focus:border-wine-rose focus:ring-2 focus:ring-wine-rose/20 outline-none text-sm md:text-base"
                     onKeyPress={(e) => {
                       if (e.key === 'Enter') {
                         e.preventDefault()
@@ -481,7 +534,7 @@ export default function ReviewPage() {
                   <button
                     onClick={addCustomTheme}
                     disabled={!newTheme.trim()}
-                    className="px-6 py-2 bg-valley-deep hover:bg-valley-sage disabled:bg-taupe text-white rounded-lg transition-colors font-medium"
+                    className="px-4 md:px-6 py-2 bg-valley-deep hover:bg-valley-sage disabled:bg-taupe text-white rounded-lg transition-colors font-medium text-sm md:text-base"
                   >
                     Add
                   </button>
@@ -489,11 +542,11 @@ export default function ReviewPage() {
               </div>
 
               {/* Intensity Score & Pain Category */}
-              <div className="bg-white rounded-2xl shadow p-6 mb-6">
-                <h3 className="text-lg font-display font-semibold text-charcoal mb-4">Pain Point Scoring</h3>
+              <div className="bg-white rounded-2xl shadow p-4 md:p-6 mb-6 border border-warm-beige">
+                <h3 className="text-base md:text-lg font-display font-semibold text-charcoal mb-4">Pain Point Scoring</h3>
                 
                 <div className="mb-6">
-                  <div className="mb-2 text-sm font-medium text-slate">
+                  <div className="mb-2 text-xs md:text-sm font-medium text-slate">
                     Intensity Score (based on emotional language)
                   </div>
                   <div className="flex gap-2">
@@ -501,7 +554,7 @@ export default function ReviewPage() {
                       <button
                         key={n}
                         onClick={() => setFormData({ ...formData, intensity_score: n })}
-                        className={`flex-1 py-3 rounded-lg font-medium transition-all ${
+                        className={`flex-1 py-2 md:py-3 rounded-lg font-medium transition-all text-sm md:text-base ${
                           formData.intensity_score === n
                             ? 'bg-wine-burgundy text-white'
                             : 'bg-warm-beige text-slate hover:bg-wine-rose/20'
@@ -518,11 +571,11 @@ export default function ReviewPage() {
                 </div>
 
                 <div>
-                  <div className="mb-2 text-sm font-medium text-slate">Primary Pain Category</div>
+                  <div className="mb-2 text-xs md:text-sm font-medium text-slate">Primary Pain Category</div>
                   <select
                     value={formData.pain_category}
                     onChange={(e) => setFormData({ ...formData, pain_category: e.target.value })}
-                    className="w-full p-3 rounded-lg border border-warm-beige focus:border-wine-rose outline-none"
+                    className="w-full p-2 md:p-3 rounded-lg border border-warm-beige focus:border-wine-rose outline-none text-sm md:text-base"
                   >
                     <option value="">Select primary category...</option>
                     {themes.map((theme) => (
@@ -533,13 +586,13 @@ export default function ReviewPage() {
               </div>
 
               {/* Review Notes */}
-              <div className="bg-white rounded-2xl shadow p-6 mb-6">
-                <h3 className="text-lg font-display font-semibold text-charcoal mb-4">Review Notes</h3>
+              <div className="bg-white rounded-2xl shadow p-4 md:p-6 mb-6 border border-warm-beige">
+                <h3 className="text-base md:text-lg font-display font-semibold text-charcoal mb-4">Review Notes</h3>
                 <textarea
                   value={formData.review_notes}
                   onChange={(e) => setFormData({ ...formData, review_notes: e.target.value })}
                   placeholder="Any observations, patterns, or follow-up ideas..."
-                  className="w-full h-32 p-4 rounded-lg border border-warm-beige focus:border-wine-rose focus:ring-2 focus:ring-wine-rose/20 outline-none resize-none"
+                  className="w-full h-24 md:h-32 p-3 md:p-4 rounded-lg border border-warm-beige focus:border-wine-rose focus:ring-2 focus:ring-wine-rose/20 outline-none resize-none text-sm md:text-base"
                 />
               </div>
 
@@ -548,15 +601,22 @@ export default function ReviewPage() {
                 <button
                   onClick={saveReview}
                   disabled={saving}
-                  className="px-8 py-3 bg-wine-burgundy hover:bg-wine-deep disabled:bg-taupe text-white font-medium rounded-lg transition-colors"
+                  className="px-6 md:px-8 py-2 md:py-3 bg-wine-burgundy hover:bg-wine-deep disabled:bg-taupe text-white font-medium rounded-lg transition-colors text-sm md:text-base"
                 >
                   {saving ? 'Saving...' : formData.reviewed ? 'Update Review' : 'Save Review'}
                 </button>
               </div>
             </div>
           ) : (
-            <div className="flex items-center justify-center h-full text-taupe">
-              Select a response from the sidebar to review
+            <div className="flex flex-col items-center justify-center h-full text-taupe p-6 text-center">
+              <WineLogo className="w-16 h-16 mb-4 opacity-50" />
+              <p className="text-sm md:text-base">Select a response from the sidebar to review</p>
+              <button
+                onClick={() => setSidebarOpen(true)}
+                className="mt-4 md:hidden px-4 py-2 bg-wine-burgundy text-white rounded-lg text-sm"
+              >
+                Open Response List
+              </button>
             </div>
           )}
         </div>
