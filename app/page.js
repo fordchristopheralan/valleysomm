@@ -1,7 +1,15 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
+import { 
+  initAnalytics, 
+  trackStepStart, 
+  trackStepComplete, 
+  trackStepBack, 
+  trackSurveyComplete,
+  trackAbandon 
+} from '@/lib/analytics'
 
 const questions = [
   {
@@ -173,6 +181,23 @@ export default function SurveyPage() {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState(null)
 
+  // Initialize analytics on page load
+  useEffect(() => {
+    initAnalytics()
+  }, [])
+
+  // Track abandonment when user leaves page mid-survey
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (currentStep > 0 && !submitted) {
+        trackAbandon(currentStep + 1)
+      }
+    }
+
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload)
+  }, [currentStep, submitted])
+
   const handleMultiSelect = (questionId, option) => {
     const current = answers[questionId] || []
     if (current.includes(option)) {
@@ -214,7 +239,7 @@ export default function SurveyPage() {
     const emailOptions = answers.email_options || []
 
     try {
-      const { error: supabaseError } = await supabase.from('survey_responses').insert([
+      const { data, error: supabaseError } = await supabase.from('survey_responses').insert([
         {
           regions: answers.regions || [],
           regions_other_us: answers.regions_other_us || null,
@@ -239,8 +264,14 @@ export default function SurveyPage() {
           submitted_at: new Date().toISOString(),
         },
       ])
+      .select()
 
       if (supabaseError) throw supabaseError
+
+      // Track successful completion with response_id
+      if (data && data[0]) {
+        await trackSurveyComplete(data[0].id)
+      }
 
       setSubmitted(true)
     } catch (err) {
@@ -491,7 +522,10 @@ export default function SurveyPage() {
             {currentStep > 0 ? (
               <button
                 type="button"
-                onClick={() => setCurrentStep(currentStep - 1)}
+                onClick={() => {
+                  trackStepBack(currentStep + 1, currentStep)
+                  setCurrentStep(currentStep - 1)
+                }}
                 className="px-6 py-2 text-[#5B7C6F] hover:text-[#6B2D3F] font-medium transition-colors"
               >
                 ← Back
@@ -503,7 +537,16 @@ export default function SurveyPage() {
             {currentStep < steps.length - 1 ? (
               <button
                 type="button"
-                onClick={() => setCurrentStep(currentStep + 1)}
+                onClick={() => {
+                  // Track current step completion
+                  trackStepComplete(currentStep + 1, steps[currentStep].title)
+                  
+                  // Move to next step
+                  setCurrentStep(currentStep + 1)
+                  
+                  // Track next step start
+                  trackStepStart(currentStep + 2, steps[currentStep + 1].title)
+                }}
                 className="px-6 py-3 bg-gradient-to-r from-[#6B2D3F] to-[#8B3A4D] hover:from-[#8B3A4D] hover:to-[#6B2D3F] text-white font-medium rounded-lg transition-all shadow-md"
               >
                 Continue →
