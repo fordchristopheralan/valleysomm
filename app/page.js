@@ -452,11 +452,11 @@ export default function SurveyPage() {
 
         {/* Progress */}
         <div className="mb-8">
-          <div className="flex justify-between mb-2">
+          <div className="flex justify-between mb-2 gap-1">
             {steps.map((step, i) => (
               <div
                 key={i}
-                className={`text-xs sm:text-sm font-medium ${
+                className={`text-[10px] leading-tight sm:text-sm font-medium flex-1 text-center ${
                   i === currentStep ? 'text-[#6B2D3F]' : i < currentStep ? 'text-[#8B3A4D]' : 'text-[#5B7C6F]'
                 }`}
               >
