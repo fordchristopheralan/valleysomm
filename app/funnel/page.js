@@ -15,7 +15,8 @@ import {
   Cell,
 } from 'recharts'
 
-const COLORS = ['#f59e0b', '#d97706', '#b45309', '#92400e', '#78350f']
+// ValleySomm brand colors from brand kit
+const COLORS = ['#6B2D3F', '#8B3A4D', '#C4637A', '#2D4A3E', '#5B7C6F', '#C9A962']
 
 export default function FunnelAnalytics() {
   const [authenticated, setAuthenticated] = useState(false)
@@ -200,22 +201,22 @@ export default function FunnelAnalytics() {
 
   if (!authenticated) {
     return (
-      <div className="min-h-screen bg-stone-100 flex items-center justify-center p-6">
+      <div className="min-h-screen bg-[#FAF7F2] flex items-center justify-center p-6">
         <div className="bg-white rounded-2xl shadow-xl p-8 max-w-sm w-full">
-          <h1 className="text-2xl font-bold text-stone-800 mb-2">Funnel Analytics</h1>
-          <p className="text-stone-500 mb-6">Enter password to view funnel data</p>
+          <h1 className="text-2xl font-bold text-[#2C2C30] mb-2">Funnel Analytics</h1>
+          <p className="text-[#4A4A50] mb-6">Enter password to view funnel data</p>
           <form onSubmit={handleLogin}>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Password"
-              className="w-full p-3 rounded-lg border border-stone-200 focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none mb-4"
+              className="w-full p-3 rounded-lg border border-[#E8E0D5] focus:border-[#6B2D3F] focus:ring-2 focus:ring-[#C4637A]/20 outline-none mb-4"
             />
             {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
             <button
               type="submit"
-              className="w-full py-3 bg-amber-500 hover:bg-amber-600 text-white font-medium rounded-lg transition-colors"
+              className="w-full py-3 bg-[#6B2D3F] hover:bg-[#8B3A4D] text-white font-medium rounded-lg transition-colors"
             >
               Enter
             </button>
@@ -227,8 +228,8 @@ export default function FunnelAnalytics() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-stone-100 flex items-center justify-center">
-        <div className="text-stone-500">Analyzing funnel data...</div>
+      <div className="min-h-screen bg-[#FAF7F2] flex items-center justify-center">
+        <div className="text-[#4A4A50]">Analyzing funnel data...</div>
       </div>
     )
   }
@@ -238,24 +239,24 @@ export default function FunnelAnalytics() {
     : 0
 
   return (
-    <div className="min-h-screen bg-stone-100 p-6">
+    <div className="min-h-screen bg-[#FAF7F2] p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-stone-800">Survey Funnel Analytics</h1>
-            <p className="text-stone-500">Conversion funnel & drop-off analysis</p>
+            <h1 className="text-3xl font-bold text-[#2C2C30]">Survey Funnel Analytics</h1>
+            <p className="text-[#4A4A50]">Conversion funnel & drop-off analysis</p>
           </div>
           <div className="flex gap-3">
             <button
               onClick={analyzeFunnel}
-              className="px-4 py-2 bg-stone-800 hover:bg-stone-900 text-white text-sm font-medium rounded-lg transition-colors"
+              className="px-4 py-2 bg-[#2D4A3E] hover:bg-[#5B7C6F] text-white text-sm font-medium rounded-lg transition-colors"
             >
               Refresh
             </button>
             <a
               href="/dashboard"
-              className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-medium rounded-lg transition-colors"
+              className="px-4 py-2 bg-[#6B2D3F] hover:bg-[#8B3A4D] text-white text-sm font-medium rounded-lg transition-colors"
             >
               Dashboard
             </a>
@@ -265,42 +266,42 @@ export default function FunnelAnalytics() {
         {/* Key Metrics */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <div className="bg-white rounded-2xl shadow p-6">
-            <p className="text-sm text-stone-500 mb-1">Total Sessions</p>
-            <p className="text-3xl font-bold text-stone-800">{funnelData[0]?.count || 0}</p>
+            <p className="text-sm text-[#4A4A50] mb-1">Total Sessions</p>
+            <p className="text-3xl font-bold text-[#2C2C30]">{funnelData[0]?.count || 0}</p>
           </div>
           <div className="bg-white rounded-2xl shadow p-6">
-            <p className="text-sm text-stone-500 mb-1">Completed</p>
-            <p className="text-3xl font-bold text-stone-800">{funnelData[funnelData.length - 1]?.count || 0}</p>
+            <p className="text-sm text-[#4A4A50] mb-1">Completed</p>
+            <p className="text-3xl font-bold text-[#2C2C30]">{funnelData[funnelData.length - 1]?.count || 0}</p>
           </div>
           <div className="bg-white rounded-2xl shadow p-6">
-            <p className="text-sm text-stone-500 mb-1">Conversion Rate</p>
-            <p className="text-3xl font-bold text-amber-600">{overallConversion}%</p>
+            <p className="text-sm text-[#4A4A50] mb-1">Conversion Rate</p>
+            <p className="text-3xl font-bold text-[#C9A962]">{overallConversion}%</p>
           </div>
           <div className="bg-white rounded-2xl shadow p-6">
-            <p className="text-sm text-stone-500 mb-1">Avg Duration</p>
-            <p className="text-3xl font-bold text-stone-800">{avgDuration} min</p>
+            <p className="text-sm text-[#4A4A50] mb-1">Avg Duration</p>
+            <p className="text-3xl font-bold text-[#2C2C30]">{avgDuration} min</p>
           </div>
         </div>
 
         {/* Funnel Visualization */}
         <div className="bg-white rounded-2xl shadow p-6 mb-6">
-          <h2 className="text-lg font-semibold text-stone-800 mb-4">Conversion Funnel</h2>
+          <h2 className="text-lg font-semibold text-[#2C2C30] mb-4">Conversion Funnel</h2>
           <ResponsiveContainer width="100%" height={400}>
             <BarChart data={funnelData} layout="vertical">
-              <CartesianGrid strokeDasharray="3 3" stroke="#e7e5e4" />
-              <XAxis type="number" domain={[0, 100]} stroke="#a8a29e" />
-              <YAxis type="category" dataKey="step" width={150} tick={{ fontSize: 11 }} stroke="#a8a29e" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#E8E0D5" />
+              <XAxis type="number" domain={[0, 100]} stroke="#B8A99A" />
+              <YAxis type="category" dataKey="step" width={150} tick={{ fontSize: 11 }} stroke="#B8A99A" />
               <Tooltip formatter={(value) => `${value.toFixed(1)}%`} />
-              <Bar dataKey="rate" fill="#f59e0b" radius={[0, 4, 4, 0]} />
+              <Bar dataKey="rate" fill="#6B2D3F" radius={[0, 4, 4, 0]} />
             </BarChart>
           </ResponsiveContainer>
           
           <div className="mt-4 grid grid-cols-2 md:grid-cols-6 gap-3">
             {funnelData.map((item, i) => (
               <div key={i} className="text-center">
-                <p className="text-xs text-stone-500 mb-1">{item.step}</p>
-                <p className="text-2xl font-bold text-stone-800">{item.count}</p>
-                <p className="text-xs text-stone-400">{item.rate.toFixed(1)}%</p>
+                <p className="text-xs text-[#4A4A50] mb-1">{item.step}</p>
+                <p className="text-2xl font-bold text-[#2C2C30]">{item.count}</p>
+                <p className="text-xs text-[#B8A99A]">{item.rate.toFixed(1)}%</p>
               </div>
             ))}
           </div>
@@ -309,29 +310,29 @@ export default function FunnelAnalytics() {
         <div className="grid md:grid-cols-2 gap-6 mb-6">
           {/* Drop-off Analysis */}
           <div className="bg-white rounded-2xl shadow p-6">
-            <h2 className="text-lg font-semibold text-stone-800 mb-4">Drop-off by Transition</h2>
+            <h2 className="text-lg font-semibold text-[#2C2C30] mb-4">Drop-off by Transition</h2>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={dropOffData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e7e5e4" />
-                <XAxis dataKey="step" tick={{ fontSize: 10 }} stroke="#a8a29e" />
-                <YAxis stroke="#a8a29e" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#E8E0D5" />
+                <XAxis dataKey="step" tick={{ fontSize: 10 }} stroke="#B8A99A" />
+                <YAxis stroke="#B8A99A" />
                 <Tooltip formatter={(value) => `${value.toFixed(1)}%`} />
-                <Bar dataKey="dropOff" fill="#dc2626" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="dropOff" fill="#C4637A" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
             
             <div className="mt-4">
-              <p className="text-sm font-medium text-stone-700 mb-2">Biggest Drop-offs:</p>
+              <p className="text-sm font-medium text-[#2C2C30] mb-2">Biggest Drop-offs:</p>
               <ul className="space-y-2">
                 {dropOffData
                   .sort((a, b) => b.dropOff - a.dropOff)
                   .slice(0, 3)
                   .map((item, i) => (
-                    <li key={i} className="flex items-center justify-between text-sm p-2 bg-red-50 rounded">
-                      <span className="text-stone-700">{item.step}</span>
+                    <li key={i} className="flex items-center justify-between text-sm p-2 bg-[#FAF7F2] rounded border border-[#E8E0D5]">
+                      <span className="text-[#2C2C30]">{item.step}</span>
                       <div className="text-right">
-                        <span className="font-bold text-red-700">{item.dropOff.toFixed(1)}%</span>
-                        <span className="text-xs text-stone-500 ml-2">({item.count} users)</span>
+                        <span className="font-bold text-[#8B3A4D]">{item.dropOff.toFixed(1)}%</span>
+                        <span className="text-xs text-[#4A4A50] ml-2">({item.count} users)</span>
                       </div>
                     </li>
                   ))}
@@ -341,7 +342,7 @@ export default function FunnelAnalytics() {
 
           {/* Device Performance */}
           <div className="bg-white rounded-2xl shadow p-6">
-            <h2 className="text-lg font-semibold text-stone-800 mb-4">Device Breakdown</h2>
+            <h2 className="text-lg font-semibold text-[#2C2C30] mb-4">Device Breakdown</h2>
             <ResponsiveContainer width="100%" height={200}>
               <PieChart>
                 <Pie
@@ -362,11 +363,11 @@ export default function FunnelAnalytics() {
             
             <div className="mt-4 space-y-2">
               {deviceData.map((device, i) => (
-                <div key={i} className="flex items-center justify-between text-sm p-2 bg-stone-50 rounded">
-                  <span className="font-medium text-stone-700 capitalize">{device.name}</span>
+                <div key={i} className="flex items-center justify-between text-sm p-2 bg-[#FAF7F2] rounded">
+                  <span className="font-medium text-[#2C2C30] capitalize">{device.name}</span>
                   <div className="text-right">
-                    <span className="text-stone-600">{device.value} total</span>
-                    <span className="ml-2 text-amber-600 font-medium">{device.rate}% completed</span>
+                    <span className="text-[#4A4A50]">{device.value} total</span>
+                    <span className="ml-2 text-[#C9A962] font-medium">{device.rate}% completed</span>
                   </div>
                 </div>
               ))}
@@ -376,28 +377,28 @@ export default function FunnelAnalytics() {
 
         {/* Source Performance */}
         <div className="bg-white rounded-2xl shadow p-6">
-          <h2 className="text-lg font-semibold text-stone-800 mb-4">Performance by Source</h2>
+          <h2 className="text-lg font-semibold text-[#2C2C30] mb-4">Performance by Source</h2>
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-stone-50">
+              <thead className="bg-[#FAF7F2]">
                 <tr>
-                  <th className="text-left p-4 font-medium text-stone-600">Source</th>
-                  <th className="text-center p-4 font-medium text-stone-600">Sessions</th>
-                  <th className="text-center p-4 font-medium text-stone-600">Completed</th>
-                  <th className="text-center p-4 font-medium text-stone-600">Conversion Rate</th>
+                  <th className="text-left p-4 font-medium text-[#4A4A50]">Source</th>
+                  <th className="text-center p-4 font-medium text-[#4A4A50]">Sessions</th>
+                  <th className="text-center p-4 font-medium text-[#4A4A50]">Completed</th>
+                  <th className="text-center p-4 font-medium text-[#4A4A50]">Conversion Rate</th>
                 </tr>
               </thead>
               <tbody>
                 {sourceData.map((source, i) => (
-                  <tr key={i} className="border-t border-stone-100">
-                    <td className="p-4 font-medium text-stone-800">{source.name}</td>
-                    <td className="p-4 text-center text-stone-600">{source.total}</td>
-                    <td className="p-4 text-center text-stone-600">{source.completed}</td>
+                  <tr key={i} className="border-t border-[#E8E0D5]">
+                    <td className="p-4 font-medium text-[#2C2C30]">{source.name}</td>
+                    <td className="p-4 text-center text-[#4A4A50]">{source.total}</td>
+                    <td className="p-4 text-center text-[#4A4A50]">{source.completed}</td>
                     <td className="p-4 text-center">
                       <span className={`px-2 py-1 rounded text-sm font-medium ${
-                        parseFloat(source.rate) >= 50 ? 'bg-green-100 text-green-700' :
-                        parseFloat(source.rate) >= 30 ? 'bg-amber-100 text-amber-700' :
-                        'bg-red-100 text-red-700'
+                        parseFloat(source.rate) >= 50 ? 'bg-[#8FA99E]/20 text-[#2D4A3E]' :
+                        parseFloat(source.rate) >= 30 ? 'bg-[#C9A962]/20 text-[#C9A962]' :
+                        'bg-[#C4637A]/20 text-[#8B3A4D]'
                       }`}>
                         {source.rate}%
                       </span>

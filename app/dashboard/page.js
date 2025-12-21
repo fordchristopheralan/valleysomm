@@ -239,6 +239,12 @@ export default function Dashboard() {
             >
               Analysis
             </a>
+	    <a
+              href="/funnel"
+              className="px-4 py-2 bg-valley-deep hover:bg-valley-sage text-white text-sm font-medium rounded-lg transition-colors"
+            >
+              Funnel
+            </a>
             <span className="text-sm text-taupe">
               {lastRefresh?.toLocaleTimeString()}
             </span>
