@@ -241,11 +241,22 @@ export default function Dashboard() {
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-3">
+	    <a
+              href="/winery-analytics"
+              className="px-4 py-2 bg-valley-deep hover:bg-valley-sage text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2"
+            >
+              <span>Winery Dashboard</span>
+              {pendingWineries > 0 && (
+                <span className="bg-wine-burgundy text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                  {pendingWineries}
+                </span>
+              )}
+            </a>
             <a
               href="/winery/admin"
               className="px-4 py-2 bg-valley-deep hover:bg-valley-sage text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2"
             >
-              <span>Wineries</span>
+              <span>Review Wineries</span>
               {pendingWineries > 0 && (
                 <span className="bg-wine-burgundy text-white text-xs font-bold px-2 py-0.5 rounded-full">
                   {pendingWineries}

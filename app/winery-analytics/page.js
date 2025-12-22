@@ -411,7 +411,7 @@ export default function WineryAnalyticsPage() {
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <a
-              href="/winery-admin"
+              href="/winery/admin"
               className="px-4 py-2 bg-[#2D4A3E] hover:bg-[#5B7C6F] text-white text-sm font-medium rounded-lg transition-colors"
             >
               Review Pending
