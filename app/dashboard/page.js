@@ -33,6 +33,7 @@ export default function Dashboard() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
   const [data, setData] = useState([])
+  const [pendingWineries, setPendingWineries] = useState(0)
   const [lastRefresh, setLastRefresh] = useState(null)
   
   // Filters
@@ -54,6 +55,8 @@ export default function Dashboard() {
 
   const fetchData = async () => {
     setLoading(true)
+    
+    // Fetch survey responses
     const { data: responses, error } = await supabase
       .from('survey_responses')
       .select('*')
@@ -64,6 +67,17 @@ export default function Dashboard() {
     } else {
       setData(responses || [])
     }
+    
+    // Fetch pending wineries count
+    const { count, error: wineryError } = await supabase
+      .from('wineries')
+      .select('*', { count: 'exact', head: true })
+      .eq('active', false)
+    
+    if (!wineryError) {
+      setPendingWineries(count || 0)
+    }
+    
     setLastRefresh(new Date())
     setLoading(false)
   }
@@ -227,6 +241,17 @@ export default function Dashboard() {
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-3">
+            <a
+              href="/winery/admin"
+              className="px-4 py-2 bg-valley-deep hover:bg-valley-sage text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2"
+            >
+              <span>Wineries</span>
+              {pendingWineries > 0 && (
+                <span className="bg-wine-burgundy text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                  {pendingWineries}
+                </span>
+              )}
+            </a>
             <a
               href="/review"
               className="px-4 py-2 bg-valley-deep hover:bg-valley-sage text-white text-sm font-medium rounded-lg transition-colors"
