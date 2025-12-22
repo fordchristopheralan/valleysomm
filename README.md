@@ -109,6 +109,14 @@ Comprehensive data quality and coverage analysis:
 - AI matching fields: `personality_keywords[]`, `best_for[]`, `perfect_if[]`
 - Trip planning metadata: visit duration, crowd levels, ideal timing
 
+### 🏨 **Lodging Data Management (LIVE)**
+Complete lodging database with wine-focused features:
+- **Lodging Dashboard** (`/lodging/dashboard`) — Overview metrics, type/price distributions, amenity analysis
+- **Lodging Review Tool** (`/lodging/review`) — Full editing interface with completeness scoring
+- **Lodging Analysis** (`/lodging/analysis`) — Geographic coverage, winery connection analysis, data gap identification
+- **Winery Integration** — Track on-site winery lodging, wine packages, proximity to nearest wineries
+- **45+ field schema** — Location, amenities, vibe tags, best for, pricing, and partnership data
+
 ### 📋 **Legal & Compliance Pages (LIVE)**
 - **Privacy Policy** (`/privacy`) — GDPR-ready data handling disclosure
 - **Terms of Service** (`/terms`) — Usage terms and liability limitations
@@ -333,12 +341,88 @@ CREATE TABLE wineries (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Lodging table (45+ fields)
+CREATE TABLE lodging (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  
+  -- Basic Info
+  name TEXT NOT NULL,
+  slug TEXT NOT NULL UNIQUE,
+  description TEXT,
+  tagline TEXT,
+  
+  -- Location
+  address TEXT NOT NULL,
+  city TEXT NOT NULL,
+  state TEXT NOT NULL DEFAULT 'NC',
+  zip_code TEXT,
+  latitude NUMERIC(10, 8) NOT NULL,
+  longitude NUMERIC(11, 8) NOT NULL,
+  
+  -- Contact
+  phone TEXT,
+  website TEXT,
+  email TEXT,
+  booking_url TEXT,
+  
+  -- Property Details
+  lodging_type TEXT NOT NULL,
+  price_tier TEXT,
+  price_range TEXT,
+  room_count INTEGER,
+  max_guests INTEGER,
+  
+  -- Amenities & Features
+  amenities TEXT[] DEFAULT '{}',
+  vibe_tags TEXT[] DEFAULT '{}',
+  best_for TEXT[] DEFAULT '{}',
+  
+  -- Winery Connection
+  winery_distance_notes TEXT,
+  nearest_winery_id UUID REFERENCES wineries(id),
+  nearest_winery_minutes INTEGER,
+  wine_packages_available BOOLEAN DEFAULT FALSE,
+  wine_package_notes TEXT,
+  is_winery_lodging BOOLEAN DEFAULT FALSE,
+  associated_winery_id UUID REFERENCES wineries(id),
+  partner_winery_ids UUID[] DEFAULT '{}',
+  partnership_notes TEXT,
+  
+  -- Policies
+  check_in_time TEXT,
+  check_out_time TEXT,
+  minimum_stay INTEGER DEFAULT 1,
+  
+  -- Admin
+  active BOOLEAN DEFAULT TRUE,
+  featured BOOLEAN DEFAULT FALSE,
+  priority_rank INTEGER DEFAULT 50,
+  data_source TEXT,
+  data_completeness_score INTEGER,
+  last_verified_at TIMESTAMPTZ,
+  internal_notes TEXT,
+  
+  -- Timestamps
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Indexes for lodging
+CREATE INDEX idx_lodging_active ON lodging(active);
+CREATE INDEX idx_lodging_location ON lodging(latitude, longitude);
+CREATE INDEX idx_lodging_type ON lodging(lodging_type);
+CREATE INDEX idx_lodging_price_tier ON lodging(price_tier);
+CREATE INDEX idx_lodging_vibe_tags ON lodging USING GIN(vibe_tags);
+CREATE INDEX idx_lodging_best_for ON lodging USING GIN(best_for);
+CREATE INDEX idx_lodging_winery_lodging ON lodging(is_winery_lodging) WHERE is_winery_lodging = TRUE;
+
 -- Enable RLS
 ALTER TABLE survey_responses ENABLE ROW LEVEL SECURITY;
 ALTER TABLE survey_analytics ENABLE ROW LEVEL SECURITY;
 ALTER TABLE themes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE feature_concepts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE wineries ENABLE ROW LEVEL SECURITY;
+ALTER TABLE lodging ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies
 CREATE POLICY "Allow anonymous inserts" ON survey_responses FOR INSERT WITH CHECK (true);
@@ -349,6 +433,21 @@ CREATE POLICY "Allow all on analytics" ON survey_analytics FOR ALL USING (true);
 CREATE POLICY "Allow all on themes" ON themes FOR ALL USING (true);
 CREATE POLICY "Allow all on features" ON feature_concepts FOR ALL USING (true);
 CREATE POLICY "Allow all on wineries" ON wineries FOR ALL USING (true);
+CREATE POLICY "Allow all on lodging" ON lodging FOR ALL USING (true);
+
+-- Update trigger for lodging
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER update_lodging_updated_at
+  BEFORE UPDATE ON lodging
+  FOR EACH ROW
+  EXECUTE FUNCTION update_updated_at_column();
 ```
 
 ### 4. Configure Environment
@@ -406,6 +505,14 @@ valleysomm/
 │   │
 │   ├── winery-analytics/
 │   │   └── page.js              # Winery data quality dashboard (protected)
+│   │
+│   ├── lodging/
+│   │   ├── dashboard/
+│   │   │   └── page.js          # Lodging overview dashboard (protected)
+│   │   ├── review/
+│   │   │   └── page.js          # Lodging data editing tool (protected)
+│   │   └── analysis/
+│   │       └── page.js          # Lodging analytics & gaps (protected)
 │   │
 │   ├── privacy/
 │   │   └── page.tsx             # Privacy policy (public)
@@ -471,11 +578,16 @@ valleysomm/
 - [x] Admin review dashboard
 - [x] Claim listing workflow
 - [x] Winery data quality analytics
+- [x] Lodging database schema (45+ fields)
+- [x] Lodging admin dashboard
+- [x] Lodging review & editing tool
+- [x] Lodging analytics & gap analysis
 - [x] Legal pages (privacy, terms, rules)
 
 ### 🚧 **Phase 2: MVP Development** (IN PROGRESS)
 - [ ] AI chat interface (Claude Sonnet 4)
 - [ ] Winery data collection (top 20 priority)
+- [ ] Lodging data collection (wine-focused properties)
 - [ ] Email verification system
 - [ ] Conversation flow implementation
 - [ ] Basic itinerary generator
@@ -485,6 +597,7 @@ valleysomm/
 - [ ] Mapbox routing integration
 - [ ] Shareable trip cards
 - [ ] Winery partner onboarding (Tier 2 hidden gems)
+- [ ] Lodging partner onboarding
 - [ ] Visitor analytics for wineries
 - [ ] Beta user testing
 - [ ] Performance optimization (prompt caching)
@@ -492,6 +605,7 @@ valleysomm/
 ### 🚀 **Phase 4: Public Launch** (Q2 2025)
 - [ ] Freemium model ($9.99/mo Pro tier)
 - [ ] Winery premium listings ($49-99/mo)
+- [ ] Lodging partnerships
 - [ ] Mobile app (React Native)
 - [ ] Trip booking integration
 - [ ] Social sharing features
@@ -545,6 +659,9 @@ valleysomm/
 - **Winery Submit:** [valleysomm.com/winery/submit](https://valleysomm.com/winery/submit)
 - **Winery Admin:** [valleysomm.com/winery/admin](https://valleysomm.com/winery/admin) (password-protected)
 - **Winery Analytics:** [valleysomm.com/winery-analytics](https://valleysomm.com/winery-analytics) (password-protected)
+- **Lodging Dashboard:** [valleysomm.com/lodging/dashboard](https://valleysomm.com/lodging/dashboard) (password-protected)
+- **Lodging Review:** [valleysomm.com/lodging/review](https://valleysomm.com/lodging/review) (password-protected)
+- **Lodging Analysis:** [valleysomm.com/lodging/analysis](https://valleysomm.com/lodging/analysis) (password-protected)
 - **Privacy Policy:** [valleysomm.com/privacy](https://valleysomm.com/privacy)
 - **Terms of Service:** [valleysomm.com/terms](https://valleysomm.com/terms)
 - **Drawing Rules:** [valleysomm.com/rules](https://valleysomm.com/rules)
@@ -567,6 +684,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 - **Brand Kit:** `/valleysomm-brand-kit.html` — Complete visual identity guide
 - **Database Schema:** `/docs/wineries-schema.sql` — Full winery database structure
+- **Lodging Schema:** `/docs/lodging-schema.sql` — Lodging database structure
 - **Data Template:** `/docs/wineries-template.csv` — Manual data collection format
 - **Winery Outreach:** `/docs/winery-outreach-strategy.md` — Partnership playbook
 - **Chat Interface Spec:** `/docs/chat-interface-spec.md` — UI/UX requirements
@@ -588,18 +706,26 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ---
 
-## 📊 Survey Administration
+## 📊 Admin Tools Reference
 
 ### Accessing Admin Tools
 
 All admin pages require the password set in `NEXT_PUBLIC_DASHBOARD_PASSWORD`:
 
+**Survey Administration:**
 1. **Dashboard** (`/dashboard`) — Overview, charts, filters
 2. **Review** (`/review`) — Tag responses with themes
 3. **Analysis** (`/analysis`) — Pain point matrix, ICE scoring
 4. **Funnel** (`/funnel`) — Drop-off analysis
+
+**Winery Administration:**
 5. **Winery Admin** (`/winery/admin`) — Approve/reject submissions
 6. **Winery Analytics** (`/winery-analytics`) — Data quality & coverage
+
+**Lodging Administration:**
+7. **Lodging Dashboard** (`/lodging/dashboard`) — Overview metrics, type/price distributions
+8. **Lodging Review** (`/lodging/review`) — Edit lodging data, completeness scoring
+9. **Lodging Analysis** (`/lodging/analysis`) — Geographic coverage, winery connections, data gaps
 
 ### Drawing Management
 
@@ -627,6 +753,17 @@ WHERE reviewed = true;
 
 -- Export winery data
 SELECT * FROM wineries WHERE status = 'approved' ORDER BY name;
+
+-- Export lodging data
+SELECT * FROM lodging WHERE active = true ORDER BY name;
+
+-- Export lodging with winery connections
+SELECT l.name, l.city, l.lodging_type, l.is_winery_lodging, 
+       l.wine_packages_available, l.nearest_winery_minutes,
+       w.name as nearest_winery
+FROM lodging l
+LEFT JOIN wineries w ON l.nearest_winery_id = w.id
+ORDER BY l.name;
 ```
 
 ---
