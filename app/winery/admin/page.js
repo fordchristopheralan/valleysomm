@@ -95,22 +95,22 @@ export default function WineryAdminPage() {
 
   if (!authenticated) {
     return (
-      <div className="min-h-screen bg-stone-100 flex items-center justify-center p-6">
+      <div className="min-h-screen bg-[#FAF7F2] flex items-center justify-center p-6">
         <div className="bg-white rounded-2xl shadow-xl p-8 max-w-sm w-full">
-          <h1 className="text-2xl font-bold text-stone-800 mb-2">Winery Admin</h1>
-          <p className="text-stone-500 mb-6">Review & approve winery submissions</p>
+          <h1 className="text-2xl font-bold text-[#2C2C30] mb-2">Winery Admin</h1>
+          <p className="text-[#4A4A50] mb-6">Review & approve winery submissions</p>
           <form onSubmit={handleLogin}>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Password"
-              className="w-full p-3 rounded-lg border border-stone-200 focus:border-amber-400 outline-none mb-4"
+              className="w-full p-3 rounded-lg border border-[#E8E0D5] focus:border-[#6B2D3F] outline-none mb-4"
             />
             {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
             <button
               type="submit"
-              className="w-full py-3 bg-amber-500 hover:bg-amber-600 text-white font-medium rounded-lg transition-colors"
+              className="w-full py-3 bg-[#6B2D3F] hover:bg-[#8B3A4D] text-white font-medium rounded-lg transition-colors"
             >
               Enter
             </button>
@@ -122,28 +122,28 @@ export default function WineryAdminPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-stone-100 flex items-center justify-center">
-        <div className="text-stone-500">Loading submissions...</div>
+      <div className="min-h-screen bg-[#FAF7F2] flex items-center justify-center">
+        <div className="text-[#4A4A50]">Loading submissions...</div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-stone-100">
+    <div className="min-h-screen bg-[#FAF7F2]">
       <div className="flex h-screen">
         {/* Sidebar - Submission List */}
-        <div className="w-80 bg-white border-r border-stone-200 flex flex-col">
-          <div className="p-4 border-b border-stone-200">
-            <h1 className="text-xl font-bold text-stone-800">Pending Wineries</h1>
-            <p className="text-sm text-stone-500">{submissions.length} awaiting review</p>
-            <a href="/dashboard" className="text-sm text-amber-600 hover:text-amber-700 mt-2 block">
+        <div className="w-80 bg-white border-r border-[#E8E0D5] flex flex-col">
+          <div className="p-4 border-b border-[#E8E0D5]">
+            <h1 className="text-xl font-bold text-[#2C2C30]">Pending Wineries</h1>
+            <p className="text-sm text-[#4A4A50]">{submissions.length} awaiting review</p>
+            <a href="/dashboard" className="text-sm text-[#6B2D3F] hover:text-[#8B3A4D] mt-2 block">
               ← Back to Dashboard
             </a>
           </div>
 
           <div className="flex-1 overflow-y-auto">
             {submissions.length === 0 ? (
-              <div className="p-8 text-center text-stone-400">
+              <div className="p-8 text-center text-[#B8A99A]">
                 No pending submissions
               </div>
             ) : (
@@ -151,13 +151,13 @@ export default function WineryAdminPage() {
                 <button
                   key={submission.id}
                   onClick={() => setSelectedSubmission(submission)}
-                  className={`w-full p-4 text-left border-b border-stone-100 hover:bg-stone-50 transition-colors ${
-                    selectedSubmission?.id === submission.id ? 'bg-amber-50 border-l-4 border-l-amber-500' : ''
+                  className={`w-full p-4 text-left border-b border-[#E8E0D5] hover:bg-[#FDFCFA] transition-colors ${
+                    selectedSubmission?.id === submission.id ? 'bg-[#C4637A]/10 border-l-4 border-l-[#6B2D3F]' : ''
                   }`}
                 >
-                  <div className="font-medium text-stone-800">{submission.name}</div>
-                  <div className="text-sm text-stone-500">{submission.city}, NC</div>
-                  <div className="text-xs text-stone-400 mt-1">
+                  <div className="font-medium text-[#2C2C30]">{submission.name}</div>
+                  <div className="text-sm text-[#4A4A50]">{submission.city}, NC</div>
+                  <div className="text-xs text-[#B8A99A] mt-1">
                     {new Date(submission.created_at).toLocaleDateString()}
                   </div>
                 </button>
@@ -172,10 +172,10 @@ export default function WineryAdminPage() {
             <div className="max-w-4xl mx-auto">
               {/* Header */}
               <div className="bg-white rounded-2xl shadow p-6 mb-6">
-                <h2 className="text-2xl font-bold text-stone-800 mb-2">
+                <h2 className="text-2xl font-bold text-[#2C2C30] mb-2">
                   {selectedSubmission.name}
                 </h2>
-                <p className="text-stone-500 mb-4">{selectedSubmission.tagline}</p>
+                <p className="text-[#4A4A50] mb-4">{selectedSubmission.tagline}</p>
                 
                 <div className="flex gap-3">
                   <button
@@ -198,9 +198,9 @@ export default function WineryAdminPage() {
 
               {/* Contact Info */}
               <div className="bg-white rounded-2xl shadow p-6 mb-6">
-                <h3 className="text-lg font-semibold text-stone-800 mb-3">Contact Person</h3>
+                <h3 className="text-lg font-semibold text-[#2C2C30] mb-3">Contact Person</h3>
                 {selectedSubmission.internal_notes && (
-                  <div className="bg-amber-50 p-4 rounded-lg text-sm text-stone-700 whitespace-pre-wrap">
+                  <div className="bg-[#C4637A]/10 p-4 rounded-lg text-sm text-[#2C2C30] whitespace-pre-wrap">
                     {selectedSubmission.internal_notes}
                   </div>
                 )}
@@ -208,28 +208,28 @@ export default function WineryAdminPage() {
 
               {/* Basic Info */}
               <div className="bg-white rounded-2xl shadow p-6 mb-6">
-                <h3 className="text-lg font-semibold text-stone-800 mb-3">Basic Information</h3>
+                <h3 className="text-lg font-semibold text-[#2C2C30] mb-3">Basic Information</h3>
                 <div className="grid md:grid-cols-2 gap-4 text-sm">
                   <div>
-                    <span className="text-stone-500">Address:</span>
+                    <span className="text-[#4A4A50]">Address:</span>
                     <p className="font-medium">{selectedSubmission.address}, {selectedSubmission.city}, NC {selectedSubmission.zip_code}</p>
                   </div>
                   <div>
-                    <span className="text-stone-500">Phone:</span>
+                    <span className="text-[#4A4A50]">Phone:</span>
                     <p className="font-medium">{selectedSubmission.phone}</p>
                   </div>
                   <div>
-                    <span className="text-stone-500">Website:</span>
+                    <span className="text-[#4A4A50]">Website:</span>
                     <p className="font-medium">
                       {selectedSubmission.website ? (
-                        <a href={selectedSubmission.website} target="_blank" rel="noopener noreferrer" className="text-amber-600 hover:text-amber-700">
+                        <a href={selectedSubmission.website} target="_blank" rel="noopener noreferrer" className="text-[#6B2D3F] hover:text-[#8B3A4D]">
                           {selectedSubmission.website}
                         </a>
                       ) : 'Not provided'}
                     </p>
                   </div>
                   <div>
-                    <span className="text-stone-500">Email:</span>
+                    <span className="text-[#4A4A50]">Email:</span>
                     <p className="font-medium">{selectedSubmission.email || 'Not provided'}</p>
                   </div>
                 </div>
@@ -237,11 +237,11 @@ export default function WineryAdminPage() {
 
               {/* Hours */}
               <div className="bg-white rounded-2xl shadow p-6 mb-6">
-                <h3 className="text-lg font-semibold text-stone-800 mb-3">Hours</h3>
+                <h3 className="text-lg font-semibold text-[#2C2C30] mb-3">Hours</h3>
                 <div className="grid md:grid-cols-2 gap-2 text-sm">
                   {selectedSubmission.hours && Object.entries(selectedSubmission.hours).map(([day, hours]) => (
                     <div key={day} className="flex justify-between">
-                      <span className="text-stone-500 capitalize">{day}:</span>
+                      <span className="text-[#4A4A50] capitalize">{day}:</span>
                       <span className="font-medium">{hours}</span>
                     </div>
                   ))}
@@ -250,10 +250,10 @@ export default function WineryAdminPage() {
 
               {/* Wine Profile */}
               <div className="bg-white rounded-2xl shadow p-6 mb-6">
-                <h3 className="text-lg font-semibold text-stone-800 mb-3">Wine Profile</h3>
+                <h3 className="text-lg font-semibold text-[#2C2C30] mb-3">Wine Profile</h3>
                 <div className="space-y-3 text-sm">
                   <div>
-                    <span className="text-stone-500">Wine Styles:</span>
+                    <span className="text-[#4A4A50]">Wine Styles:</span>
                     <div className="flex flex-wrap gap-2 mt-1">
                       {selectedSubmission.wine_styles?.map(style => (
                         <span key={style} className="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs">
@@ -263,14 +263,14 @@ export default function WineryAdminPage() {
                     </div>
                   </div>
                   <div>
-                    <span className="text-stone-500">Signature Wines:</span>
+                    <span className="text-[#4A4A50]">Signature Wines:</span>
                     <p className="font-medium">{selectedSubmission.signature_wines?.join(', ') || 'Not provided'}</p>
                   </div>
                   <div>
-                    <span className="text-stone-500">Vibe Tags:</span>
+                    <span className="text-[#4A4A50]">Vibe Tags:</span>
                     <div className="flex flex-wrap gap-2 mt-1">
                       {selectedSubmission.vibe_tags?.map(vibe => (
-                        <span key={vibe} className="px-2 py-1 bg-amber-100 text-amber-700 rounded text-xs">
+                        <span key={vibe} className="px-2 py-1 bg-amber-100 text-[#8B3A4D] rounded text-xs">
                           {vibe}
                         </span>
                       ))}
@@ -281,19 +281,19 @@ export default function WineryAdminPage() {
 
               {/* Reservations & Pricing */}
               <div className="bg-white rounded-2xl shadow p-6 mb-6">
-                <h3 className="text-lg font-semibold text-stone-800 mb-3">Reservations & Pricing</h3>
+                <h3 className="text-lg font-semibold text-[#2C2C30] mb-3">Reservations & Pricing</h3>
                 <div className="grid md:grid-cols-2 gap-4 text-sm">
                   <div>
-                    <span className="text-stone-500">Reservation Policy:</span>
+                    <span className="text-[#4A4A50]">Reservation Policy:</span>
                     <p className="font-medium capitalize">{selectedSubmission.reservation_policy?.replace('-', ' ')}</p>
                   </div>
                   <div>
-                    <span className="text-stone-500">Tasting Fee:</span>
+                    <span className="text-[#4A4A50]">Tasting Fee:</span>
                     <p className="font-medium">{selectedSubmission.tasting_fee_range || 'Not provided'}</p>
                   </div>
                   {selectedSubmission.reservation_notes && (
                     <div className="md:col-span-2">
-                      <span className="text-stone-500">Notes:</span>
+                      <span className="text-[#4A4A50]">Notes:</span>
                       <p className="font-medium">{selectedSubmission.reservation_notes}</p>
                     </div>
                   )}
@@ -302,13 +302,13 @@ export default function WineryAdminPage() {
 
               {/* Food & Amenities */}
               <div className="bg-white rounded-2xl shadow p-6 mb-6">
-                <h3 className="text-lg font-semibold text-stone-800 mb-3">Food & Amenities</h3>
+                <h3 className="text-lg font-semibold text-[#2C2C30] mb-3">Food & Amenities</h3>
                 <div className="space-y-3 text-sm">
                   <div>
-                    <span className="text-stone-500">Food:</span>
+                    <span className="text-[#4A4A50]">Food:</span>
                     <p className="font-medium capitalize">{selectedSubmission.food_available?.replace('-', ' ')}</p>
                     {selectedSubmission.food_notes && (
-                      <p className="text-stone-600 mt-1">{selectedSubmission.food_notes}</p>
+                      <p className="text-[#4A4A50] mt-1">{selectedSubmission.food_notes}</p>
                     )}
                   </div>
                   <div className="flex gap-4">
@@ -333,23 +333,23 @@ export default function WineryAdminPage() {
 
               {/* Description */}
               <div className="bg-white rounded-2xl shadow p-6 mb-6">
-                <h3 className="text-lg font-semibold text-stone-800 mb-3">Description</h3>
-                <p className="text-stone-700">{selectedSubmission.description}</p>
+                <h3 className="text-lg font-semibold text-[#2C2C30] mb-3">Description</h3>
+                <p className="text-[#2C2C30]">{selectedSubmission.description}</p>
               </div>
 
               {/* Social Media */}
               {(selectedSubmission.instagram_handle || selectedSubmission.facebook_url) && (
                 <div className="bg-white rounded-2xl shadow p-6 mb-6">
-                  <h3 className="text-lg font-semibold text-stone-800 mb-3">Social Media</h3>
+                  <h3 className="text-lg font-semibold text-[#2C2C30] mb-3">Social Media</h3>
                   <div className="space-y-2 text-sm">
                     {selectedSubmission.instagram_handle && (
                       <div>
-                        <span className="text-stone-500">Instagram:</span>
+                        <span className="text-[#4A4A50]">Instagram:</span>
                         <a 
                           href={`https://instagram.com/${selectedSubmission.instagram_handle}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="font-medium text-amber-600 hover:text-amber-700 ml-2"
+                          className="font-medium text-[#6B2D3F] hover:text-[#8B3A4D] ml-2"
                         >
                           @{selectedSubmission.instagram_handle}
                         </a>
@@ -357,12 +357,12 @@ export default function WineryAdminPage() {
                     )}
                     {selectedSubmission.facebook_url && (
                       <div>
-                        <span className="text-stone-500">Facebook:</span>
+                        <span className="text-[#4A4A50]">Facebook:</span>
                         <a 
                           href={selectedSubmission.facebook_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="font-medium text-amber-600 hover:text-amber-700 ml-2"
+                          className="font-medium text-[#6B2D3F] hover:text-[#8B3A4D] ml-2"
                         >
                           View Page
                         </a>
@@ -374,7 +374,7 @@ export default function WineryAdminPage() {
 
               {/* Admin Actions */}
               <div className="bg-white rounded-2xl shadow p-6">
-                <h3 className="text-lg font-semibold text-stone-800 mb-3">Admin Actions</h3>
+                <h3 className="text-lg font-semibold text-[#2C2C30] mb-3">Admin Actions</h3>
                 <div className="flex gap-3">
                   <button
                     onClick={() => approveSubmission(selectedSubmission.id)}
@@ -396,7 +396,7 @@ export default function WineryAdminPage() {
                       // Open edit modal or inline editing
                       alert('Edit functionality coming soon. For now, approve and edit via main dashboard.')
                     }}
-                    className="px-6 py-2 bg-amber-500 hover:bg-amber-600 text-white font-medium rounded-lg transition-colors"
+                    className="px-6 py-2 bg-[#6B2D3F] hover:bg-[#8B3A4D] text-white font-medium rounded-lg transition-colors"
                   >
                     ✏️ Edit Before Approving
                   </button>
@@ -404,7 +404,7 @@ export default function WineryAdminPage() {
               </div>
             </div>
           ) : (
-            <div className="flex items-center justify-center h-full text-stone-400">
+            <div className="flex items-center justify-center h-full text-[#B8A99A]">
               Select a submission from the sidebar to review
             </div>
           )}

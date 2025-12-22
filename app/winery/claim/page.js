@@ -200,8 +200,8 @@ function ClaimPageContent() {
   // Loading state
   if (loading) {
     return (
-      <div className="min-h-screen bg-stone-100 flex items-center justify-center">
-        <div className="text-stone-500">Loading winery information...</div>
+      <div className="min-h-screen bg-[#FAF7F2] flex items-center justify-center">
+        <div className="text-[#4A4A50]">Loading winery information...</div>
       </div>
     )
   }
@@ -209,14 +209,14 @@ function ClaimPageContent() {
   // Error state
   if (step === 'error') {
     return (
-      <div className="min-h-screen bg-stone-100 flex items-center justify-center p-6">
+      <div className="min-h-screen bg-[#FAF7F2] flex items-center justify-center p-6">
         <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md text-center">
           <div className="text-5xl mb-4">⚠️</div>
-          <h2 className="text-2xl font-bold text-stone-800 mb-2">Invalid Claim Link</h2>
-          <p className="text-stone-600 mb-6">{error}</p>
+          <h2 className="text-2xl font-bold text-[#2C2C30] mb-2">Invalid Claim Link</h2>
+          <p className="text-[#4A4A50] mb-6">{error}</p>
           <a
             href="/"
-            className="inline-block px-6 py-3 bg-amber-500 hover:bg-amber-600 text-white font-medium rounded-lg transition-colors"
+            className="inline-block px-6 py-3 bg-[#6B2D3F] hover:bg-[#8B3A4D] text-white font-medium rounded-lg transition-colors"
           >
             Return Home
           </a>
@@ -228,23 +228,23 @@ function ClaimPageContent() {
   // Success state
   if (step === 'submitted') {
     return (
-      <div className="min-h-screen bg-stone-100 flex items-center justify-center p-6">
+      <div className="min-h-screen bg-[#FAF7F2] flex items-center justify-center p-6">
         <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md text-center">
           <div className="text-5xl mb-4">✅</div>
-          <h2 className="text-2xl font-bold text-stone-800 mb-2">Winery Updated!</h2>
-          <p className="text-stone-600 mb-6">
+          <h2 className="text-2xl font-bold text-[#2C2C30] mb-2">Winery Updated!</h2>
+          <p className="text-[#4A4A50] mb-6">
             Your winery information has been successfully updated and is now live on ValleySomm.
           </p>
           <div className="space-y-3">
             <a
               href={`/winery/${winery.slug || winery.id}`}
-              className="block px-6 py-3 bg-amber-500 hover:bg-amber-600 text-white font-medium rounded-lg transition-colors"
+              className="block px-6 py-3 bg-[#6B2D3F] hover:bg-[#8B3A4D] text-white font-medium rounded-lg transition-colors"
             >
               View Your Listing
             </a>
             <a
               href="/"
-              className="block px-6 py-3 text-stone-600 hover:text-stone-800 font-medium"
+              className="block px-6 py-3 text-[#4A4A50] hover:text-[#2C2C30] font-medium"
             >
               Return Home
             </a>
@@ -257,18 +257,18 @@ function ClaimPageContent() {
   // Step 1: Verification
   if (step === 'verify') {
     return (
-      <div className="min-h-screen bg-stone-100 p-6">
+      <div className="min-h-screen bg-[#FAF7F2] p-6">
         <div className="max-w-2xl mx-auto">
           {/* Header */}
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-stone-800 mb-2">Claim Your Winery</h1>
-            <p className="text-stone-600">{winery?.name}</p>
+            <h1 className="text-3xl font-bold text-[#2C2C30] mb-2">Claim Your Winery</h1>
+            <p className="text-[#4A4A50]">{winery?.name}</p>
           </div>
 
           {/* Verification Form */}
           <div className="bg-white rounded-2xl shadow-xl p-8">
-            <h2 className="text-xl font-semibold text-stone-800 mb-4">Step 1: Verify Ownership</h2>
-            <p className="text-stone-600 mb-6">
+            <h2 className="text-xl font-semibold text-[#2C2C30] mb-4">Step 1: Verify Ownership</h2>
+            <p className="text-[#4A4A50] mb-6">
               To claim this winery listing, please verify that you represent {winery?.name}.
             </p>
 
@@ -276,36 +276,36 @@ function ClaimPageContent() {
               <div className="space-y-6">
                 {/* Verification Method Selection */}
                 <div>
-                  <label className="block text-sm font-medium text-stone-700 mb-3">
+                  <label className="block text-sm font-medium text-[#2C2C30] mb-3">
                     How would you like to verify?
                   </label>
                   <div className="space-y-2">
-                    <label className="flex items-center gap-3 p-4 rounded-lg border border-stone-200 hover:border-amber-300 hover:bg-amber-50 cursor-pointer transition-all">
+                    <label className="flex items-center gap-3 p-4 rounded-lg border border-[#E8E0D5] hover:border-[#C4637A] hover:bg-[#C4637A]/10 cursor-pointer transition-all">
                       <input
                         type="radio"
                         name="verificationMethod"
                         value="email"
                         checked={verificationMethod === 'email'}
                         onChange={(e) => setVerificationMethod(e.target.value)}
-                        className="w-4 h-4 text-amber-600"
+                        className="w-4 h-4 text-[#6B2D3F]"
                       />
                       <div>
-                        <div className="font-medium text-stone-800">Email Verification</div>
-                        <div className="text-sm text-stone-500">We'll send a code to your email</div>
+                        <div className="font-medium text-[#2C2C30]">Email Verification</div>
+                        <div className="text-sm text-[#4A4A50]">We'll send a code to your email</div>
                       </div>
                     </label>
-                    <label className="flex items-center gap-3 p-4 rounded-lg border border-stone-200 hover:border-amber-300 hover:bg-amber-50 cursor-pointer transition-all">
+                    <label className="flex items-center gap-3 p-4 rounded-lg border border-[#E8E0D5] hover:border-[#C4637A] hover:bg-[#C4637A]/10 cursor-pointer transition-all">
                       <input
                         type="radio"
                         name="verificationMethod"
                         value="phone"
                         checked={verificationMethod === 'phone'}
                         onChange={(e) => setVerificationMethod(e.target.value)}
-                        className="w-4 h-4 text-amber-600"
+                        className="w-4 h-4 text-[#6B2D3F]"
                       />
                       <div>
-                        <div className="font-medium text-stone-800">Phone Verification</div>
-                        <div className="text-sm text-stone-500">We'll send a code via SMS</div>
+                        <div className="font-medium text-[#2C2C30]">Phone Verification</div>
+                        <div className="text-sm text-[#4A4A50]">We'll send a code via SMS</div>
                       </div>
                     </label>
                   </div>
@@ -314,7 +314,7 @@ function ClaimPageContent() {
                 {/* Contact Input */}
                 {verificationMethod === 'email' ? (
                   <div>
-                    <label className="block text-sm font-medium text-stone-700 mb-2">
+                    <label className="block text-sm font-medium text-[#2C2C30] mb-2">
                       Your Email
                     </label>
                     <input
@@ -322,16 +322,16 @@ function ClaimPageContent() {
                       value={userEmail}
                       onChange={(e) => setUserEmail(e.target.value)}
                       placeholder="your@email.com"
-                      className="w-full p-3 rounded-lg border border-stone-200 focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none"
+                      className="w-full p-3 rounded-lg border border-[#E8E0D5] focus:border-[#6B2D3F] focus:ring-2 focus:ring-[#C4637A]/20 outline-none"
                       required
                     />
-                    <p className="text-sm text-stone-500 mt-1">
+                    <p className="text-sm text-[#4A4A50] mt-1">
                       Use an email associated with {winery?.name}
                     </p>
                   </div>
                 ) : (
                   <div>
-                    <label className="block text-sm font-medium text-stone-700 mb-2">
+                    <label className="block text-sm font-medium text-[#2C2C30] mb-2">
                       Your Phone Number
                     </label>
                     <input
@@ -339,10 +339,10 @@ function ClaimPageContent() {
                       value={userPhone}
                       onChange={(e) => setUserPhone(e.target.value)}
                       placeholder="(336) 555-1234"
-                      className="w-full p-3 rounded-lg border border-stone-200 focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none"
+                      className="w-full p-3 rounded-lg border border-[#E8E0D5] focus:border-[#6B2D3F] focus:ring-2 focus:ring-[#C4637A]/20 outline-none"
                       required
                     />
-                    <p className="text-sm text-stone-500 mt-1">
+                    <p className="text-sm text-[#4A4A50] mt-1">
                       Use the phone number listed for {winery?.name}
                     </p>
                   </div>
@@ -357,7 +357,7 @@ function ClaimPageContent() {
                 <button
                   onClick={sendVerificationCode}
                   disabled={verificationMethod === 'email' ? !userEmail : !userPhone}
-                  className="w-full py-3 bg-amber-500 hover:bg-amber-600 disabled:bg-stone-300 text-white font-medium rounded-lg transition-colors"
+                  className="w-full py-3 bg-[#6B2D3F] hover:bg-[#8B3A4D] disabled:bg-[#B8A99A] text-white font-medium rounded-lg transition-colors"
                 >
                   Send Verification Code
                 </button>
@@ -369,7 +369,7 @@ function ClaimPageContent() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-stone-700 mb-2">
+                  <label className="block text-sm font-medium text-[#2C2C30] mb-2">
                     Enter Verification Code
                   </label>
                   <input
@@ -378,12 +378,12 @@ function ClaimPageContent() {
                     onChange={(e) => setVerificationCode(e.target.value)}
                     placeholder="123456"
                     maxLength={6}
-                    className="w-full p-3 rounded-lg border border-stone-200 focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none text-center text-2xl tracking-widest"
+                    className="w-full p-3 rounded-lg border border-[#E8E0D5] focus:border-[#6B2D3F] focus:ring-2 focus:ring-[#C4637A]/20 outline-none text-center text-2xl tracking-widest"
                   />
-                  <p className="text-sm text-stone-500 mt-1 text-center">
+                  <p className="text-sm text-[#4A4A50] mt-1 text-center">
                     Code expires in 15 minutes
                   </p>
-                  <p className="text-sm text-amber-600 mt-2 text-center">
+                  <p className="text-sm text-[#6B2D3F] mt-2 text-center">
                     TEST: Use code "123456" (email sending not yet implemented)
                   </p>
                 </div>
@@ -397,14 +397,14 @@ function ClaimPageContent() {
                 <div className="flex gap-3">
                   <button
                     onClick={() => setSentCode(false)}
-                    className="flex-1 py-3 text-stone-600 hover:text-stone-800 font-medium"
+                    className="flex-1 py-3 text-[#4A4A50] hover:text-[#2C2C30] font-medium"
                   >
                     ← Back
                   </button>
                   <button
                     onClick={verifyCode}
                     disabled={verificationCode.length !== 6}
-                    className="flex-1 py-3 bg-amber-500 hover:bg-amber-600 disabled:bg-stone-300 text-white font-medium rounded-lg transition-colors"
+                    className="flex-1 py-3 bg-[#6B2D3F] hover:bg-[#8B3A4D] disabled:bg-[#B8A99A] text-white font-medium rounded-lg transition-colors"
                   >
                     Verify Code
                   </button>
@@ -430,72 +430,72 @@ function ClaimPageContent() {
     ]
 
     return (
-      <div className="min-h-screen bg-stone-100 p-6">
+      <div className="min-h-screen bg-[#FAF7F2] p-6">
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-stone-800 mb-2">Update Your Listing</h1>
-            <p className="text-stone-600">{winery?.name}</p>
+            <h1 className="text-3xl font-bold text-[#2C2C30] mb-2">Update Your Listing</h1>
+            <p className="text-[#4A4A50]">{winery?.name}</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Basic Info */}
             <div className="bg-white rounded-2xl shadow p-6">
-              <h3 className="text-lg font-semibold text-stone-800 mb-4">Basic Information</h3>
+              <h3 className="text-lg font-semibold text-[#2C2C30] mb-4">Basic Information</h3>
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-stone-700 mb-2">Winery Name</label>
+                  <label className="block text-sm font-medium text-[#2C2C30] mb-2">Winery Name</label>
                   <input
                     type="text"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full p-3 rounded-lg border border-stone-200 focus:border-amber-400 outline-none"
+                    className="w-full p-3 rounded-lg border border-[#E8E0D5] focus:border-[#6B2D3F] outline-none"
                     required
                   />
                 </div>
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-stone-700 mb-2">Address</label>
+                  <label className="block text-sm font-medium text-[#2C2C30] mb-2">Address</label>
                   <input
                     type="text"
                     value={formData.address}
                     onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                    className="w-full p-3 rounded-lg border border-stone-200 focus:border-amber-400 outline-none"
+                    className="w-full p-3 rounded-lg border border-[#E8E0D5] focus:border-[#6B2D3F] outline-none"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-stone-700 mb-2">City</label>
+                  <label className="block text-sm font-medium text-[#2C2C30] mb-2">City</label>
                   <input
                     type="text"
                     value={formData.city}
                     onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                    className="w-full p-3 rounded-lg border border-stone-200 focus:border-amber-400 outline-none"
+                    className="w-full p-3 rounded-lg border border-[#E8E0D5] focus:border-[#6B2D3F] outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-stone-700 mb-2">ZIP Code</label>
+                  <label className="block text-sm font-medium text-[#2C2C30] mb-2">ZIP Code</label>
                   <input
                     type="text"
                     value={formData.zip_code}
                     onChange={(e) => setFormData({ ...formData, zip_code: e.target.value })}
-                    className="w-full p-3 rounded-lg border border-stone-200 focus:border-amber-400 outline-none"
+                    className="w-full p-3 rounded-lg border border-[#E8E0D5] focus:border-[#6B2D3F] outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-stone-700 mb-2">Phone</label>
+                  <label className="block text-sm font-medium text-[#2C2C30] mb-2">Phone</label>
                   <input
                     type="tel"
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    className="w-full p-3 rounded-lg border border-stone-200 focus:border-amber-400 outline-none"
+                    className="w-full p-3 rounded-lg border border-[#E8E0D5] focus:border-[#6B2D3F] outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-stone-700 mb-2">Website</label>
+                  <label className="block text-sm font-medium text-[#2C2C30] mb-2">Website</label>
                   <input
                     type="url"
                     value={formData.website}
                     onChange={(e) => setFormData({ ...formData, website: e.target.value })}
-                    className="w-full p-3 rounded-lg border border-stone-200 focus:border-amber-400 outline-none"
+                    className="w-full p-3 rounded-lg border border-[#E8E0D5] focus:border-[#6B2D3F] outline-none"
                   />
                 </div>
               </div>
@@ -503,7 +503,7 @@ function ClaimPageContent() {
 
             {/* Wine Styles */}
             <div className="bg-white rounded-2xl shadow p-6">
-              <h3 className="text-lg font-semibold text-stone-800 mb-4">Wine Styles</h3>
+              <h3 className="text-lg font-semibold text-[#2C2C30] mb-4">Wine Styles</h3>
               <div className="flex flex-wrap gap-2 mb-4">
                 {wineStyles.map(style => (
                   <button
@@ -512,8 +512,8 @@ function ClaimPageContent() {
                     onClick={() => toggleMultiSelect('wine_styles', style)}
                     className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                       formData.wine_styles?.includes(style)
-                        ? 'bg-amber-500 text-white'
-                        : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                        ? 'bg-[#6B2D3F] text-white'
+                        : 'bg-[#FAF7F2] text-[#4A4A50] hover:bg-[#E8E0D5]'
                     }`}
                   >
                     {style}
@@ -521,20 +521,20 @@ function ClaimPageContent() {
                 ))}
               </div>
               <div>
-                <label className="block text-sm font-medium text-stone-700 mb-2">Signature Wines</label>
+                <label className="block text-sm font-medium text-[#2C2C30] mb-2">Signature Wines</label>
                 <input
                   type="text"
                   value={formData.signature_wines}
                   onChange={(e) => setFormData({ ...formData, signature_wines: e.target.value })}
                   placeholder="e.g., Cabernet Sauvignon, Chardonnay"
-                  className="w-full p-3 rounded-lg border border-stone-200 focus:border-amber-400 outline-none"
+                  className="w-full p-3 rounded-lg border border-[#E8E0D5] focus:border-[#6B2D3F] outline-none"
                 />
               </div>
             </div>
 
             {/* Vibe */}
             <div className="bg-white rounded-2xl shadow p-6">
-              <h3 className="text-lg font-semibold text-stone-800 mb-4">Atmosphere & Vibe</h3>
+              <h3 className="text-lg font-semibold text-[#2C2C30] mb-4">Atmosphere & Vibe</h3>
               <div className="flex flex-wrap gap-2">
                 {vibeTags.map(tag => (
                   <button
@@ -543,8 +543,8 @@ function ClaimPageContent() {
                     onClick={() => toggleMultiSelect('vibe_tags', tag)}
                     className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                       formData.vibe_tags?.includes(tag)
-                        ? 'bg-amber-500 text-white'
-                        : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                        ? 'bg-[#6B2D3F] text-white'
+                        : 'bg-[#FAF7F2] text-[#4A4A50] hover:bg-[#E8E0D5]'
                     }`}
                   >
                     {tag}
@@ -555,12 +555,12 @@ function ClaimPageContent() {
 
             {/* Description */}
             <div className="bg-white rounded-2xl shadow p-6">
-              <h3 className="text-lg font-semibold text-stone-800 mb-4">Description</h3>
+              <h3 className="text-lg font-semibold text-[#2C2C30] mb-4">Description</h3>
               <textarea
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 placeholder="Tell visitors what makes your winery special..."
-                className="w-full h-32 p-4 rounded-lg border border-stone-200 focus:border-amber-400 outline-none resize-none"
+                className="w-full h-32 p-4 rounded-lg border border-[#E8E0D5] focus:border-[#6B2D3F] outline-none resize-none"
               />
             </div>
 
@@ -575,13 +575,13 @@ function ClaimPageContent() {
               <button
                 type="button"
                 onClick={() => setStep('verify')}
-                className="px-6 py-3 text-stone-600 hover:text-stone-800 font-medium"
+                className="px-6 py-3 text-[#4A4A50] hover:text-[#2C2C30] font-medium"
               >
                 ← Cancel
               </button>
               <button
                 type="submit"
-                className="flex-1 py-3 bg-amber-500 hover:bg-amber-600 text-white font-medium rounded-lg transition-colors"
+                className="flex-1 py-3 bg-[#6B2D3F] hover:bg-[#8B3A4D] text-white font-medium rounded-lg transition-colors"
               >
                 Update Winery Information
               </button>
@@ -599,8 +599,8 @@ function ClaimPageContent() {
 export default function WineryClaimPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-stone-100 flex items-center justify-center">
-        <div className="text-stone-500">Loading...</div>
+      <div className="min-h-screen bg-[#FAF7F2] flex items-center justify-center">
+        <div className="text-[#4A4A50]">Loading...</div>
       </div>
     }>
       <ClaimPageContent />
