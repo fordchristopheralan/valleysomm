@@ -3,30 +3,26 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 
-const LODGING_TYPES = [
-  'Hotel', 'Boutique Hotel', 'B&B', 'Inn', 'Cabin', 'Cottage',
-  'Winery Lodging', 'Vacation Rental', 'Campground', 'Resort', 'Guest House',
-]
+// ValleySomm Brand Colors
+const BRAND_COLORS = {
+  wineDeep: '#6B2D3F',
+  wineBurgundy: '#8B3A4D',
+  wineRose: '#C4637A',
+  valleyDeep: '#2D4A3E',
+  valleySage: '#5B7C6F',
+  valleyMist: '#8FA99E',
+  cream: '#FAF7F2',
+  warmBeige: '#E8E0D5',
+  goldAccent: '#C9A962',
+  slate: '#4A4A50',
+  charcoal: '#2C2C30',
+}
 
+const LODGING_TYPES = ['Hotel', 'Boutique Hotel', 'B&B', 'Inn', 'Cabin', 'Cottage', 'Winery Lodging', 'Vacation Rental', 'Campground', 'Resort', 'Guest House']
 const PRICE_TIERS = ['budget', 'moderate', 'upscale', 'luxury']
-
-const DEFAULT_VIBES = [
-  'Romantic', 'Family-Friendly', 'Rustic', 'Modern', 'Historic', 'Scenic Views',
-  'Peaceful', 'Pet-Friendly', 'Wine Country', 'Cozy', 'Luxurious', 'Boutique', 'Charming', 'Secluded',
-]
-
-const DEFAULT_BEST_FOR = [
-  'Couples', 'Families', 'Groups', 'Solo travelers', 'Wine enthusiasts', 'Nature lovers',
-  'Romantic getaway', 'Girls trip', 'Anniversary', 'Pet owners', 'Business travelers',
-  'Wedding parties', 'Bachelor/Bachelorette',
-]
-
-const DEFAULT_AMENITIES = [
-  'WiFi', 'Free Parking', 'Pool', 'Hot Tub', 'Breakfast Included', 'Full Kitchen',
-  'Kitchenette', 'Air Conditioning', 'Fireplace', 'Balcony/Patio', 'Pet Friendly',
-  'EV Charging', 'Fitness Center', 'Restaurant On-site', 'Room Service', 'Laundry',
-  'Concierge', 'Wine Storage', 'Vineyard Views', 'Fire Pit', 'BBQ/Grill', 'Game Room', 'Spa Services',
-]
+const DEFAULT_VIBES = ['Romantic', 'Family-Friendly', 'Rustic', 'Modern', 'Historic', 'Scenic Views', 'Peaceful', 'Pet-Friendly', 'Wine Country', 'Cozy', 'Luxurious', 'Boutique', 'Charming', 'Secluded']
+const DEFAULT_BEST_FOR = ['Couples', 'Families', 'Groups', 'Solo travelers', 'Wine enthusiasts', 'Nature lovers', 'Romantic getaway', 'Girls trip', 'Anniversary', 'Pet owners', 'Business travelers', 'Wedding parties', 'Bachelor/Bachelorette']
+const DEFAULT_AMENITIES = ['WiFi', 'Free Parking', 'Pool', 'Hot Tub', 'Breakfast Included', 'Full Kitchen', 'Kitchenette', 'Air Conditioning', 'Fireplace', 'Balcony/Patio', 'Pet Friendly', 'EV Charging', 'Fitness Center', 'Restaurant On-site', 'Room Service', 'Laundry', 'Concierge', 'Wine Storage', 'Vineyard Views', 'Fire Pit', 'BBQ/Grill', 'Game Room', 'Spa Services']
 
 export default function LodgingReviewPage() {
   const [authenticated, setAuthenticated] = useState(false)
@@ -40,17 +36,14 @@ export default function LodgingReviewPage() {
   const [saving, setSaving] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const [formData, setFormData] = useState({})
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
   const correctPassword = process.env.NEXT_PUBLIC_DASHBOARD_PASSWORD || 'valleysomm2024'
 
   const handleLogin = (e) => {
     e.preventDefault()
-    if (password === correctPassword) {
-      setAuthenticated(true)
-      setError('')
-    } else {
-      setError('Incorrect password')
-    }
+    if (password === correctPassword) { setAuthenticated(true); setError('') }
+    else { setError('Incorrect password') }
   }
 
   const fetchData = async () => {
@@ -107,7 +100,7 @@ export default function LodgingReviewPage() {
       nearest_winery_id: formData.nearest_winery_id || null,
     }
     const { error } = await supabase.from('lodging').update(updateData).eq('id', selectedLodging.id)
-    if (error) { setError('Failed to save: ' + error.message) } 
+    if (error) { setError('Failed to save: ' + error.message) }
     else {
       setLodgings(lodgings.map(l => l.id === selectedLodging.id ? { ...l, ...updateData } : l))
       setSelectedLodging({ ...selectedLodging, ...updateData })
@@ -136,68 +129,118 @@ export default function LodgingReviewPage() {
   const goToNext = () => { if (currentIndex < filteredLodgings.length - 1) selectLodging(filteredLodgings[currentIndex + 1]) }
   const goToPrev = () => { if (currentIndex > 0) selectLodging(filteredLodgings[currentIndex - 1]) }
 
+  // Password screen
   if (!authenticated) {
     return (
-      <div className="min-h-screen bg-stone-100 flex items-center justify-center p-6">
-        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-sm w-full">
-          <h1 className="text-2xl font-bold text-stone-800 mb-2">Review Lodging</h1>
-          <p className="text-stone-500 mb-6">Enter password to review and edit lodging</p>
+      <div className="min-h-screen flex items-center justify-center p-6" style={{ background: `linear-gradient(135deg, ${BRAND_COLORS.wineDeep} 0%, ${BRAND_COLORS.valleyDeep} 100%)` }}>
+        <div className="rounded-2xl shadow-2xl p-8 max-w-sm w-full" style={{ backgroundColor: BRAND_COLORS.cream }}>
+          <div className="text-center mb-6">
+            <h1 className="text-3xl font-medium mb-2" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
+              <span style={{ color: BRAND_COLORS.wineDeep }}>Valley</span><span style={{ color: BRAND_COLORS.valleyDeep }}>Somm</span>
+            </h1>
+            <p style={{ color: BRAND_COLORS.slate }}>Review Lodging</p>
+          </div>
           <form onSubmit={handleLogin}>
             <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password"
-              className="w-full p-3 rounded-lg border border-stone-200 focus:border-amber-400 outline-none mb-4" />
-            {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
-            <button type="submit" className="w-full py-3 bg-amber-500 hover:bg-amber-600 text-white font-medium rounded-lg">Enter</button>
+              className="w-full p-3 rounded-lg border outline-none mb-4" style={{ borderColor: BRAND_COLORS.warmBeige, backgroundColor: 'white' }} />
+            {error && <p className="text-sm mb-4" style={{ color: BRAND_COLORS.wineRose }}>{error}</p>}
+            <button type="submit" className="w-full py-3 text-white font-medium rounded-lg hover:opacity-90" style={{ backgroundColor: BRAND_COLORS.wineDeep }}>Enter</button>
           </form>
         </div>
       </div>
     )
   }
 
-  if (loading) return <div className="min-h-screen bg-stone-100 flex items-center justify-center"><div className="text-stone-500">Loading...</div></div>
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: BRAND_COLORS.cream }}>
+        <div className="text-center">
+          <div className="animate-pulse mb-4">
+            <svg width="48" height="48" viewBox="0 0 80 80" fill="none" className="mx-auto">
+              <path d="M40 16C40 16 24 32 24 48C24 56.837 31.163 64 40 64C48.837 64 56 56.837 56 48C56 32 40 16 40 16Z" stroke={BRAND_COLORS.wineDeep} strokeWidth="2.5" fill="none"/>
+              <path d="M32 50C32 50 36 44 40 44C44 44 48 50 48 50" stroke={BRAND_COLORS.goldAccent} strokeWidth="2" fill="none" strokeLinecap="round"/>
+            </svg>
+          </div>
+          <p style={{ color: BRAND_COLORS.slate }}>Loading...</p>
+        </div>
+      </div>
+    )
+  }
 
   const incompleteCount = lodgings.filter(l => !l.vibe_tags?.length || !l.best_for?.length).length
 
   return (
-    <div className="min-h-screen bg-stone-100">
+    <div className="min-h-screen" style={{ backgroundColor: BRAND_COLORS.cream }}>
       <div className="flex h-screen">
         {/* Sidebar */}
-        <div className="w-80 bg-white border-r border-stone-200 flex flex-col">
-          <div className="p-4 border-b border-stone-200">
-            <h1 className="text-xl font-bold text-stone-800">Review Lodging</h1>
-            <p className="text-sm text-stone-500">{lodgings.length} properties • {incompleteCount} incomplete</p>
-            <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search..."
-              className="w-full mt-3 text-sm border border-stone-200 rounded-lg px-3 py-2 focus:border-amber-400 outline-none" />
-            <select value={filter} onChange={(e) => setFilter(e.target.value)}
-              className="w-full mt-3 text-sm border border-stone-200 rounded-lg px-3 py-2 focus:border-amber-400 outline-none">
-              <option value="all">All ({lodgings.length})</option>
-              <option value="incomplete">Incomplete ({incompleteCount})</option>
-              <option value="winery">Winery Lodging ({lodgings.filter(l => l.is_winery_lodging).length})</option>
-              <option value="featured">Featured ({lodgings.filter(l => l.featured).length})</option>
-              <option value="inactive">Inactive ({lodgings.filter(l => !l.active).length})</option>
-            </select>
+        <div className={`bg-white border-r flex flex-col transition-all duration-300 ${sidebarCollapsed ? 'w-16' : 'w-80'}`} style={{ borderColor: BRAND_COLORS.warmBeige }}>
+          <div className="p-4" style={{ borderBottom: `1px solid ${BRAND_COLORS.warmBeige}` }}>
+            <div className="flex items-center justify-between">
+              {!sidebarCollapsed && (
+                <div>
+                  <h1 className="text-xl font-medium" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", color: BRAND_COLORS.wineDeep }}>Lodging</h1>
+                  <p className="text-sm" style={{ color: BRAND_COLORS.slate }}>{lodgings.length} properties • {incompleteCount} incomplete</p>
+                </div>
+              )}
+              <button onClick={() => setSidebarCollapsed(!sidebarCollapsed)} className="p-2 rounded-lg hover:opacity-80" style={{ backgroundColor: BRAND_COLORS.cream }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={BRAND_COLORS.slate} strokeWidth="2">
+                  <path d={sidebarCollapsed ? "M9 18l6-6-6-6" : "M15 18l-6-6 6-6"} />
+                </svg>
+              </button>
+            </div>
+            {!sidebarCollapsed && (
+              <>
+                <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search..."
+                  className="w-full mt-3 text-sm border rounded-lg px-3 py-2 outline-none" style={{ borderColor: BRAND_COLORS.warmBeige }} />
+                <select value={filter} onChange={(e) => setFilter(e.target.value)}
+                  className="w-full mt-3 text-sm border rounded-lg px-3 py-2 outline-none" style={{ borderColor: BRAND_COLORS.warmBeige }}>
+                  <option value="all">All ({lodgings.length})</option>
+                  <option value="incomplete">Incomplete ({incompleteCount})</option>
+                  <option value="winery">Winery Lodging ({lodgings.filter(l => l.is_winery_lodging).length})</option>
+                  <option value="featured">Featured ({lodgings.filter(l => l.featured).length})</option>
+                  <option value="inactive">Inactive ({lodgings.filter(l => !l.active).length})</option>
+                </select>
+              </>
+            )}
           </div>
+
           <div className="flex-1 overflow-y-auto">
             {filteredLodgings.map((lodging) => (
               <button key={lodging.id} onClick={() => selectLodging(lodging)}
-                className={`w-full p-4 text-left border-b border-stone-100 hover:bg-stone-50 ${selectedLodging?.id === lodging.id ? 'bg-amber-50 border-l-4 border-l-amber-500' : ''}`}>
-                <div className="flex items-center justify-between mb-1">
-                  <span className={`text-xs px-2 py-0.5 rounded-full ${lodging.is_winery_lodging ? 'bg-purple-100 text-purple-700' : 'bg-stone-100 text-stone-600'}`}>
-                    {lodging.lodging_type || 'Unknown'}
-                  </span>
-                  <div className="flex gap-1">
-                    {lodging.featured && <span className="text-xs">⭐</span>}
-                    {!lodging.active && <span className="text-xs text-red-500">●</span>}
-                  </div>
-                </div>
-                <p className="font-medium text-stone-800 line-clamp-1">{lodging.name}</p>
-                <p className="text-xs text-stone-500 mt-0.5">{lodging.city} • {lodging.price_tier || 'No price'}</p>
+                className={`w-full p-4 text-left transition-colors ${selectedLodging?.id === lodging.id ? 'border-l-4' : ''}`}
+                style={{
+                  borderBottom: `1px solid ${BRAND_COLORS.warmBeige}`,
+                  backgroundColor: selectedLodging?.id === lodging.id ? BRAND_COLORS.cream : 'transparent',
+                  borderLeftColor: selectedLodging?.id === lodging.id ? BRAND_COLORS.wineDeep : 'transparent'
+                }}>
+                {!sidebarCollapsed ? (
+                  <>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs px-2 py-0.5 rounded-full" style={{
+                        backgroundColor: lodging.is_winery_lodging ? BRAND_COLORS.wineDeep + '20' : BRAND_COLORS.warmBeige,
+                        color: lodging.is_winery_lodging ? BRAND_COLORS.wineDeep : BRAND_COLORS.slate
+                      }}>{lodging.lodging_type || 'Unknown'}</span>
+                      <div className="flex gap-1">
+                        {lodging.featured && <span className="text-xs">⭐</span>}
+                        {!lodging.active && <span className="text-xs" style={{ color: BRAND_COLORS.wineRose }}>●</span>}
+                      </div>
+                    </div>
+                    <p className="font-medium line-clamp-1" style={{ color: BRAND_COLORS.charcoal }}>{lodging.name}</p>
+                    <p className="text-xs mt-0.5" style={{ color: BRAND_COLORS.slate }}>{lodging.city} • {lodging.price_tier || 'No price'}</p>
+                  </>
+                ) : (
+                  <div className="w-3 h-3 rounded-full mx-auto" style={{ backgroundColor: lodging.is_winery_lodging ? BRAND_COLORS.wineDeep : BRAND_COLORS.warmBeige }} />
+                )}
               </button>
             ))}
           </div>
-          <div className="p-4 border-t border-stone-200 space-y-2">
-            <a href="/lodging/dashboard" className="block text-center text-sm text-amber-600 hover:text-amber-700 font-medium">← Dashboard</a>
-            <a href="/lodging/analysis" className="block text-center text-sm text-stone-500 hover:text-stone-700">Analysis →</a>
-          </div>
+
+          {!sidebarCollapsed && (
+            <div className="p-4 space-y-2" style={{ borderTop: `1px solid ${BRAND_COLORS.warmBeige}` }}>
+              <a href="/lodging/dashboard" className="block text-center text-sm font-medium hover:opacity-80" style={{ color: BRAND_COLORS.wineDeep }}>← Dashboard</a>
+              <a href="/lodging/analysis" className="block text-center text-sm hover:opacity-80" style={{ color: BRAND_COLORS.slate }}>Analysis →</a>
+            </div>
+          )}
         </div>
 
         {/* Main Content */}
@@ -207,237 +250,180 @@ export default function LodgingReviewPage() {
               {/* Navigation */}
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-4">
-                  <button onClick={goToPrev} disabled={currentIndex <= 0} className="px-3 py-1 text-sm text-stone-600 hover:text-stone-800 disabled:opacity-50">← Prev</button>
-                  <span className="text-sm text-stone-500">{currentIndex + 1} of {filteredLodgings.length}</span>
-                  <button onClick={goToNext} disabled={currentIndex >= filteredLodgings.length - 1} className="px-3 py-1 text-sm text-stone-600 hover:text-stone-800 disabled:opacity-50">Next →</button>
+                  <button onClick={goToPrev} disabled={currentIndex <= 0} className="px-3 py-1 text-sm disabled:opacity-50 hover:opacity-80" style={{ color: BRAND_COLORS.slate }}>← Prev</button>
+                  <span className="text-sm" style={{ color: BRAND_COLORS.slate }}>{currentIndex + 1} of {filteredLodgings.length}</span>
+                  <button onClick={goToNext} disabled={currentIndex >= filteredLodgings.length - 1} className="px-3 py-1 text-sm disabled:opacity-50 hover:opacity-80" style={{ color: BRAND_COLORS.slate }}>Next →</button>
                 </div>
                 <div className="flex items-center gap-3">
-                  {error && <span className="text-sm text-red-500">{error}</span>}
-                  <button onClick={saveReview} disabled={saving} className="px-6 py-2 bg-amber-500 hover:bg-amber-600 disabled:bg-amber-300 text-white font-medium rounded-lg">
+                  {error && <span className="text-sm" style={{ color: BRAND_COLORS.wineRose }}>{error}</span>}
+                  <button onClick={saveReview} disabled={saving} className="px-6 py-2 text-white font-medium rounded-lg hover:opacity-90 disabled:opacity-50" style={{ backgroundColor: BRAND_COLORS.wineDeep }}>
                     {saving ? 'Saving...' : 'Save Changes'}
                   </button>
                 </div>
               </div>
 
               {/* Basic Info */}
-              <div className="bg-white rounded-2xl shadow p-6 mb-6">
-                <h3 className="text-lg font-semibold text-stone-800 mb-4">Basic Information</h3>
+              <FormSection title="Basic Information" colors={BRAND_COLORS}>
                 <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-stone-600 mb-1">Name *</label>
-                    <input type="text" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="w-full p-3 rounded-lg border border-stone-200 focus:border-amber-400 outline-none" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-stone-600 mb-1">Slug *</label>
-                    <input type="text" value={formData.slug} onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                      className="w-full p-3 rounded-lg border border-stone-200 focus:border-amber-400 outline-none" />
-                  </div>
+                  <FormInput label="Name *" value={formData.name} onChange={(v) => setFormData({ ...formData, name: v })} colors={BRAND_COLORS} />
+                  <FormInput label="Slug *" value={formData.slug} onChange={(v) => setFormData({ ...formData, slug: v })} colors={BRAND_COLORS} />
+                  <FormInput label="Tagline" value={formData.tagline} onChange={(v) => setFormData({ ...formData, tagline: v })} placeholder="A short, catchy description..." className="md:col-span-2" colors={BRAND_COLORS} />
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-stone-600 mb-1">Tagline</label>
-                    <input type="text" value={formData.tagline} onChange={(e) => setFormData({ ...formData, tagline: e.target.value })} placeholder="A short, catchy description..."
-                      className="w-full p-3 rounded-lg border border-stone-200 focus:border-amber-400 outline-none" />
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-stone-600 mb-1">Description</label>
+                    <label className="block text-sm font-medium mb-1" style={{ color: BRAND_COLORS.slate }}>Description</label>
                     <textarea value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                      className="w-full p-3 rounded-lg border border-stone-200 focus:border-amber-400 outline-none h-24 resize-none" />
+                      className="w-full p-3 rounded-lg border outline-none h-24 resize-none" style={{ borderColor: BRAND_COLORS.warmBeige }} />
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-stone-600 mb-1">Lodging Type *</label>
-                    <select value={formData.lodging_type} onChange={(e) => setFormData({ ...formData, lodging_type: e.target.value })}
-                      className="w-full p-3 rounded-lg border border-stone-200 focus:border-amber-400 outline-none">
-                      <option value="">Select type...</option>
-                      {LODGING_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-stone-600 mb-1">Price Tier</label>
-                    <select value={formData.price_tier} onChange={(e) => setFormData({ ...formData, price_tier: e.target.value })}
-                      className="w-full p-3 rounded-lg border border-stone-200 focus:border-amber-400 outline-none">
-                      <option value="">Select tier...</option>
-                      {PRICE_TIERS.map(t => <option key={t} value={t}>{t.charAt(0).toUpperCase() + t.slice(1)}</option>)}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-stone-600 mb-1">Price Range</label>
-                    <input type="text" value={formData.price_range} onChange={(e) => setFormData({ ...formData, price_range: e.target.value })} placeholder="$150-250/night"
-                      className="w-full p-3 rounded-lg border border-stone-200 focus:border-amber-400 outline-none" />
-                  </div>
+                  <FormSelect label="Lodging Type *" value={formData.lodging_type} onChange={(v) => setFormData({ ...formData, lodging_type: v })} options={LODGING_TYPES} colors={BRAND_COLORS} />
+                  <FormSelect label="Price Tier" value={formData.price_tier} onChange={(v) => setFormData({ ...formData, price_tier: v })} options={PRICE_TIERS} capitalize colors={BRAND_COLORS} />
+                  <FormInput label="Price Range" value={formData.price_range} onChange={(v) => setFormData({ ...formData, price_range: v })} placeholder="$150-250/night" colors={BRAND_COLORS} />
                   <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-stone-600 mb-1">Room Count</label>
-                      <input type="number" value={formData.room_count} onChange={(e) => setFormData({ ...formData, room_count: e.target.value })}
-                        className="w-full p-3 rounded-lg border border-stone-200 focus:border-amber-400 outline-none" />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-stone-600 mb-1">Max Guests</label>
-                      <input type="number" value={formData.max_guests} onChange={(e) => setFormData({ ...formData, max_guests: e.target.value })}
-                        className="w-full p-3 rounded-lg border border-stone-200 focus:border-amber-400 outline-none" />
-                    </div>
+                    <FormInput label="Room Count" value={formData.room_count} onChange={(v) => setFormData({ ...formData, room_count: v })} type="number" colors={BRAND_COLORS} />
+                    <FormInput label="Max Guests" value={formData.max_guests} onChange={(v) => setFormData({ ...formData, max_guests: v })} type="number" colors={BRAND_COLORS} />
                   </div>
                 </div>
                 <div className="mt-4 flex flex-wrap items-center gap-6">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" checked={formData.active} onChange={(e) => setFormData({ ...formData, active: e.target.checked })} className="w-4 h-4 text-amber-600 rounded" />
-                    <span className="text-sm text-stone-700">Active</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" checked={formData.featured} onChange={(e) => setFormData({ ...formData, featured: e.target.checked })} className="w-4 h-4 text-amber-600 rounded" />
-                    <span className="text-sm text-stone-700">Featured ⭐</span>
-                  </label>
+                  <Checkbox label="Active" checked={formData.active} onChange={(v) => setFormData({ ...formData, active: v })} colors={BRAND_COLORS} />
+                  <Checkbox label="Featured" checked={formData.featured} onChange={(v) => setFormData({ ...formData, featured: v })} colors={BRAND_COLORS} />
                   <div className="flex items-center gap-2">
-                    <label className="text-sm text-stone-600">Priority:</label>
-                    <input type="number" value={formData.priority_rank} onChange={(e) => setFormData({ ...formData, priority_rank: e.target.value })}
-                      className="w-16 p-1 text-sm rounded border border-stone-200 focus:border-amber-400 outline-none" />
+                    <label className="text-sm" style={{ color: BRAND_COLORS.slate }}>Priority:</label>
+                    <input type="number" value={formData.priority_rank} onChange={(e) => setFormData({ ...formData, priority_rank: e.target.value })} min="1" max="100"
+                      className="w-16 p-2 text-sm rounded-lg border outline-none text-center" style={{ borderColor: BRAND_COLORS.warmBeige }} />
                   </div>
                 </div>
-              </div>
+              </FormSection>
 
               {/* Location */}
-              <div className="bg-white rounded-2xl shadow p-6 mb-6">
-                <h3 className="text-lg font-semibold text-stone-800 mb-4">Location & Contact</h3>
+              <FormSection title="Location" colors={BRAND_COLORS}>
                 <div className="grid md:grid-cols-2 gap-4">
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-stone-600 mb-1">Address *</label>
-                    <input type="text" value={formData.address} onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                      className="w-full p-3 rounded-lg border border-stone-200 focus:border-amber-400 outline-none" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-stone-600 mb-1">City *</label>
-                    <input type="text" value={formData.city} onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                      className="w-full p-3 rounded-lg border border-stone-200 focus:border-amber-400 outline-none" />
-                  </div>
+                  <FormInput label="Address" value={formData.address} onChange={(v) => setFormData({ ...formData, address: v })} className="md:col-span-2" colors={BRAND_COLORS} />
+                  <FormInput label="City *" value={formData.city} onChange={(v) => setFormData({ ...formData, city: v })} colors={BRAND_COLORS} />
                   <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-stone-600 mb-1">State</label>
-                      <input type="text" value={formData.state} onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-                        className="w-full p-3 rounded-lg border border-stone-200 focus:border-amber-400 outline-none" />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-stone-600 mb-1">ZIP</label>
-                      <input type="text" value={formData.zip_code} onChange={(e) => setFormData({ ...formData, zip_code: e.target.value })}
-                        className="w-full p-3 rounded-lg border border-stone-200 focus:border-amber-400 outline-none" />
-                    </div>
+                    <FormInput label="State" value={formData.state} onChange={(v) => setFormData({ ...formData, state: v })} colors={BRAND_COLORS} />
+                    <FormInput label="Zip" value={formData.zip_code} onChange={(v) => setFormData({ ...formData, zip_code: v })} colors={BRAND_COLORS} />
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-stone-600 mb-1">Latitude *</label>
-                    <input type="text" value={formData.latitude} onChange={(e) => setFormData({ ...formData, latitude: e.target.value })} placeholder="36.2440"
-                      className="w-full p-3 rounded-lg border border-stone-200 focus:border-amber-400 outline-none" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-stone-600 mb-1">Longitude *</label>
-                    <input type="text" value={formData.longitude} onChange={(e) => setFormData({ ...formData, longitude: e.target.value })} placeholder="-80.8484"
-                      className="w-full p-3 rounded-lg border border-stone-200 focus:border-amber-400 outline-none" />
-                  </div>
-                  <div><label className="block text-sm font-medium text-stone-600 mb-1">Phone</label>
-                    <input type="text" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} className="w-full p-3 rounded-lg border border-stone-200 focus:border-amber-400 outline-none" /></div>
-                  <div><label className="block text-sm font-medium text-stone-600 mb-1">Email</label>
-                    <input type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className="w-full p-3 rounded-lg border border-stone-200 focus:border-amber-400 outline-none" /></div>
-                  <div><label className="block text-sm font-medium text-stone-600 mb-1">Website</label>
-                    <input type="url" value={formData.website} onChange={(e) => setFormData({ ...formData, website: e.target.value })} className="w-full p-3 rounded-lg border border-stone-200 focus:border-amber-400 outline-none" /></div>
-                  <div><label className="block text-sm font-medium text-stone-600 mb-1">Booking URL</label>
-                    <input type="url" value={formData.booking_url} onChange={(e) => setFormData({ ...formData, booking_url: e.target.value })} className="w-full p-3 rounded-lg border border-stone-200 focus:border-amber-400 outline-none" /></div>
+                  <FormInput label="Latitude" value={formData.latitude} onChange={(v) => setFormData({ ...formData, latitude: v })} type="number" step="any" colors={BRAND_COLORS} />
+                  <FormInput label="Longitude" value={formData.longitude} onChange={(v) => setFormData({ ...formData, longitude: v })} type="number" step="any" colors={BRAND_COLORS} />
+                </div>
+              </FormSection>
+
+              {/* Contact & Booking */}
+              <FormSection title="Contact & Booking" colors={BRAND_COLORS}>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <FormInput label="Phone" value={formData.phone} onChange={(v) => setFormData({ ...formData, phone: v })} colors={BRAND_COLORS} />
+                  <FormInput label="Email" value={formData.email} onChange={(v) => setFormData({ ...formData, email: v })} type="email" colors={BRAND_COLORS} />
+                  <FormInput label="Website" value={formData.website} onChange={(v) => setFormData({ ...formData, website: v })} type="url" colors={BRAND_COLORS} />
+                  <FormInput label="Booking URL" value={formData.booking_url} onChange={(v) => setFormData({ ...formData, booking_url: v })} type="url" colors={BRAND_COLORS} />
                 </div>
                 <div className="grid md:grid-cols-3 gap-4 mt-4">
-                  <div><label className="block text-sm font-medium text-stone-600 mb-1">Check-in Time</label>
-                    <input type="text" value={formData.check_in_time} onChange={(e) => setFormData({ ...formData, check_in_time: e.target.value })} placeholder="3:00 PM" className="w-full p-3 rounded-lg border border-stone-200 focus:border-amber-400 outline-none" /></div>
-                  <div><label className="block text-sm font-medium text-stone-600 mb-1">Check-out Time</label>
-                    <input type="text" value={formData.check_out_time} onChange={(e) => setFormData({ ...formData, check_out_time: e.target.value })} placeholder="11:00 AM" className="w-full p-3 rounded-lg border border-stone-200 focus:border-amber-400 outline-none" /></div>
-                  <div><label className="block text-sm font-medium text-stone-600 mb-1">Min Stay (nights)</label>
-                    <input type="number" value={formData.minimum_stay} onChange={(e) => setFormData({ ...formData, minimum_stay: e.target.value })} className="w-full p-3 rounded-lg border border-stone-200 focus:border-amber-400 outline-none" /></div>
+                  <FormInput label="Check-in Time" value={formData.check_in_time} onChange={(v) => setFormData({ ...formData, check_in_time: v })} placeholder="3:00 PM" colors={BRAND_COLORS} />
+                  <FormInput label="Check-out Time" value={formData.check_out_time} onChange={(v) => setFormData({ ...formData, check_out_time: v })} placeholder="11:00 AM" colors={BRAND_COLORS} />
+                  <FormInput label="Min Stay (nights)" value={formData.minimum_stay} onChange={(v) => setFormData({ ...formData, minimum_stay: v })} type="number" colors={BRAND_COLORS} />
                 </div>
-              </div>
+              </FormSection>
 
               {/* Winery Connection */}
-              <div className="bg-white rounded-2xl shadow p-6 mb-6">
-                <h3 className="text-lg font-semibold text-stone-800 mb-4">🍷 Winery Connection</h3>
+              <FormSection title="🍷 Winery Connection" colors={BRAND_COLORS}>
                 <div className="flex flex-wrap items-center gap-6 mb-4">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" checked={formData.is_winery_lodging} onChange={(e) => setFormData({ ...formData, is_winery_lodging: e.target.checked })} className="w-4 h-4 text-purple-600 rounded" />
-                    <span className="text-sm text-stone-700">Is Winery Lodging</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" checked={formData.wine_packages_available} onChange={(e) => setFormData({ ...formData, wine_packages_available: e.target.checked })} className="w-4 h-4 text-purple-600 rounded" />
-                    <span className="text-sm text-stone-700">Wine Packages Available</span>
-                  </label>
+                  <Checkbox label="Is Winery Lodging" checked={formData.is_winery_lodging} onChange={(v) => setFormData({ ...formData, is_winery_lodging: v })} colors={BRAND_COLORS} />
+                  <Checkbox label="Wine Packages Available" checked={formData.wine_packages_available} onChange={(v) => setFormData({ ...formData, wine_packages_available: v })} colors={BRAND_COLORS} />
                 </div>
                 <div className="grid md:grid-cols-2 gap-4">
                   {formData.is_winery_lodging && (
-                    <div><label className="block text-sm font-medium text-stone-600 mb-1">Associated Winery</label>
-                      <select value={formData.associated_winery_id} onChange={(e) => setFormData({ ...formData, associated_winery_id: e.target.value })} className="w-full p-3 rounded-lg border border-stone-200 focus:border-amber-400 outline-none">
-                        <option value="">Select winery...</option>
-                        {wineries.map(w => <option key={w.id} value={w.id}>{w.name}</option>)}
-                      </select></div>
+                    <FormSelect label="Associated Winery" value={formData.associated_winery_id} onChange={(v) => setFormData({ ...formData, associated_winery_id: v })}
+                      options={wineries.map(w => ({ value: w.id, label: w.name }))} hasEmpty colors={BRAND_COLORS} />
                   )}
-                  <div><label className="block text-sm font-medium text-stone-600 mb-1">Nearest Winery</label>
-                    <select value={formData.nearest_winery_id} onChange={(e) => setFormData({ ...formData, nearest_winery_id: e.target.value })} className="w-full p-3 rounded-lg border border-stone-200 focus:border-amber-400 outline-none">
-                      <option value="">Select winery...</option>
-                      {wineries.map(w => <option key={w.id} value={w.id}>{w.name}</option>)}
-                    </select></div>
-                  <div><label className="block text-sm font-medium text-stone-600 mb-1">Minutes to Nearest</label>
-                    <input type="number" value={formData.nearest_winery_minutes} onChange={(e) => setFormData({ ...formData, nearest_winery_minutes: e.target.value })} placeholder="10" className="w-full p-3 rounded-lg border border-stone-200 focus:border-amber-400 outline-none" /></div>
-                  <div className="md:col-span-2"><label className="block text-sm font-medium text-stone-600 mb-1">Winery Distance Notes</label>
-                    <input type="text" value={formData.winery_distance_notes} onChange={(e) => setFormData({ ...formData, winery_distance_notes: e.target.value })} placeholder="Walking distance to 3 wineries..." className="w-full p-3 rounded-lg border border-stone-200 focus:border-amber-400 outline-none" /></div>
-                  {formData.wine_packages_available && (
-                    <div className="md:col-span-2"><label className="block text-sm font-medium text-stone-600 mb-1">Wine Package Notes</label>
-                      <textarea value={formData.wine_package_notes} onChange={(e) => setFormData({ ...formData, wine_package_notes: e.target.value })} placeholder="Description of wine packages..." className="w-full p-3 rounded-lg border border-stone-200 focus:border-amber-400 outline-none h-20 resize-none" /></div>
-                  )}
-                  <div className="md:col-span-2"><label className="block text-sm font-medium text-stone-600 mb-1">Partnership Notes</label>
-                    <textarea value={formData.partnership_notes} onChange={(e) => setFormData({ ...formData, partnership_notes: e.target.value })} placeholder="Partnership arrangements..." className="w-full p-3 rounded-lg border border-stone-200 focus:border-amber-400 outline-none h-20 resize-none" /></div>
+                  <FormSelect label="Nearest Winery" value={formData.nearest_winery_id} onChange={(v) => setFormData({ ...formData, nearest_winery_id: v })}
+                    options={wineries.map(w => ({ value: w.id, label: w.name }))} hasEmpty colors={BRAND_COLORS} />
+                  <FormInput label="Minutes to Nearest" value={formData.nearest_winery_minutes} onChange={(v) => setFormData({ ...formData, nearest_winery_minutes: v })} type="number" placeholder="10" colors={BRAND_COLORS} />
+                  <FormInput label="Winery Distance Notes" value={formData.winery_distance_notes} onChange={(v) => setFormData({ ...formData, winery_distance_notes: v })} placeholder="Walking distance to 3 wineries..." className="md:col-span-2" colors={BRAND_COLORS} />
                 </div>
-              </div>
+              </FormSection>
 
-              {/* Vibe Tags */}
-              <div className="bg-white rounded-2xl shadow p-6 mb-6">
-                <h3 className="text-lg font-semibold text-stone-800 mb-4">Vibe Tags</h3>
-                <div className="flex flex-wrap gap-2">
-                  {DEFAULT_VIBES.map(v => (
-                    <button key={v} onClick={() => toggleArrayField('vibe_tags', v)}
-                      className={`px-3 py-1 text-sm rounded-full transition-colors ${formData.vibe_tags?.includes(v) ? 'bg-amber-500 text-white' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'}`}>{v}</button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Best For */}
-              <div className="bg-white rounded-2xl shadow p-6 mb-6">
-                <h3 className="text-lg font-semibold text-stone-800 mb-4">Best For</h3>
-                <div className="flex flex-wrap gap-2">
-                  {DEFAULT_BEST_FOR.map(b => (
-                    <button key={b} onClick={() => toggleArrayField('best_for', b)}
-                      className={`px-3 py-1 text-sm rounded-full transition-colors ${formData.best_for?.includes(b) ? 'bg-amber-500 text-white' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'}`}>{b}</button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Amenities */}
-              <div className="bg-white rounded-2xl shadow p-6 mb-6">
-                <h3 className="text-lg font-semibold text-stone-800 mb-4">Amenities</h3>
-                <div className="flex flex-wrap gap-2">
-                  {DEFAULT_AMENITIES.map(a => (
-                    <button key={a} onClick={() => toggleArrayField('amenities', a)}
-                      className={`px-3 py-1 text-sm rounded-full transition-colors ${formData.amenities?.includes(a) ? 'bg-amber-500 text-white' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'}`}>{a}</button>
-                  ))}
-                </div>
-              </div>
+              {/* Tags */}
+              <TagSection title="Vibe Tags" items={DEFAULT_VIBES} selected={formData.vibe_tags || []} onToggle={(v) => toggleArrayField('vibe_tags', v)} colors={BRAND_COLORS} />
+              <TagSection title="Best For" items={DEFAULT_BEST_FOR} selected={formData.best_for || []} onToggle={(v) => toggleArrayField('best_for', v)} colors={BRAND_COLORS} />
+              <TagSection title="Amenities" items={DEFAULT_AMENITIES} selected={formData.amenities || []} onToggle={(v) => toggleArrayField('amenities', v)} colors={BRAND_COLORS} />
 
               {/* Internal Notes */}
-              <div className="bg-white rounded-2xl shadow p-6 mb-6">
-                <h3 className="text-lg font-semibold text-stone-800 mb-4">Internal Notes</h3>
+              <FormSection title="Internal Notes" colors={BRAND_COLORS}>
                 <textarea value={formData.internal_notes} onChange={(e) => setFormData({ ...formData, internal_notes: e.target.value })} placeholder="Any internal notes..."
-                  className="w-full h-32 p-4 rounded-lg border border-stone-200 focus:border-amber-400 outline-none resize-none" />
-              </div>
+                  className="w-full h-32 p-4 rounded-lg border outline-none resize-none" style={{ borderColor: BRAND_COLORS.warmBeige }} />
+              </FormSection>
 
               <div className="flex justify-end">
-                <button onClick={saveReview} disabled={saving} className="px-8 py-3 bg-amber-500 hover:bg-amber-600 disabled:bg-amber-300 text-white font-medium rounded-lg">
+                <button onClick={saveReview} disabled={saving} className="px-8 py-3 text-white font-medium rounded-lg hover:opacity-90 disabled:opacity-50" style={{ backgroundColor: BRAND_COLORS.wineDeep }}>
                   {saving ? 'Saving...' : 'Save Changes'}
                 </button>
               </div>
             </div>
           ) : (
-            <div className="flex items-center justify-center h-full text-stone-400">Select a property from the sidebar to review</div>
+            <div className="flex items-center justify-center h-full" style={{ color: BRAND_COLORS.slate }}>Select a property from the sidebar to review</div>
           )}
         </div>
+      </div>
+    </div>
+  )
+}
+
+// Helper Components
+function FormSection({ title, children, colors }) {
+  return (
+    <div className="rounded-2xl shadow p-6 mb-6" style={{ backgroundColor: 'white', border: `1px solid ${colors.warmBeige}` }}>
+      <h3 className="text-lg font-semibold mb-4" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", color: colors.charcoal }}>{title}</h3>
+      {children}
+    </div>
+  )
+}
+
+function FormInput({ label, value, onChange, type = 'text', placeholder = '', className = '', colors, ...props }) {
+  return (
+    <div className={className}>
+      <label className="block text-sm font-medium mb-1" style={{ color: colors.slate }}>{label}</label>
+      <input type={type} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder}
+        className="w-full p-3 rounded-lg border outline-none" style={{ borderColor: colors.warmBeige }} {...props} />
+    </div>
+  )
+}
+
+function FormSelect({ label, value, onChange, options, capitalize = false, hasEmpty = false, colors }) {
+  return (
+    <div>
+      <label className="block text-sm font-medium mb-1" style={{ color: colors.slate }}>{label}</label>
+      <select value={value} onChange={(e) => onChange(e.target.value)} className="w-full p-3 rounded-lg border outline-none" style={{ borderColor: colors.warmBeige }}>
+        {hasEmpty && <option value="">Select...</option>}
+        {!hasEmpty && <option value="">Select...</option>}
+        {options.map(opt => {
+          const val = typeof opt === 'object' ? opt.value : opt
+          const lbl = typeof opt === 'object' ? opt.label : (capitalize ? opt.charAt(0).toUpperCase() + opt.slice(1) : opt)
+          return <option key={val} value={val}>{lbl}</option>
+        })}
+      </select>
+    </div>
+  )
+}
+
+function Checkbox({ label, checked, onChange, colors }) {
+  return (
+    <label className="flex items-center gap-2 cursor-pointer">
+      <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} className="w-4 h-4 rounded" style={{ accentColor: colors.wineDeep }} />
+      <span className="text-sm" style={{ color: colors.charcoal }}>{label}</span>
+    </label>
+  )
+}
+
+function TagSection({ title, items, selected, onToggle, colors }) {
+  return (
+    <div className="rounded-2xl shadow p-6 mb-6" style={{ backgroundColor: 'white', border: `1px solid ${colors.warmBeige}` }}>
+      <h3 className="text-lg font-semibold mb-4" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", color: colors.charcoal }}>{title}</h3>
+      <div className="flex flex-wrap gap-2">
+        {items.map(item => (
+          <button key={item} onClick={() => onToggle(item)}
+            className="px-3 py-1 text-sm rounded-full transition-colors"
+            style={{
+              backgroundColor: selected.includes(item) ? colors.wineDeep : colors.cream,
+              color: selected.includes(item) ? 'white' : colors.slate
+            }}>{item}</button>
+        ))}
       </div>
     </div>
   )
