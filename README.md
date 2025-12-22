@@ -15,7 +15,7 @@
     <img src="https://img.shields.io/badge/Live_Site-ValleySomm.com-C9A962?style=flat-square" alt="Live Site" />
   </a>
   <img src="https://img.shields.io/badge/Next.js-16-000000?style=flat-square&logo=next.js" alt="Next.js" />
-  <img src="https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=white" alt="React" />
   <img src="https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white" alt="Tailwind CSS" />
   <img src="https://img.shields.io/badge/Supabase-Database-3FCF8E?style=flat-square&logo=supabase&logoColor=white" alt="Supabase" />
 </p>
@@ -43,7 +43,7 @@ Planning a wine country trip is overwhelming:
 
 An AI sommelier that knows every winery in the valley and speaks your language. Tell it what you like, and it crafts the perfect day for you.
 
-**Research Validation:** 32 wine country travelers surveyed with 84% willingness to pay, 4.1/5 average trip planning confidence, and "information gaps" identified as the #1 pain point (59% frequency, 95% WTP rate).
+**Research Validation:** 32+ wine country travelers surveyed with 84% willingness to pay, 4.1/5 average trip planning confidence, and "information gaps" identified as the #1 pain point (59% frequency, 95% WTP rate).
 
 ---
 
@@ -89,10 +89,18 @@ Session-level conversion tracking and optimization:
 
 ### 🏰 **Winery Data Management (LIVE)**
 Complete self-service system for winery partners:
-- **Self-service submission** — 10-minute form for wineries to add themselves
-- **Admin review dashboard** — Approve, reject, or edit pending submissions
-- **Claim listing workflow** — Verification system for existing wineries (email/phone/domain)
+- **Self-service submission** (`/winery/submit`) — 10-minute form for wineries to add themselves
+- **Admin review dashboard** (`/winery/admin`) — Approve, reject, or edit pending submissions
+- **Claim listing workflow** (`/winery/claim`) — Verification system for existing wineries (email/phone/domain)
 - **Tiered verification** — Auto-approve strong matches, manual review for edge cases
+
+### 📊 **Winery Analytics Dashboard (LIVE)**
+Comprehensive data quality and coverage analysis:
+- **Overview metrics** — Total wineries, coverage %, verification status breakdown
+- **Data quality scoring** — Critical, important, and nice-to-have field completion
+- **Distribution analysis** — Geographic spread, wine style coverage, amenity availability
+- **Gap identification** — Missing fields, unverified listings, data improvement priorities
+- **Radar charts** — Visual quality scores by category (contact, hours, wine, experience)
 
 ### 🍷 **Winery Database (SCHEMA READY)**
 70+ field "golden record" schema covering:
@@ -100,6 +108,11 @@ Complete self-service system for winery partners:
 - Wine profiles, pricing, atmosphere, facilities
 - AI matching fields: `personality_keywords[]`, `best_for[]`, `perfect_if[]`
 - Trip planning metadata: visit duration, crowd levels, ideal timing
+
+### 📋 **Legal & Compliance Pages (LIVE)**
+- **Privacy Policy** (`/privacy`) — GDPR-ready data handling disclosure
+- **Terms of Service** (`/terms`) — Usage terms and liability limitations
+- **Official Rules** (`/rules`) — Gift card drawing legal requirements
 
 ### 🤖 **AI Chat Interface (IN PROGRESS)**
 Conversational trip planner powered by Claude Sonnet 4:
@@ -130,7 +143,7 @@ ValleySomm features a carefully crafted brand identity that blends wine country 
 
 ### Prerequisites
 
-- Node.js 18+
+- Node.js 20+
 - npm, yarn, pnpm, or bun
 - Supabase account (free tier works)
 
@@ -254,133 +267,166 @@ CREATE TABLE feature_concepts (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Default themes
-INSERT INTO themes (name) VALUES
-  ('Discovery / Matching'),
-  ('Logistics / Routing'),
-  ('Transportation / DD'),
-  ('Reservations'),
-  ('Group Coordination'),
-  ('Information Gaps'),
-  ('Food / Lodging'),
-  ('Budget / Pricing'),
-  ('Time Management'),
-  ('Overwhelm / Too Many Options');
+-- Wineries table (70+ fields)
+CREATE TABLE wineries (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  
+  -- Basic Info
+  name TEXT NOT NULL,
+  slug TEXT UNIQUE,
+  address TEXT,
+  city TEXT DEFAULT 'Elkin',
+  zip_code TEXT,
+  latitude DECIMAL(10, 8),
+  longitude DECIMAL(11, 8),
+  phone TEXT,
+  website TEXT,
+  email TEXT,
+  
+  -- Hours (JSONB for flexibility)
+  hours JSONB DEFAULT '{}',
+  
+  -- Content
+  description TEXT,
+  tagline TEXT,
+  
+  -- Wine Profile
+  wine_styles TEXT[] DEFAULT '{}',
+  signature_wines TEXT,
+  
+  -- Experience
+  vibe_tags TEXT[] DEFAULT '{}',
+  best_for TEXT[] DEFAULT '{}',
+  
+  -- Reservations & Pricing
+  reservation_policy TEXT,
+  reservation_notes TEXT,
+  tasting_fee_range TEXT,
+  tasting_fee_waived TEXT,
+  
+  -- Amenities
+  food_available TEXT,
+  food_notes TEXT,
+  outdoor_seating BOOLEAN DEFAULT FALSE,
+  pet_friendly BOOLEAN DEFAULT FALSE,
+  wheelchair_accessible BOOLEAN DEFAULT FALSE,
+  
+  -- Social
+  instagram_handle TEXT,
+  facebook_url TEXT,
+  
+  -- Admin
+  status TEXT DEFAULT 'pending',
+  admin_notes TEXT,
+  featured BOOLEAN DEFAULT FALSE,
+  active BOOLEAN DEFAULT TRUE,
+  verified BOOLEAN DEFAULT FALSE,
+  claim_token TEXT,
+  
+  -- Contact
+  contact_name TEXT,
+  contact_role TEXT,
+  contact_email TEXT,
+  
+  -- Timestamps
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
 
--- Row Level Security
+-- Enable RLS
 ALTER TABLE survey_responses ENABLE ROW LEVEL SECURITY;
 ALTER TABLE survey_analytics ENABLE ROW LEVEL SECURITY;
 ALTER TABLE themes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE feature_concepts ENABLE ROW LEVEL SECURITY;
+ALTER TABLE wineries ENABLE ROW LEVEL SECURITY;
 
--- Policies
+-- RLS Policies
 CREATE POLICY "Allow anonymous inserts" ON survey_responses FOR INSERT WITH CHECK (true);
 CREATE POLICY "Allow reads" ON survey_responses FOR SELECT USING (true);
 CREATE POLICY "Allow updates" ON survey_responses FOR UPDATE USING (true);
 
-CREATE POLICY "Allow analytics inserts" ON survey_analytics FOR INSERT WITH CHECK (true);
-CREATE POLICY "Allow analytics reads" ON survey_analytics FOR SELECT USING (true);
-CREATE POLICY "Allow analytics updates" ON survey_analytics FOR UPDATE USING (true);
-
+CREATE POLICY "Allow all on analytics" ON survey_analytics FOR ALL USING (true);
 CREATE POLICY "Allow all on themes" ON themes FOR ALL USING (true);
 CREATE POLICY "Allow all on features" ON feature_concepts FOR ALL USING (true);
+CREATE POLICY "Allow all on wineries" ON wineries FOR ALL USING (true);
 ```
 
-**Winery Tables** (for AI chat feature):
-```sql
--- See /docs/wineries-schema.sql for complete 70+ field schema
--- Includes: wine profiles, AI matching, location data, operating details
-```
-
-### 4. Set Up Environment Variables
+### 4. Configure Environment
 
 ```bash
 cp .env.example .env.local
 ```
 
-Edit `.env.local` with your credentials:
+Edit `.env.local` with your Supabase credentials:
 
-```env
-# Supabase Configuration
-NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-
-# Dashboard Password (protects /dashboard, /review, /analysis, /winery/admin)
+```
+NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
 NEXT_PUBLIC_DASHBOARD_PASSWORD=your-secure-password
 ```
 
-> ⚠️ **Important:** Choose a strong password for `NEXT_PUBLIC_DASHBOARD_PASSWORD` — this protects your survey data and admin tools from public access.
-
-### 5. Run the Development Server
+### 5. Run Locally
 
 ```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) to see the app.
+Visit [http://localhost:3000](http://localhost:3000)
 
 ---
 
-## 🏗️ Tech Stack
-
-| Layer | Technology |
-|-------|------------|
-| **Framework** | Next.js 16 (App Router) |
-| **Language** | TypeScript 5 + JavaScript |
-| **Styling** | Tailwind CSS 4 |
-| **Database** | Supabase (PostgreSQL) |
-| **Charts** | Recharts 3.6 |
-| **Deployment** | Vercel |
-| **AI** | Claude Sonnet 4 (Anthropic) |
-| **Fonts** | Cormorant Garamond, DM Sans |
-
----
-
-## 📂 Project Structure
+## 📁 Project Structure
 
 ```
 valleysomm/
 ├── app/
-│   ├── page.js                 # Main survey page (4-step flow)
-│   ├── layout.js               # Root layout with metadata
-│   ├── globals.css             # Global Tailwind imports
+│   ├── page.js                  # Main survey (public)
+│   ├── layout.js                # Root layout with metadata
+│   ├── globals.css              # Tailwind imports
 │   │
 │   ├── dashboard/
-│   │   └── page.js             # Analytics dashboard (charts, filters)
+│   │   └── page.js              # Survey analytics dashboard (protected)
 │   │
 │   ├── review/
-│   │   └── page.js             # Response review tool (theme tagging)
+│   │   └── page.js              # Response review & tagging (protected)
 │   │
 │   ├── analysis/
-│   │   └── page.js             # Pain point matrix + ICE scoring
+│   │   └── page.js              # Pain point matrix & ICE scoring (protected)
 │   │
 │   ├── funnel/
-│   │   └── page.js             # Funnel analytics (drop-off analysis)
+│   │   └── page.js              # Conversion funnel analytics (protected)
 │   │
 │   ├── winery/
 │   │   ├── submit/
-│   │   │   └── page.js         # Self-service winery submission
+│   │   │   └── page.js          # Winery self-service submission (public)
 │   │   ├── admin/
-│   │   │   └── page.js         # Admin review dashboard
+│   │   │   └── page.js          # Winery approval dashboard (protected)
 │   │   └── claim/
-│   │       └── page.js         # Claim existing listing
+│   │       └── page.js          # Winery claim verification (token-based)
+│   │
+│   ├── winery-analytics/
+│   │   └── page.js              # Winery data quality dashboard (protected)
 │   │
 │   ├── privacy/
-│   │   └── page.tsx            # Privacy policy
+│   │   └── page.tsx             # Privacy policy (public)
+│   │
 │   ├── terms/
-│   │   └── page.tsx            # Terms of service
+│   │   └── page.tsx             # Terms of service (public)
+│   │
 │   └── rules/
-│       └── page.tsx            # Drawing rules
+│       └── page.tsx             # Drawing official rules (public)
 │
 ├── lib/
-│   ├── supabase.js             # Supabase client
-│   └── analytics.js            # Survey funnel tracking
+│   ├── supabase.js              # Supabase client
+│   └── analytics.js             # Survey funnel tracking utilities
 │
-├── public/                      # Static assets
-├── valleysomm-brand-kit.html   # Complete brand identity guide
+├── public/                       # Static assets
+├── valleysomm-brand-kit.html    # Complete brand identity guide
 ├── package.json
 ├── tailwind.config.js
-├── tsconfig.json
+├── postcss.config.js
+├── next.config.js
+├── jsconfig.json
 └── README.md
 ```
 
@@ -388,7 +434,7 @@ valleysomm/
 
 ## 📊 Survey Research Insights
 
-**Current Results (32 responses as of Dec 2024):**
+**Current Results (32+ responses as of Dec 2024):**
 - **84% willingness to pay** (50% "Yes — take my money")
 - **4.1/5 average confidence** in winery selection
 - **Top pain point:** Information gaps (59% frequency, 95% WTP)
@@ -424,6 +470,8 @@ valleysomm/
 - [x] Winery self-service submission
 - [x] Admin review dashboard
 - [x] Claim listing workflow
+- [x] Winery data quality analytics
+- [x] Legal pages (privacy, terms, rules)
 
 ### 🚧 **Phase 2: MVP Development** (IN PROGRESS)
 - [ ] AI chat interface (Claude Sonnet 4)
@@ -495,6 +543,11 @@ valleysomm/
 - **Analysis:** [valleysomm.com/analysis](https://valleysomm.com/analysis) (password-protected)
 - **Funnel Analytics:** [valleysomm.com/funnel](https://valleysomm.com/funnel) (password-protected)
 - **Winery Submit:** [valleysomm.com/winery/submit](https://valleysomm.com/winery/submit)
+- **Winery Admin:** [valleysomm.com/winery/admin](https://valleysomm.com/winery/admin) (password-protected)
+- **Winery Analytics:** [valleysomm.com/winery-analytics](https://valleysomm.com/winery-analytics) (password-protected)
+- **Privacy Policy:** [valleysomm.com/privacy](https://valleysomm.com/privacy)
+- **Terms of Service:** [valleysomm.com/terms](https://valleysomm.com/terms)
+- **Drawing Rules:** [valleysomm.com/rules](https://valleysomm.com/rules)
 
 ---
 
@@ -531,6 +584,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 - **HTTPS Only:** All traffic encrypted via Vercel
 - **No Tracking:** No Google Analytics, no third-party cookies (beyond session management)
 - **Winery Verification:** Tiered system prevents fraudulent listing claims
+- **Legal Compliance:** Privacy policy, terms of service, and drawing rules published
 
 ---
 
@@ -545,6 +599,7 @@ All admin pages require the password set in `NEXT_PUBLIC_DASHBOARD_PASSWORD`:
 3. **Analysis** (`/analysis`) — Pain point matrix, ICE scoring
 4. **Funnel** (`/funnel`) — Drop-off analysis
 5. **Winery Admin** (`/winery/admin`) — Approve/reject submissions
+6. **Winery Analytics** (`/winery-analytics`) — Data quality & coverage
 
 ### Drawing Management
 
@@ -569,6 +624,9 @@ ORDER BY submitted_at DESC;
 SELECT *, hardest_part_themes, intensity_score, pain_category 
 FROM survey_responses 
 WHERE reviewed = true;
+
+-- Export winery data
+SELECT * FROM wineries WHERE status = 'approved' ORDER BY name;
 ```
 
 ---
@@ -584,9 +642,9 @@ WHERE reviewed = true;
 ## 🙏 Acknowledgments
 
 - The Yadkin Valley wine community for inspiring this project
-- 32 wine country travelers who shared their planning pain points
+- 32+ wine country travelers who shared their planning pain points
 - Anthropic (Claude AI) for making conversational trip planning possible
-- The open-source community for amazing tools (Next.js, Supabase, Tailwind)
+- The open-source community for amazing tools (Next.js, Supabase, Tailwind, Recharts)
 
 ---
 
