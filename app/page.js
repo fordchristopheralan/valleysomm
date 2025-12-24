@@ -394,57 +394,57 @@ export default function SurveyPage() {
     }
   }
 
-  // START SCREEN
+  // START SCREEN - WITH CORRECT BRANDING
   if (!hasStarted) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-amber-50 to-stone-100 p-6">
         <div className="max-w-2xl mx-auto">
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="text-sm font-medium text-amber-700 mb-2">Valley Somm</div>
-            <h1 className="text-3xl font-bold text-stone-800 mb-2">Wine Country Trip Survey</h1>
-            <p className="text-stone-600">{"Help us understand what makes wine trips great (and what doesn't)"}</p>
+            <div className="text-sm font-medium mb-2" style={{ color: '#6B2D3F' }}>Valley Somm</div>
+            <h1 className="text-3xl font-bold mb-2" style={{ color: '#2C2C30' }}>Wine Country Trip Survey</h1>
+            <p style={{ color: '#4A4A50' }}>{"Help us understand what makes wine trips great (and what doesn't)"}</p>
           </div>
 
           {/* Main Start Card */}
           <div className="bg-white rounded-2xl shadow-xl overflow-hidden mb-6">
             {/* Social Proof Banner */}
-            <div className="bg-gradient-to-r from-amber-500 to-amber-600 px-6 py-4 text-white text-center">
+            <div className="px-6 py-4 text-white text-center" style={{ background: 'linear-gradient(135deg, #6B2D3F 0%, #8B3A4D 100%)' }}>
               <p className="font-semibold text-lg">🍷 Join 340+ wine lovers sharing their stories</p>
             </div>
 
             <div className="p-8">
               {/* The Problem We're Understanding */}
               <div className="mb-6">
-                <h2 className="text-2xl font-bold text-stone-800 mb-3">
+                <h2 className="text-2xl font-bold mb-3" style={{ color: '#2C2C30' }}>
                   Planning a wine trip shouldn't be stressful
                 </h2>
-                <p className="text-stone-600 leading-relaxed mb-4">
+                <p className="leading-relaxed mb-4" style={{ color: '#4A4A50' }}>
                   Yet so many visitors tell us it is. We're talking to wine country travelers to understand what makes trip planning hard - and what would make it easier.
                 </p>
-                <p className="text-stone-600 leading-relaxed">
+                <p className="leading-relaxed" style={{ color: '#4A4A50' }}>
                   Your honest experiences (the good, the frustrating, the "I wish I'd known that!") help us understand the real challenges people face.
                 </p>
               </div>
 
               {/* What We're Learning - Real Patterns */}
-              <div className="bg-amber-50 rounded-xl p-5 mb-6 border border-amber-100">
-                <p className="text-sm font-semibold text-amber-900 mb-3">🎯 What we've learned from 340+ responses:</p>
-                <ul className="space-y-2 text-sm text-stone-700">
+              <div className="rounded-xl p-5 mb-6" style={{ backgroundColor: '#FAF7F2', border: '1px solid #E8E0D5' }}>
+                <p className="text-sm font-semibold mb-3" style={{ color: '#6B2D3F' }}>🎯 What we've learned from 340+ responses:</p>
+                <ul className="space-y-2 text-sm" style={{ color: '#4A4A50' }}>
                   <li className="flex items-start gap-2">
-                    <span className="text-amber-600 font-bold">•</span>
+                    <span className="font-bold" style={{ color: '#C9A962' }}>•</span>
                     <span><strong>Couples traveling together</strong> represent the vast majority of wine country visitors</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-amber-600 font-bold">•</span>
+                    <span className="font-bold" style={{ color: '#C9A962' }}>•</span>
                     <span><strong>Most people plan 1-2 weeks in advance</strong> - not months ahead, not day-of</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-amber-600 font-bold">•</span>
+                    <span className="font-bold" style={{ color: '#C9A962' }}>•</span>
                     <span><strong>Confidence levels vary wildly</strong> - some nail their winery selection, others call it "total guesswork"</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-amber-600 font-bold">•</span>
+                    <span className="font-bold" style={{ color: '#C9A962' }}>•</span>
                     <span><strong>Google is the dominant starting point</strong>, but people use multiple sources to decide</span>
                   </li>
                 </ul>
@@ -452,20 +452,20 @@ export default function SurveyPage() {
 
               {/* Why Take This Survey */}
               <div className="space-y-4 mb-6">
-                <div className="flex items-center gap-3 text-stone-600">
-                  <svg className="w-5 h-5 text-amber-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="flex items-center gap-3" style={{ color: '#4A4A50' }}>
+                  <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="#C9A962">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   <span><strong>3 minutes</strong> - actually timed from real responses</span>
                 </div>
-                <div className="flex items-center gap-3 text-stone-600">
-                  <svg className="w-5 h-5 text-amber-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="flex items-center gap-3" style={{ color: '#4A4A50' }}>
+                  <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="#C9A962">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   <span><strong>100% anonymous</strong> - share honestly without any tracking</span>
                 </div>
-                <div className="flex items-center gap-3 text-stone-600">
-                  <svg className="w-5 h-5 text-amber-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="flex items-center gap-3" style={{ color: '#4A4A50' }}>
+                  <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="#C9A962">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
                   </svg>
                   <span><strong>Enter to win $50</strong> gift card - drawing closes Jan 20</span>
@@ -475,19 +475,22 @@ export default function SurveyPage() {
               {/* CTA Button */}
               <button
                 onClick={() => setHasStarted(true)}
-                className="w-full py-4 bg-amber-500 hover:bg-amber-600 text-white font-semibold rounded-xl transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl text-lg"
+                className="w-full py-4 text-white font-semibold rounded-xl transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl text-lg"
+                style={{ background: 'linear-gradient(135deg, #8B3A4D 0%, #6B2D3F 100%)' }}
+                onMouseEnter={(e) => e.currentTarget.style.background = 'linear-gradient(135deg, #6B2D3F 0%, #8B3A4D 100%)'}
+                onMouseLeave={(e) => e.currentTarget.style.background = 'linear-gradient(135deg, #8B3A4D 0%, #6B2D3F 100%)'}
               >
                 Share Your Experience 🍷
               </button>
 
-              <p className="text-xs text-stone-400 text-center mt-4">
+              <p className="text-xs text-center mt-4" style={{ color: '#B8A99A' }}>
                 Your honest feedback helps improve wine tourism for everyone
               </p>
             </div>
           </div>
 
           {/* Footer */}
-          <p className="text-center text-sm text-stone-400">
+          <p className="text-center text-sm" style={{ color: '#B8A99A' }}>
             Questions? Email hello@valleysomm.com
           </p>
         </div>
