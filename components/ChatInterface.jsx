@@ -120,7 +120,7 @@ export default function ChatInterface() {
       }))
 
       // Save conversation data update
-      if (sessionId && stepData.currentStep > prev.currentStep) {
+      if (sessionId && stepData.currentStep > (currentData.currentStep || 0)) {
         saveToDatabase('update_data', {
           session_id: sessionId,
           conversation_data: {
