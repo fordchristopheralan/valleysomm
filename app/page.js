@@ -395,12 +395,23 @@ export default function SurveyPage() {
   }
 
   // START SCREEN - WITH CORRECT BRANDING
+  // START SCREEN - WITH LOGO AND CORRECT BRANDING
   if (!hasStarted) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-amber-50 to-stone-100 p-6">
         <div className="max-w-2xl mx-auto">
-          {/* Header */}
+          {/* Header with Logo */}
           <div className="text-center mb-8">
+            {/* Logo */}
+            <div className="flex justify-center mb-4">
+              <svg width="60" height="60" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M40 8C40 8 20 28 20 48C20 59.046 28.954 68 40 68C51.046 68 60 59.046 60 48C60 28 40 8 40 8Z" stroke="#6B2D3F" strokeWidth="2" fill="none"/>
+                <path d="M30 52C30 52 35 44 40 44C45 44 50 52 50 52" stroke="#C9A962" strokeWidth="2" fill="none" strokeLinecap="round"/>
+                <path d="M40 68V76" stroke="#6B2D3F" strokeWidth="2"/>
+                <path d="M32 76H48" stroke="#6B2D3F" strokeWidth="2" strokeLinecap="round"/>
+              </svg>
+            </div>
+            
             <div className="text-sm font-medium mb-2" style={{ color: '#6B2D3F' }}>Valley Somm</div>
             <h1 className="text-3xl font-bold mb-2" style={{ color: '#2C2C30' }}>Wine Country Trip Survey</h1>
             <p style={{ color: '#4A4A50' }}>{"Help us understand what makes wine trips great (and what doesn't)"}</p>
