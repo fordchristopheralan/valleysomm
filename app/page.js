@@ -174,6 +174,41 @@ export default function SurveyPage() {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState(null)
   const [responseCount, setResponseCount] = useState(0)
+  const [sessionId, setSessionId] = useState(null)
+
+  // Initialize session and track landing page view
+  useEffect(() => {
+    const initSession = async () => {
+      // Get or create session ID
+      let sid = sessionStorage.getItem('survey_session_id')
+      if (!sid) {
+        sid = crypto.randomUUID()
+        sessionStorage.setItem('survey_session_id', sid)
+      }
+      setSessionId(sid)
+
+      // Track landing page view (only once per session)
+      if (!sessionStorage.getItem('landing_tracked')) {
+        const deviceType = /Mobile|Android|iPhone/i.test(navigator.userAgent) ? 'mobile' : 'desktop'
+        const urlParams = new URLSearchParams(window.location.search)
+        const source = urlParams.get('utm_source') || 'direct'
+
+        await supabase.from('survey_analytics').upsert({
+          session_id: sid,
+          landing_viewed: new Date().toISOString(),
+          device_type: deviceType,
+          source: source,
+          step_events: []
+        }, {
+          onConflict: 'session_id'
+        })
+
+        sessionStorage.setItem('landing_tracked', 'true')
+      }
+    }
+
+    initSession()
+  }, [])
 
   // Fetch response count for landing page
   useEffect(() => {
@@ -254,6 +289,14 @@ export default function SurveyPage() {
       ])
 
       if (supabaseError) throw supabaseError
+
+      // Update analytics session to mark as completed
+      if (sessionId) {
+        await supabase.from('survey_analytics').update({
+          completed: true,
+          completed_at: new Date().toISOString()
+        }).eq('session_id', sessionId)
+      }
 
       setSubmitted(true)
     } catch (err) {
@@ -495,9 +538,19 @@ export default function SurveyPage() {
 
             {/* CTA Button */}
             <button
-              onClick={() => {
+              onClick={async () => {
                 setStarted(true)
                 setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 0)
+                
+                // Track survey start
+                if (sessionId) {
+                  await supabase.from('survey_analytics').update({
+                    step_events: [{
+                      step: 1,
+                      timestamp: new Date().toISOString()
+                    }]
+                  }).eq('session_id', sessionId)
+                }
               }}
               className="w-full py-4 text-white font-semibold rounded-lg transition-all transform hover:scale-[1.02] shadow-lg"
               style={{ backgroundColor: '#6B2D3F' }}
@@ -646,9 +699,27 @@ export default function SurveyPage() {
             {currentStep < steps.length - 1 ? (
               <button
                 type="button"
-                onClick={() => {
+                onClick={async () => {
+                  const nextStep = currentStep + 2 // currentStep is 0-indexed, but steps are 1-4
                   setCurrentStep(currentStep + 1)
                   setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 0)
+                  
+                  // Track step progression
+                  if (sessionId) {
+                    const { data: currentData } = await supabase
+                      .from('survey_analytics')
+                      .select('step_events')
+                      .eq('session_id', sessionId)
+                      .single()
+                    
+                    const existingEvents = currentData?.step_events || []
+                    await supabase.from('survey_analytics').update({
+                      step_events: [...existingEvents, {
+                        step: nextStep,
+                        timestamp: new Date().toISOString()
+                      }]
+                    }).eq('session_id', sessionId)
+                  }
                 }}
                 disabled={submitting}
                 className="px-6 py-3 text-white font-medium rounded-lg transition-colors disabled:opacity-50"

@@ -56,7 +56,7 @@ export default function FunnelAnalytics() {
     }
 
     // Calculate funnel metrics
-    const total = sessions.length
+    const landingViews = sessions.filter(s => s.landing_viewed).length
     const started = sessions.filter(s => s.step_events?.length > 0).length
     
     // Count sessions that reached each step
@@ -73,16 +73,16 @@ export default function FunnelAnalytics() {
 
     const funnel = [
       { 
-        step: 'Started Survey', 
-        count: total, 
+        step: 'Landing Page', 
+        count: landingViews, 
         rate: 100,
-        detail: 'Total sessions initiated'
+        detail: 'Viewed landing screen'
       },
       { 
-        step: 'Step 1: Experience', 
+        step: 'Started Survey', 
         count: started, 
-        rate: total > 0 ? (started / total * 100) : 0,
-        detail: 'Answered first question'
+        rate: landingViews > 0 ? (started / landingViews * 100) : 0,
+        detail: 'Clicked "Start Survey"'
       },
       { 
         step: 'Step 2: Planning', 
@@ -115,9 +115,9 @@ export default function FunnelAnalytics() {
     // Calculate drop-off rates
     const dropOffs = [
       { 
-        step: 'Start → Step 1', 
-        dropOff: total > 0 ? ((total - started) / total * 100) : 0,
-        count: total - started
+        step: 'Landing → Start', 
+        dropOff: landingViews > 0 ? ((landingViews - started) / landingViews * 100) : 0,
+        count: landingViews - started
       },
       { 
         step: 'Step 1 → Step 2', 
@@ -148,18 +148,21 @@ export default function FunnelAnalytics() {
     sessions.forEach(s => {
       const source = s.source || 'Direct'
       if (!sourceCounts[source]) {
-        sourceCounts[source] = { total: 0, completed: 0 }
+        sourceCounts[source] = { total: 0, started: 0, completed: 0 }
       }
       sourceCounts[source].total++
+      if (s.step_events?.length > 0) sourceCounts[source].started++
       if (s.completed) sourceCounts[source].completed++
     })
 
     const sources = Object.entries(sourceCounts).map(([name, data]) => ({
       name,
-      total: data.total,
+      landing: data.total,
+      started: data.started,
       completed: data.completed,
-      rate: data.total > 0 ? (data.completed / data.total * 100).toFixed(1) : 0,
-    })).sort((a, b) => b.total - a.total)
+      startRate: data.total > 0 ? (data.started / data.total * 100).toFixed(1) : 0,
+      completeRate: data.total > 0 ? (data.completed / data.total * 100).toFixed(1) : 0,
+    })).sort((a, b) => b.landing - a.landing)
 
     setSourceData(sources)
 
@@ -168,17 +171,20 @@ export default function FunnelAnalytics() {
     sessions.forEach(s => {
       const device = s.device_type || 'unknown'
       if (!deviceCounts[device]) {
-        deviceCounts[device] = { total: 0, completed: 0 }
+        deviceCounts[device] = { total: 0, started: 0, completed: 0 }
       }
       deviceCounts[device].total++
+      if (s.step_events?.length > 0) deviceCounts[device].started++
       if (s.completed) deviceCounts[device].completed++
     })
 
     const devices = Object.entries(deviceCounts).map(([name, data]) => ({
       name,
       value: data.total,
+      started: data.started,
       completed: data.completed,
-      rate: data.total > 0 ? (data.completed / data.total * 100).toFixed(1) : 0,
+      startRate: data.total > 0 ? (data.started / data.total * 100).toFixed(1) : 0,
+      completeRate: data.total > 0 ? (data.completed / data.total * 100).toFixed(1) : 0,
     }))
 
     setDeviceData(devices)
