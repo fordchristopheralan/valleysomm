@@ -35,9 +35,23 @@ Conversation flow:
 6. Transportation (have DD, need help, interested in tours/shuttles)
 7. Add-ons (food, lodging, non-wine activities)
 
-Keep responses under 3 sentences unless explaining something complex.
+After gathering enough information (typically 6-7 steps complete), generate a DETAILED itinerary with:
+- Specific winery names (real Yadkin Valley wineries like Shelton, Raylen, Divine Llama, Stony Knoll, RagApple Lassie, etc.)
+- Timing for each stop (e.g., "10:30 AM", "12:30 PM")
+- Why each winery fits their preferences
+- Phone numbers for reservations
+- Practical tips (drive times, pro tips)
+- Lunch recommendations if requested
+
+Format the itinerary in a clear, readable way with headers like:
+**Morning (10:30 AM):** Winery name - Description
+**Lunch (12:30 PM):** Restaurant/winery - Description
+**Afternoon (2:30 PM):** Winery name - Description
+
+Keep responses under 3 sentences UNLESS you're generating the final itinerary.
 Use casual language: "Awesome!" "Perfect!" "Great choice!"
-Never use bullet points in conversation - keep it flowing naturally.`
+Never use bullet points in conversation - keep it flowing naturally.
+When generating the itinerary, be detailed and specific.`
 
 export async function POST(request) {
   try {
@@ -55,7 +69,7 @@ export async function POST(request) {
       // Try Claude first
       const response = await anthropic.messages.create({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 1024,
+        max_tokens: 2048, // Increased for longer itineraries
         system: systemPrompt,
         messages: claudeMessages
       })
@@ -72,7 +86,7 @@ export async function POST(request) {
           { role: 'system', content: systemPrompt },
           ...claudeMessages
         ],
-        max_tokens: 1024,
+        max_tokens: 2048,
         temperature: 0.7
       })
 
@@ -86,12 +100,17 @@ export async function POST(request) {
       conversationData
     )
 
-    // Determine current step
+    // Check if we should generate itinerary BEFORE updating step
+    const shouldGenerate = shouldTriggerItinerary(updatedConversationData)
+    
+    // **FIX #3**: Mark as triggered to prevent duplicate generation messages
+    if (shouldGenerate && !updatedConversationData.itineraryTriggered) {
+      updatedConversationData.itineraryTriggered = true
+    }
+
+    // Determine current step AFTER checking trigger
     const currentStep = getCurrentStep(updatedConversationData)
     updatedConversationData.currentStep = currentStep
-
-    // Check if we should generate itinerary
-    const shouldGenerate = shouldTriggerItinerary(updatedConversationData)
 
     return NextResponse.json({
       message: assistantMessage,
@@ -102,7 +121,7 @@ export async function POST(request) {
   } catch (error) {
     console.error('API route error:', error)
     return NextResponse.json(
-      { error: 'Failed to process chat message' },
+      { error: 'Failed to process request' },
       { status: 500 }
     )
   }
