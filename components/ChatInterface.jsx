@@ -24,8 +24,14 @@ export default function ChatInterface({ onClose }) {
   }, [messages])
 
   const currentStep = conversationData.currentStep || 0
-  const progress = ((currentStep + 1) / CONVERSATION_STEPS.length) * 100
-  const suggestions = getSuggestions(currentStep, conversationData)
+  const progress = Math.min(((currentStep + 1) / CONVERSATION_STEPS.length) * 100, 100)
+  
+  // Don't show suggestions if itinerary is being generated or already done
+  const showSuggestions = !isLoading && 
+                         !conversationData.itineraryTriggered && 
+                         !conversationData.itineraryGenerated
+  
+  const suggestions = showSuggestions ? getSuggestions(currentStep, conversationData) : []
 
   const sendMessage = async (messageText) => {
     if (!messageText.trim() || isLoading) return
@@ -207,7 +213,7 @@ export default function ChatInterface({ onClose }) {
       </div>
 
       {/* Suggested responses */}
-      {!isLoading && suggestions.length > 0 && !conversationData.itineraryGenerated && (
+      {suggestions.length > 0 && (
         <div className="px-4 pb-2">
           <div className="flex flex-wrap gap-2">
             {suggestions.map((suggestion, index) => (
