@@ -32,7 +32,6 @@ export default function ChatInterface() {
     const userMessage = messageText || input
     if (!userMessage.trim()) return
 
-    // Add user message to UI
     const newUserMessage = {
       role: 'user',
       content: userMessage,
@@ -43,7 +42,6 @@ export default function ChatInterface() {
     setLoading(true)
 
     try {
-      // Send to API
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -57,21 +55,17 @@ export default function ChatInterface() {
 
       const data = await response.json()
 
-      // Add assistant response
       setMessages(prev => [...prev, {
         role: 'assistant',
         content: data.message,
         timestamp: new Date()
       }])
 
-      // Update conversation data
       if (data.conversationData) {
         setConversationData(data.conversationData)
       }
 
-      // Check if itinerary should be generated
       if (data.shouldGenerateItinerary) {
-        // TODO: Trigger itinerary generation
         setMessages(prev => [...prev, {
           role: 'assistant',
           content: '🍷 Perfect! Generating your personalized Yadkin Valley itinerary...',
@@ -100,12 +94,10 @@ export default function ChatInterface() {
     sendMessage(suggestion)
   }
 
-  // Get suggested responses for current step
   const getSuggestions = () => {
     const lastMessage = messages[messages.length - 1]
     if (lastMessage?.role !== 'assistant' || loading) return []
 
-    // Parse step from conversation data
     const currentStep = conversationData.currentStep || 1
 
     const suggestionMap = {
@@ -125,7 +117,6 @@ export default function ChatInterface() {
 
   return (
     <div className="flex flex-col h-full max-w-4xl mx-auto">
-      {/* Progress Bar */}
       {conversationData.currentStep && (
         <div className="bg-white border-b border-stone-200 px-6 py-3">
           <div className="flex justify-between text-xs text-stone-500 mb-2">
@@ -141,7 +132,6 @@ export default function ChatInterface() {
         </div>
       )}
 
-      {/* Messages */}
       <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
         {messages.map((message, index) => (
           <div
@@ -178,7 +168,6 @@ export default function ChatInterface() {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Suggested Responses */}
       {suggestions.length > 0 && !loading && (
         <div className="px-6 py-3 bg-cream border-t border-stone-200">
           <p className="text-xs text-stone-500 mb-2">Quick replies:</p>
@@ -196,7 +185,6 @@ export default function ChatInterface() {
         </div>
       )}
 
-      {/* Input */}
       <div className="bg-white border-t border-stone-200 px-6 py-4">
         <form onSubmit={handleSubmit} className="flex gap-3">
           <input
