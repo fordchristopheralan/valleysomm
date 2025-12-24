@@ -1,296 +1,441 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
-import { CONVERSATION_STEPS, getSuggestions } from '@/lib/chatFlow'
+import { useState, useEffect, useRef } from 'react'
+import { detectCurrentStep } from '@/lib/chatFlow'
+import FeedbackForm from './FeedbackForm'
 
-export default function ChatInterface({ onClose }) {
-  const [messages, setMessages] = useState([
-    {
-      role: 'assistant',
-      content: "Welcome to ValleySomm! I'm your AI sommelier for Yadkin Valley wine adventures. I'll help you create the perfect wine country itinerary in just a few minutes. Ready to get started?"
-    }
-  ])
+export default function ChatInterface() {
+  const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
-  const [conversationData, setConversationData] = useState({})
+  const [loading, setLoading] = useState(false)
+  const [conversationData, setConversationData] = useState({
+    currentStep: 0,
+    stepsCompleted: [false, false, false, false, false, false, false],
+    when: null,
+    groupSize: null,
+    winePrefs: null,
+    vibe: null,
+    logistics: null,
+    transportation: null,
+    addons: null,
+    itineraryGenerated: false,
+  })
+  const [showFeedback, setShowFeedback] = useState(false)
+  const [sessionId, setSessionId] = useState(null)
+  const [sessionStartTime, setSessionStartTime] = useState(null)
   const messagesEndRef = useRef(null)
 
-  // NEW: Detect Quick Plan mode
+  // =========================================================================
+  // SESSION MANAGEMENT
+  // =========================================================================
+  
+  useEffect(() => {
+    // Create session on mount
+    const newSessionId = crypto.randomUUID()
+    setSessionId(newSessionId)
+    setSessionStartTime(Date.now())
+
+    // Save session start
+    saveToDatabase('start', {
+      session_id: newSessionId,
+      metadata: {
+        user_agent: navigator.userAgent,
+        referrer: document.referrer,
+      }
+    })
+  }, [])
+
+  // =========================================================================
+  // DETECT QUICK PLAN MODE
+  // =========================================================================
+  
   const isQuickPlan = messages.some(m => 
     m.role === 'user' && 
     /\b(tomorrow|today)\b/i.test(m.content)
   )
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }
-
+  // =========================================================================
+  // AUTO-SCROLL
+  // =========================================================================
+  
   useEffect(() => {
-    scrollToBottom()
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
-  // NEW: Auto-detect itinerary generation completion
+  // =========================================================================
+  // DETECT ITINERARY GENERATION & SHOW FEEDBACK
+  // =========================================================================
+  
   useEffect(() => {
     const lastMessage = messages[messages.length - 1]
     
-    // Detect if itinerary was generated (look for structured headers)
+    // Detect itinerary by looking for structured headers
     if (lastMessage?.role === 'assistant' && 
         lastMessage.content.includes('**Morning (') &&
         lastMessage.content.includes('**Afternoon (')) {
       
-      // Itinerary detected - mark as complete
+      if (!conversationData.itineraryGenerated) {
+        setConversationData(prev => ({
+          ...prev,
+          itineraryGenerated: true
+        }))
+
+        // Save itinerary generation
+        saveToDatabase('itinerary', {
+          session_id: sessionId,
+          itinerary_data: {
+            markdown: lastMessage.content,
+            share_token: crypto.randomUUID().slice(0, 8),
+          }
+        })
+
+        // Mark conversation complete
+        const duration = Math.floor((Date.now() - sessionStartTime) / 1000)
+        saveToDatabase('complete', {
+          session_id: sessionId,
+          metadata: {
+            duration_seconds: duration,
+            quick_plan_mode: isQuickPlan,
+          }
+        })
+
+        // Show feedback form after 2 seconds
+        setTimeout(() => setShowFeedback(true), 2000)
+      }
+    }
+  }, [messages, conversationData.itineraryGenerated, sessionId, sessionStartTime, isQuickPlan])
+
+  // =========================================================================
+  // UPDATE CONVERSATION DATA AFTER EACH MESSAGE
+  // =========================================================================
+  
+  useEffect(() => {
+    if (messages.length > 0) {
+      const lastMessage = messages[messages.length - 1]
+      const stepData = detectCurrentStep(messages, conversationData)
+      
       setConversationData(prev => ({
         ...prev,
-        itineraryGenerated: true
+        ...stepData,
       }))
+
+      // Save conversation data update
+      if (sessionId && stepData.currentStep > prev.currentStep) {
+        saveToDatabase('update_data', {
+          session_id: sessionId,
+          conversation_data: {
+            ...conversationData,
+            ...stepData,
+          }
+        })
+      }
     }
   }, [messages])
 
-  const currentStep = conversationData.currentStep || 0
-  const progress = Math.min(((currentStep + 1) / CONVERSATION_STEPS.length) * 100, 100)
+  // =========================================================================
+  // SAVE TO DATABASE
+  // =========================================================================
   
-  // Don't show suggestions if itinerary is being generated or already done
-  const showSuggestions = !isLoading && 
-                         !conversationData.itineraryTriggered && 
-                         !conversationData.itineraryGenerated
-  
-  const suggestions = showSuggestions ? getSuggestions(currentStep, conversationData) : []
-
-  const sendMessage = async (messageText) => {
-    if (!messageText.trim() || isLoading) return
-
-    // Don't send if itinerary already generated
-    if (conversationData.itineraryGenerated) {
-      return
+  const saveToDatabase = async (action, data) => {
+    try {
+      await fetch('/api/save-conversation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action, ...data })
+      })
+    } catch (error) {
+      console.error('Error saving to database:', error)
+      // Don't block user experience if logging fails
     }
+  }
 
-    const userMessage = { role: 'user', content: messageText }
-    const updatedMessages = [...messages, userMessage]
-    setMessages(updatedMessages)
+  // =========================================================================
+  // SAVE INDIVIDUAL MESSAGE
+  // =========================================================================
+  
+  const saveMessage = async (message, index, suggestionClicked = null) => {
+    if (!sessionId) return
+
+    await saveToDatabase('message', {
+      session_id: sessionId,
+      message_data: {
+        index,
+        role: message.role,
+        content: message.content,
+        suggestion_clicked: suggestionClicked,
+      }
+    })
+  }
+
+  // =========================================================================
+  // SEND MESSAGE
+  // =========================================================================
+  
+  const sendMessage = async (content, suggestionClicked = null) => {
+    if (!content.trim() || loading) return
+
+    const userMessage = { role: 'user', content }
+    const newMessages = [...messages, userMessage]
+    setMessages(newMessages)
     setInput('')
-    setIsLoading(true)
+    setLoading(true)
+
+    // Save user message
+    await saveMessage(userMessage, newMessages.length - 1, suggestionClicked)
 
     try {
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messages: updatedMessages,
-          conversationData
-        })
+        body: JSON.stringify({ 
+          messages: newMessages,
+          conversationData 
+        }),
       })
 
       const data = await response.json()
+      const assistantMessage = { role: 'assistant', content: data.message }
+      const finalMessages = [...newMessages, assistantMessage]
+      
+      setMessages(finalMessages)
 
-      // Add AI response
-      setMessages([...updatedMessages, {
-        role: 'assistant',
-        content: data.message
-      }])
+      // Save assistant message
+      await saveMessage(assistantMessage, finalMessages.length - 1)
 
-      // Update conversation data
-      setConversationData(data.conversationData)
-
-      // If itinerary should be generated, trigger AI to create it
-      if (data.shouldGenerateItinerary && !conversationData.itineraryTriggered) {
-        // Add the "Generating..." message
-        setMessages(prev => [...prev, {
-          role: 'assistant',
-          content: '🍷 Perfect! Generating your personalized Yadkin Valley itinerary...'
-        }])
-        
-        // Mark as triggered to prevent duplicates
-        setConversationData(prev => ({ ...prev, itineraryTriggered: true }))
-        
-        // Actually generate the itinerary by sending a final message to AI
-        setTimeout(async () => {
-          try {
-            const generateResponse = await fetch('/api/chat', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                messages: [
-                  ...updatedMessages,
-                  { role: 'assistant', content: data.message },
-                  { 
-                    role: 'user', 
-                    content: 'Please generate my complete itinerary now with specific winery names, times, and details.' 
-                  }
-                ],
-                conversationData: { ...data.conversationData, itineraryTriggered: true }
-              })
-            })
-            
-            const itineraryData = await generateResponse.json()
-            
-            // Add the full itinerary
-            setMessages(prev => [...prev, {
-              role: 'assistant',
-              content: itineraryData.message
-            }])
-            
-            // Mark as fully generated
-            setConversationData(prev => ({
-              ...prev,
-              itineraryGenerated: true
-            }))
-            
-          } catch (error) {
-            console.error('Error generating itinerary:', error)
-            setMessages(prev => [...prev, {
-              role: 'assistant',
-              content: "I had trouble generating your itinerary. Let me try again - could you tell me one more time what kind of experience you're looking for?"
-            }])
-          }
-        }, 1000)
+      // Update suggestions
+      if (data.suggestions) {
+        setConversationData(prev => ({
+          ...prev,
+          currentSuggestions: data.suggestions
+        }))
       }
-
     } catch (error) {
       console.error('Error:', error)
-      setMessages(prev => [...prev, {
+      setMessages([...newMessages, {
         role: 'assistant',
-        content: "I'm having trouble connecting right now. Please try again!"
+        content: 'Sorry, something went wrong. Please try again.'
       }])
     } finally {
-      setIsLoading(false)
+      setLoading(false)
     }
   }
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    sendMessage(input)
-  }
+  // =========================================================================
+  // INITIAL GREETING
+  // =========================================================================
+  
+  useEffect(() => {
+    if (messages.length === 0) {
+      const greeting = {
+        role: 'assistant',
+        content: "Welcome to ValleySomm! I'm your AI sommelier for Yadkin Valley wine adventures. I'll help you create the perfect wine country itinerary in just a few minutes.\n\nWhen are you planning to visit? Are we talking this weekend, next month, or just dreaming ahead for now?"
+      }
+      setMessages([greeting])
+      saveMessage(greeting, 0)
+      
+      setConversationData(prev => ({
+        ...prev,
+        currentSuggestions: [
+          "This weekend",
+          "Next month",
+          "Next Saturday"
+        ]
+      }))
+    }
+  }, [])
 
+  // =========================================================================
+  // SUGGESTION HANDLING
+  // =========================================================================
+  
   const handleSuggestionClick = (suggestion) => {
-    sendMessage(suggestion)
+    if (conversationData.itineraryGenerated || loading) return
+    sendMessage(suggestion, suggestion)
   }
 
+  // =========================================================================
+  // STEP LABELS
+  // =========================================================================
+  
+  const stepLabels = [
+    'When',
+    'Group Size',
+    'Wine Preferences',
+    'Vibe',
+    'Logistics',
+    'Transportation',
+    'Add-ons'
+  ]
+
+  // =========================================================================
+  // RENDER
+  // =========================================================================
+  
   return (
-    <div className="flex flex-col h-full bg-white">
-      {/* Header with progress */}
-      <div className="bg-gradient-to-r from-wine-burgundy to-wine-deep text-white p-4 rounded-t-2xl">
-        <div className="flex justify-between items-center mb-2">
-          <h3 className="font-semibold">
-            {/* UPDATED: Hide step counter in Quick Plan mode */}
-            {!isQuickPlan && (
-              <>Step {Math.min(currentStep + 1, CONVERSATION_STEPS.length)} of {CONVERSATION_STEPS.length}</>
-            )}
-            {isQuickPlan && 'Quick Plan'}
-          </h3>
-          <button 
-            onClick={onClose}
-            className="text-white hover:text-cream transition-colors"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+    <div className="flex flex-col h-screen bg-gradient-to-br from-amber-50 to-stone-100">
+      {/* Header */}
+      <div className="bg-white border-b border-stone-200 px-6 py-4 shadow-sm">
+        <div className="max-w-4xl mx-auto flex justify-between items-center">
+          <div>
+            <h1 
+              className="text-2xl font-medium" 
+              style={{ 
+                fontFamily: 'Cormorant Garamond, serif',
+                color: '#6B2D3F'
+              }}
+            >
+              Valley<span style={{ color: '#2D4A3E' }}>Somm</span>
+            </h1>
+            <p className="text-xs text-stone-500">Your AI Sommelier for Yadkin Valley</p>
+          </div>
+          <div className="text-right">
+            <div className="text-sm font-medium text-stone-600">
+              {!isQuickPlan && !conversationData.itineraryGenerated && (
+                <>Step {conversationData.currentStep + 1} of 7</>
+              )}
+              {isQuickPlan && !conversationData.itineraryGenerated && (
+                <span className="text-amber-600">Quick Plan</span>
+              )}
+              {conversationData.itineraryGenerated && (
+                <span className="text-green-600">✓ Complete</span>
+              )}
+            </div>
+            <div className="text-xs text-stone-400">
+              {!conversationData.itineraryGenerated && stepLabels[conversationData.currentStep]}
+              {conversationData.itineraryGenerated && 'Itinerary Ready'}
+            </div>
+          </div>
         </div>
-        {/* UPDATED: Show progress bar for both modes */}
-        <div className="w-full bg-wine-deep/30 rounded-full h-2">
-          <div 
-            className="bg-gold-accent h-2 rounded-full transition-all duration-500"
-            style={{ width: `${Math.min(progress, 100)}%` }}
-          />
-        </div>
-        {/* UPDATED: Only show step title in normal mode */}
-        {!isQuickPlan && currentStep < CONVERSATION_STEPS.length && (
-          <p className="text-sm mt-2 text-cream/90">
-            {CONVERSATION_STEPS[currentStep]?.title}
-          </p>
-        )}
-        {isQuickPlan && (
-          <p className="text-sm mt-2 text-cream/90">
-            Fast planning mode
-          </p>
-        )}
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.map((message, index) => (
-          <div
-            key={index}
-            className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-          >
+      <div className="flex-1 overflow-y-auto px-6 py-8">
+        <div className="max-w-4xl mx-auto space-y-6">
+          {messages.map((message, index) => (
             <div
-              className={`max-w-[80%] rounded-2xl px-4 py-3 ${
-                message.role === 'user'
-                  ? 'bg-wine-burgundy text-white'
-                  : 'bg-stone-100 text-stone-800'
-              }`}
+              key={index}
+              className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
-              <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-              <p className="text-xs mt-1 opacity-60">
-                {new Date().toLocaleTimeString('en-US', { 
-                  hour: 'numeric', 
-                  minute: '2-digit'
-                })}
-              </p>
-            </div>
-          </div>
-        ))}
-
-        {isLoading && (
-          <div className="flex justify-start">
-            <div className="bg-stone-100 rounded-2xl px-4 py-3">
-              <div className="flex space-x-2">
-                <div className="w-2 h-2 bg-stone-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                <div className="w-2 h-2 bg-stone-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                <div className="w-2 h-2 bg-stone-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+              <div
+                className={`max-w-[80%] rounded-2xl px-6 py-4 ${
+                  message.role === 'user'
+                    ? 'bg-gradient-to-br from-[#6B2D3F] to-[#8B3A4D] text-white'
+                    : 'bg-white shadow-sm border border-stone-200 text-stone-800'
+                }`}
+              >
+                <div className="whitespace-pre-wrap text-sm leading-relaxed">
+                  {message.content.split('\n').map((line, i) => {
+                    // Handle markdown-style headers
+                    if (line.startsWith('**') && line.endsWith('**')) {
+                      return (
+                        <div key={i} className="font-semibold mt-3 mb-1">
+                          {line.replace(/\*\*/g, '')}
+                        </div>
+                      )
+                    }
+                    // Handle markdown links
+                    if (line.includes('📞')) {
+                      return <div key={i} className="text-sm opacity-80 mt-1">{line}</div>
+                    }
+                    // Regular text
+                    return line ? <div key={i}>{line}</div> : <div key={i} className="h-2" />
+                  })}
+                </div>
+                <div className="text-xs opacity-60 mt-2">
+                  {new Date().toLocaleTimeString('en-US', { 
+                    hour: 'numeric', 
+                    minute: '2-digit',
+                    hour12: true 
+                  })}
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          ))}
 
-        <div ref={messagesEndRef} />
+          {loading && (
+            <div className="flex justify-start">
+              <div className="bg-white shadow-sm border border-stone-200 rounded-2xl px-6 py-4">
+                <div className="flex gap-2">
+                  <div className="w-2 h-2 bg-[#6B2D3F] rounded-full animate-bounce"></div>
+                  <div className="w-2 h-2 bg-[#8B3A4D] rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                  <div className="w-2 h-2 bg-[#C4637A] rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div ref={messagesEndRef} />
+        </div>
       </div>
 
-      {/* Suggested responses */}
-      {suggestions.length > 0 && (
-        <div className="px-4 pb-2">
-          <div className="flex flex-wrap gap-2">
-            {suggestions.map((suggestion, index) => (
+      {/* Suggestions */}
+      {!conversationData.itineraryGenerated && conversationData.currentSuggestions && conversationData.currentSuggestions.length > 0 && (
+        <div className="px-6 py-3 bg-white border-t border-stone-200">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-xs text-stone-500 mb-2">Quick replies:</div>
+            <div className="flex flex-wrap gap-2">
+              {conversationData.currentSuggestions.map((suggestion, index) => (
+                <button
+                  key={index}
+                  onClick={() => handleSuggestionClick(suggestion)}
+                  disabled={loading}
+                  className="px-4 py-2 bg-stone-100 hover:bg-[#6B2D3F] hover:text-white text-stone-700 text-sm rounded-full transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {suggestion}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Input */}
+      <div className="bg-white border-t border-stone-200 px-6 py-4">
+        <div className="max-w-4xl mx-auto">
+          {conversationData.itineraryGenerated ? (
+            <div className="text-center py-4">
+              <p className="text-stone-600 mb-2">Your itinerary is ready! Close this chat to explore or start planning another trip.</p>
               <button
-                key={index}
-                onClick={() => handleSuggestionClick(suggestion)}
-                className="px-3 py-1.5 text-sm bg-cream hover:bg-warm-beige text-wine-burgundy rounded-full transition-colors border border-warm-beige"
+                onClick={() => window.location.reload()}
+                className="px-6 py-2 bg-[#6B2D3F] hover:bg-[#8B3A4D] text-white rounded-lg transition-colors"
               >
-                {suggestion}
+                Plan Another Trip
               </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Input - UPDATED: Lock when itinerary is generated */}
-      {!conversationData.itineraryGenerated && (
-        <form onSubmit={handleSubmit} className="p-4 border-t border-stone-200">
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Type your message..."
-              disabled={isLoading}
-              className="flex-1 px-4 py-3 border border-stone-300 rounded-full focus:outline-none focus:ring-2 focus:ring-wine-burgundy focus:border-transparent disabled:bg-stone-100 disabled:cursor-not-allowed"
-            />
-            <button
-              type="submit"
-              disabled={!input.trim() || isLoading}
-              className="px-6 py-3 bg-wine-burgundy hover:bg-wine-deep text-white rounded-full font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            </div>
+          ) : (
+            <form
+              onSubmit={(e) => {
+                e.preventDefault()
+                sendMessage(input)
+              }}
+              className="flex gap-3"
             >
-              Send
-            </button>
-          </div>
-        </form>
-      )}
-
-      {/* UPDATED: Completion message */}
-      {conversationData.itineraryGenerated && (
-        <div className="p-4 bg-cream text-center text-sm text-stone-600">
-          Your itinerary is ready! Close this chat to explore or start planning another trip.
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Type your answer..."
+                disabled={loading}
+                className="flex-1 px-6 py-3 rounded-full border border-stone-300 focus:border-[#6B2D3F] focus:ring-2 focus:ring-[#6B2D3F]/20 outline-none disabled:bg-stone-100 disabled:cursor-not-allowed"
+              />
+              <button
+                type="submit"
+                disabled={!input.trim() || loading}
+                className="px-8 py-3 bg-gradient-to-br from-[#6B2D3F] to-[#8B3A4D] hover:from-[#8B3A4D] hover:to-[#6B2D3F] text-white rounded-full font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+              >
+                Send
+              </button>
+            </form>
+          )}
         </div>
+      </div>
+
+      {/* Feedback Form */}
+      {showFeedback && (
+        <FeedbackForm 
+          sessionId={sessionId}
+          onClose={() => setShowFeedback(false)}
+        />
       )}
     </div>
   )
