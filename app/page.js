@@ -456,17 +456,44 @@ export default function SurveyPage() {
     return (
       <div className="min-h-screen flex items-center justify-center p-6" style={{ background: 'linear-gradient(to bottom right, #FAF7F2, #E8E0D5)' }}>
         <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md text-center">
-          <div className="text-5xl mb-4">🍷</div>
+          {/* Logo */}
+          <div className="flex justify-center mb-4">
+            <svg width="60" height="60" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M40 8C40 8 20 28 20 48C20 59.046 28.954 68 40 68C51.046 68 60 59.046 60 48C60 28 40 8 40 8Z" stroke="#6B2D3F" strokeWidth="2" fill="none"/>
+              <path d="M30 52C30 52 35 44 40 44C45 44 50 52 50 52" stroke="#C9A962" strokeWidth="2" fill="none" strokeLinecap="round"/>
+              <path d="M40 68V76" stroke="#6B2D3F" strokeWidth="2"/>
+              <path d="M32 76H48" stroke="#6B2D3F" strokeWidth="2" strokeLinecap="round"/>
+            </svg>
+          </div>
+          
           <h2 className="text-2xl font-bold mb-2" style={{ color: '#2C2C30' }}>Thank you!</h2>
-          <p className="mb-4" style={{ color: '#4A4A50' }}>
+          <p className="mb-6 leading-relaxed" style={{ color: '#4A4A50' }}>
             Your insights will help make wine country trips better for everyone. Cheers to that.
           </p>
+          
           {answers.email && (wantsDrawing || wantsResults) && (
-            <div className="text-sm space-y-1" style={{ color: '#4A4A50' }}>
-              {wantsDrawing && <p>{"You're entered in the gift card drawing."}</p>}
-              {wantsResults && <p>{"We'll send you the results when they're ready."}</p>}
+            <div className="text-sm mb-6 p-4 rounded-lg" style={{ backgroundColor: '#FAF7F2', color: '#4A4A50' }}>
+              {wantsDrawing && <p className="mb-1">✓ You're entered in the gift card drawing</p>}
+              {wantsResults && <p>✓ We'll send you the results when ready</p>}
             </div>
           )}
+
+          {/* CTA - Explore ValleySomm */}
+          <div className="space-y-3">
+            <a
+              href="/"
+              className="block w-full py-3 px-6 text-white font-semibold rounded-xl transition-all shadow-lg text-center"
+              style={{ background: 'linear-gradient(135deg, #8B3A4D 0%, #6B2D3F 100%)' }}
+            >
+              Explore Yadkin Valley Wineries
+            </a>
+            <p className="text-xs" style={{ color: '#B8A99A' }}>
+              Learn more about ValleySomm at{' '}
+              <a href="/" className="underline" style={{ color: '#6B2D3F' }}>
+                valleysomm.com
+              </a>
+            </p>
+          </div>
         </div>
       </div>
     )
@@ -585,14 +612,22 @@ export default function SurveyPage() {
   const currentQuestions = steps[currentStep].questions.map((i) => questions[i])
 
   return (
-    <div className="min-h-screen p-6" style={{ background: 'linear-gradient(to bottom right, #FAF7F2, #E8E0D5)' }}>
+    <div className="min-h-screen p-4 sm:p-6" style={{ background: 'linear-gradient(to bottom right, #FAF7F2, #E8E0D5)' }}>
       <div className="max-w-2xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="text-sm font-medium mb-2" style={{ color: '#6B2D3F' }}>Valley Somm</div>
-          <h1 className="text-3xl font-bold mb-2" style={{ color: '#2C2C30' }}>Wine Country Trip Survey</h1>
-          <p style={{ color: '#4A4A50' }}>{"Help us understand what makes wine trips great (and what doesn't)"}</p>
-          <p className="text-sm mt-1" style={{ color: '#4A4A50' }}>3 minutes • Anonymous • Enter by Jan 20 to win a $50 gift card</p>
+        {/* Header with Logo */}
+        <div className="text-center mb-6">
+          {/* Logo */}
+          <div className="flex justify-center mb-3">
+            <svg width="40" height="40" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" className="sm:w-[50px] sm:h-[50px]">
+              <path d="M40 8C40 8 20 28 20 48C20 59.046 28.954 68 40 68C51.046 68 60 59.046 60 48C60 28 40 8 40 8Z" stroke="#6B2D3F" strokeWidth="2" fill="none"/>
+              <path d="M30 52C30 52 35 44 40 44C45 44 50 52 50 52" stroke="#C9A962" strokeWidth="2" fill="none" strokeLinecap="round"/>
+              <path d="M40 68V76" stroke="#6B2D3F" strokeWidth="2"/>
+              <path d="M32 76H48" stroke="#6B2D3F" strokeWidth="2" strokeLinecap="round"/>
+            </svg>
+          </div>
+          <div className="text-xs sm:text-sm font-medium mb-1" style={{ color: '#6B2D3F' }}>Valley Somm</div>
+          <h1 className="text-xl sm:text-2xl font-bold mb-1" style={{ color: '#2C2C30' }}>Wine Country Trip Survey</h1>
+          <p className="text-xs sm:text-sm" style={{ color: '#4A4A50' }}>3 minutes • Anonymous • Win $50 gift card</p>
         </div>
 
         {/* Progress */}
