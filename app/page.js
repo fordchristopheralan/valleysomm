@@ -193,15 +193,18 @@ export default function SurveyPage() {
         const urlParams = new URLSearchParams(window.location.search)
         const source = urlParams.get('utm_source') || 'direct'
 
-        await supabase.from('survey_analytics').upsert({
+        const { error } = await supabase.from('survey_analytics').upsert({
           session_id: sid,
           landing_viewed: new Date().toISOString(),
           device_type: deviceType,
-          source: source,
-          step_events: []
+          source: source
         }, {
           onConflict: 'session_id'
         })
+        
+        if (error) {
+          console.error('Analytics tracking error:', error)
+        }
 
         sessionStorage.setItem('landing_tracked', 'true')
       }
