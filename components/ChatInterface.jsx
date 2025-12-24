@@ -114,13 +114,15 @@ export default function ChatInterface() {
       const lastMessage = messages[messages.length - 1]
       const stepData = detectCurrentStep(messages, conversationData)
       
+      const previousStep = conversationData.currentStep || 0
+      
       setConversationData(prev => ({
         ...prev,
         ...stepData,
       }))
 
       // Save conversation data update
-      if (sessionId && stepData.currentStep > (currentData.currentStep || 0)) {
+      if (sessionId && stepData.currentStep > previousStep) {
         saveToDatabase('update_data', {
           session_id: sessionId,
           conversation_data: {
