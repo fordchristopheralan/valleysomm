@@ -15,12 +15,35 @@ export default function ChatInterface({ onClose }) {
   const [conversationData, setConversationData] = useState({})
   const messagesEndRef = useRef(null)
 
+  // NEW: Detect Quick Plan mode
+  const isQuickPlan = messages.some(m => 
+    m.role === 'user' && 
+    /\b(tomorrow|today)\b/i.test(m.content)
+  )
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
 
   useEffect(() => {
     scrollToBottom()
+  }, [messages])
+
+  // NEW: Auto-detect itinerary generation completion
+  useEffect(() => {
+    const lastMessage = messages[messages.length - 1]
+    
+    // Detect if itinerary was generated (look for structured headers)
+    if (lastMessage?.role === 'assistant' && 
+        lastMessage.content.includes('**Morning (') &&
+        lastMessage.content.includes('**Afternoon (')) {
+      
+      // Itinerary detected - mark as complete
+      setConversationData(prev => ({
+        ...prev,
+        itineraryGenerated: true
+      }))
+    }
   }, [messages])
 
   const currentStep = conversationData.currentStep || 0
@@ -36,7 +59,7 @@ export default function ChatInterface({ onClose }) {
   const sendMessage = async (messageText) => {
     if (!messageText.trim() || isLoading) return
 
-    // **FIX #4**: Don't send if itinerary already generated
+    // Don't send if itinerary already generated
     if (conversationData.itineraryGenerated) {
       return
     }
@@ -68,7 +91,7 @@ export default function ChatInterface({ onClose }) {
       // Update conversation data
       setConversationData(data.conversationData)
 
-      // **FIX #5**: If itinerary should be generated, trigger AI to create it
+      // If itinerary should be generated, trigger AI to create it
       if (data.shouldGenerateItinerary && !conversationData.itineraryTriggered) {
         // Add the "Generating..." message
         setMessages(prev => [...prev, {
@@ -148,7 +171,11 @@ export default function ChatInterface({ onClose }) {
       <div className="bg-gradient-to-r from-wine-burgundy to-wine-deep text-white p-4 rounded-t-2xl">
         <div className="flex justify-between items-center mb-2">
           <h3 className="font-semibold">
-            Step {Math.min(currentStep + 1, CONVERSATION_STEPS.length)} of {CONVERSATION_STEPS.length}
+            {/* UPDATED: Hide step counter in Quick Plan mode */}
+            {!isQuickPlan && (
+              <>Step {Math.min(currentStep + 1, CONVERSATION_STEPS.length)} of {CONVERSATION_STEPS.length}</>
+            )}
+            {isQuickPlan && 'Quick Plan'}
           </h3>
           <button 
             onClick={onClose}
@@ -159,15 +186,22 @@ export default function ChatInterface({ onClose }) {
             </svg>
           </button>
         </div>
+        {/* UPDATED: Show progress bar for both modes */}
         <div className="w-full bg-wine-deep/30 rounded-full h-2">
           <div 
             className="bg-gold-accent h-2 rounded-full transition-all duration-500"
             style={{ width: `${Math.min(progress, 100)}%` }}
           />
         </div>
-        {currentStep < CONVERSATION_STEPS.length && (
+        {/* UPDATED: Only show step title in normal mode */}
+        {!isQuickPlan && currentStep < CONVERSATION_STEPS.length && (
           <p className="text-sm mt-2 text-cream/90">
             {CONVERSATION_STEPS[currentStep]?.title}
+          </p>
+        )}
+        {isQuickPlan && (
+          <p className="text-sm mt-2 text-cream/90">
+            Fast planning mode
           </p>
         )}
       </div>
@@ -229,7 +263,7 @@ export default function ChatInterface({ onClose }) {
         </div>
       )}
 
-      {/* Input */}
+      {/* Input - UPDATED: Lock when itinerary is generated */}
       {!conversationData.itineraryGenerated && (
         <form onSubmit={handleSubmit} className="p-4 border-t border-stone-200">
           <div className="flex gap-2">
@@ -252,6 +286,7 @@ export default function ChatInterface({ onClose }) {
         </form>
       )}
 
+      {/* UPDATED: Completion message */}
       {conversationData.itineraryGenerated && (
         <div className="p-4 bg-cream text-center text-sm text-stone-600">
           Your itinerary is ready! Close this chat to explore or start planning another trip.
