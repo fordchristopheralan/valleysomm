@@ -418,7 +418,7 @@ export default function FeedbackForm({ sessionId, onClose }) {
               </label>
               <div className="space-y-2">
                 {[
-                  { value: true, label: 'Yes, I'd want to make changes' },
+                  { value: true, label: "Yes, I'd want to make changes" },
                   { value: false, label: 'No, just give me the plan' },
                 ].map(opt => (
                   <label key={opt.value.toString()} className="flex items-center gap-3 p-3 rounded-lg border border-stone-200 hover:bg-stone-50 cursor-pointer">
