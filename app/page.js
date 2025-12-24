@@ -166,8 +166,60 @@ const steps = [
   { title: 'Insights & Wrap-up', questions: [8, 9, 10, 11, 12] },
 ]
 
+// Wine glass progress component
+function WineGlassProgress({ progress }) {
+  return (
+    <div className="flex justify-center mb-8">
+      <svg width="80" height="100" viewBox="0 0 80 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        {/* Glass outline */}
+        <path 
+          d="M40 10C40 10 20 30 20 50C20 61.046 28.954 70 40 70C51.046 70 60 61.046 60 50C60 30 40 10 40 10Z" 
+          stroke="#6B2D3F" 
+          strokeWidth="2" 
+          fill="none"
+        />
+        
+        {/* Wine fill - clips to glass shape */}
+        <defs>
+          <clipPath id="glassClip">
+            <path d="M40 10C40 10 20 30 20 50C20 61.046 28.954 70 40 70C51.046 70 60 61.046 60 50C60 30 40 10 40 10Z" />
+          </clipPath>
+        </defs>
+        
+        {/* Animated wine fill */}
+        <rect
+          x="20"
+          y={70 - (progress * 60)}
+          width="40"
+          height={progress * 60}
+          fill="#8B3A4D"
+          clipPath="url(#glassClip)"
+          style={{ transition: 'all 0.5s ease' }}
+        />
+        
+        {/* Stem */}
+        <path d="M40 70V88" stroke="#6B2D3F" strokeWidth="2"/>
+        
+        {/* Base */}
+        <path d="M32 88H48" stroke="#6B2D3F" strokeWidth="2" strokeLinecap="round"/>
+        
+        {/* Progress percentage */}
+        <text 
+          x="40" 
+          y="96" 
+          textAnchor="middle" 
+          fontSize="10" 
+          fill="#6B2D3F"
+          fontWeight="500"
+        >
+          {Math.round(progress * 100)}%
+        </text>
+      </svg>
+    </div>
+  )
+}
+
 export default function SurveyPage() {
-  const [hasStarted, setHasStarted] = useState(false)
   const [currentStep, setCurrentStep] = useState(0)
   const [answers, setAnswers] = useState({})
   const [submitted, setSubmitted] = useState(false)
@@ -205,6 +257,8 @@ export default function SurveyPage() {
   }
 
   const handleSubmit = async () => {
+    if (submitting) return // Prevent double-submission
+    
     setSubmitting(true)
     setError(null)
 
@@ -243,11 +297,11 @@ export default function SurveyPage() {
     } catch (err) {
       console.error('Submission error:', err)
       setError('Something went wrong. Please try again.')
-    } finally {
-      setSubmitting(false)
+      setSubmitting(false) // Re-enable button on error
     }
   }
 
+  // Check if an "other" option is selected for a given question
   const isOtherSelected = (questionId, optionName) => {
     const answer = answers[questionId]
     if (Array.isArray(answer)) {
@@ -263,22 +317,14 @@ export default function SurveyPage() {
           <div className="space-y-2">
             {q.options.map((opt) => (
               <div key={opt}>
-                <label className="flex items-center gap-3 p-3 rounded-lg border transition-all cursor-pointer" 
-                  style={{ 
-                    borderColor: (answers[q.id] || []).includes(opt) ? '#8B3A4D' : '#E8E0D5',
-                    backgroundColor: (answers[q.id] || []).includes(opt) ? '#FAF7F2' : 'transparent'
-                  }}>
+                <label className="flex items-center gap-3 p-3 rounded-lg border border-stone-200 hover:border-amber-300 hover:bg-amber-50 cursor-pointer transition-all">
                   <input
                     type="checkbox"
                     checked={(answers[q.id] || []).includes(opt)}
                     onChange={() => handleMultiSelect(q.id, opt)}
-                    className="w-4 h-4 rounded focus:ring-2"
-                    style={{ 
-                      accentColor: '#8B3A4D',
-                      '--tw-ring-color': '#C9A962'
-                    }}
+                    className="w-4 h-4 text-amber-600 rounded focus:ring-amber-500"
                   />
-                  <span style={{ color: '#2C2C30' }}>{opt}</span>
+                  <span className="text-stone-700">{opt}</span>
                 </label>
                 {q.otherFields?.[opt] && isOtherSelected(q.id, opt) && (
                   <input
@@ -286,14 +332,8 @@ export default function SurveyPage() {
                     value={answers[q.otherFields[opt].id] || ''}
                     onChange={(e) => handleText(q.otherFields[opt].id, e.target.value)}
                     placeholder={q.otherFields[opt].placeholder}
-                    className="w-full mt-2 ml-7 p-3 rounded-lg border outline-none"
-                    style={{ 
-                      width: 'calc(100% - 1.75rem)',
-                      borderColor: '#E8E0D5',
-                      color: '#2C2C30'
-                    }}
-                    onFocus={(e) => e.target.style.borderColor = '#8B3A4D'}
-                    onBlur={(e) => e.target.style.borderColor = '#E8E0D5'}
+                    className="w-full mt-2 ml-7 p-3 rounded-lg border border-stone-200 focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none text-stone-700 placeholder:text-stone-400"
+                    style={{ width: 'calc(100% - 1.75rem)' }}
                   />
                 )}
               </div>
@@ -305,20 +345,15 @@ export default function SurveyPage() {
           <div className="space-y-2">
             {q.options.map((opt) => (
               <div key={opt}>
-                <label className="flex items-center gap-3 p-3 rounded-lg border transition-all cursor-pointer"
-                  style={{ 
-                    borderColor: answers[q.id] === opt ? '#8B3A4D' : '#E8E0D5',
-                    backgroundColor: answers[q.id] === opt ? '#FAF7F2' : 'transparent'
-                  }}>
+                <label className="flex items-center gap-3 p-3 rounded-lg border border-stone-200 hover:border-amber-300 hover:bg-amber-50 cursor-pointer transition-all">
                   <input
                     type="radio"
                     name={q.id}
                     checked={answers[q.id] === opt}
                     onChange={() => handleSingle(q.id, opt)}
-                    className="w-4 h-4"
-                    style={{ accentColor: '#8B3A4D' }}
+                    className="w-4 h-4 text-amber-600 focus:ring-amber-500"
                   />
-                  <span style={{ color: '#2C2C30' }}>{opt}</span>
+                  <span className="text-stone-700">{opt}</span>
                 </label>
                 {q.otherFields?.[opt] && isOtherSelected(q.id, opt) && (
                   <input
@@ -326,14 +361,8 @@ export default function SurveyPage() {
                     value={answers[q.otherFields[opt].id] || ''}
                     onChange={(e) => handleText(q.otherFields[opt].id, e.target.value)}
                     placeholder={q.otherFields[opt].placeholder}
-                    className="w-full mt-2 ml-7 p-3 rounded-lg border outline-none"
-                    style={{ 
-                      width: 'calc(100% - 1.75rem)',
-                      borderColor: '#E8E0D5',
-                      color: '#2C2C30'
-                    }}
-                    onFocus={(e) => e.target.style.borderColor = '#8B3A4D'}
-                    onBlur={(e) => e.target.style.borderColor = '#E8E0D5'}
+                    className="w-full mt-2 ml-7 p-3 rounded-lg border border-stone-200 focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none text-stone-700 placeholder:text-stone-400"
+                    style={{ width: 'calc(100% - 1.75rem)' }}
                   />
                 )}
               </div>
@@ -346,19 +375,13 @@ export default function SurveyPage() {
             value={answers[q.id] || ''}
             onChange={(e) => handleText(q.id, e.target.value)}
             placeholder={q.placeholder}
-            className="w-full h-32 p-4 rounded-lg border outline-none resize-none"
-            style={{ 
-              borderColor: '#E8E0D5',
-              color: '#2C2C30'
-            }}
-            onFocus={(e) => e.target.style.borderColor = '#8B3A4D'}
-            onBlur={(e) => e.target.style.borderColor = '#E8E0D5'}
+            className="w-full h-32 p-4 rounded-lg border border-stone-200 focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none resize-none text-stone-700 placeholder:text-stone-400"
           />
         )
       case 'scale':
         return (
           <div className="space-y-3">
-            <div className="flex justify-between text-sm" style={{ color: '#4A4A50' }}>
+            <div className="flex justify-between text-sm text-stone-500">
               <span>{q.lowLabel}</span>
               <span>{q.highLabel}</span>
             </div>
@@ -368,21 +391,11 @@ export default function SurveyPage() {
                   key={n}
                   type="button"
                   onClick={() => handleScale(q.id, n)}
-                  className="flex-1 py-3 rounded-lg font-medium transition-all"
-                  style={{
-                    backgroundColor: answers[q.id] === n ? '#8B3A4D' : '#FAF7F2',
-                    color: answers[q.id] === n ? 'white' : '#4A4A50'
-                  }}
-                  onMouseEnter={(e) => {
-                    if (answers[q.id] !== n) {
-                      e.target.style.backgroundColor = '#E8E0D5'
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (answers[q.id] !== n) {
-                      e.target.style.backgroundColor = '#FAF7F2'
-                    }
-                  }}
+                  className={`flex-1 py-3 rounded-lg font-medium transition-all ${
+                    answers[q.id] === n
+                      ? 'bg-amber-500 text-white'
+                      : 'bg-stone-100 text-stone-600 hover:bg-amber-100'
+                  }`}
                 >
                   {n}
                 </button>
@@ -393,50 +406,34 @@ export default function SurveyPage() {
       case 'email_with_options':
         return (
           <div className="space-y-4">
-            {q.subtext && <p className="text-sm" style={{ color: '#4A4A50' }}>{q.subtext}</p>}
+            {q.subtext && <p className="text-sm text-stone-500">{q.subtext}</p>}
             <input
               type="email"
               value={answers.email || ''}
               onChange={(e) => handleText('email', e.target.value)}
               placeholder={q.placeholder}
-              className="w-full p-4 rounded-lg border outline-none"
-              style={{ 
-                borderColor: '#E8E0D5',
-                color: '#2C2C30'
-              }}
-              onFocus={(e) => e.target.style.borderColor = '#8B3A4D'}
-              onBlur={(e) => e.target.style.borderColor = '#E8E0D5'}
+              className="w-full p-4 rounded-lg border border-stone-200 focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none text-stone-700 placeholder:text-stone-400"
             />
             {answers.email && (
               <div className="space-y-2 pt-2">
-                <p className="text-sm font-medium" style={{ color: '#4A4A50' }}>What would you like?</p>
-                <label className="flex items-center gap-3 p-3 rounded-lg border transition-all cursor-pointer"
-                  style={{ 
-                    borderColor: (answers.email_options || []).includes('drawing') ? '#8B3A4D' : '#E8E0D5',
-                    backgroundColor: (answers.email_options || []).includes('drawing') ? '#FAF7F2' : 'transparent'
-                  }}>
+                <p className="text-sm text-stone-600 font-medium">What would you like?</p>
+                <label className="flex items-center gap-3 p-3 rounded-lg border border-stone-200 hover:border-amber-300 hover:bg-amber-50 cursor-pointer transition-all">
                   <input
                     type="checkbox"
                     checked={(answers.email_options || []).includes('drawing')}
                     onChange={() => toggleEmailOption('drawing')}
-                    className="w-4 h-4 rounded"
-                    style={{ accentColor: '#8B3A4D' }}
+                    className="w-4 h-4 text-amber-600 rounded focus:ring-amber-500"
                   />
-                  <span style={{ color: '#2C2C30' }}>Enter the $50 gift card drawing</span>
+                  <span className="text-stone-700">Enter the $50 gift card drawing</span>
                 </label>
-                <label className="flex items-center gap-3 p-3 rounded-lg border transition-all cursor-pointer"
-                  style={{ 
-                    borderColor: (answers.email_options || []).includes('results') ? '#8B3A4D' : '#E8E0D5',
-                    backgroundColor: (answers.email_options || []).includes('results') ? '#FAF7F2' : 'transparent'
-                  }}>
+                <label className="flex items-center gap-3 p-3 rounded-lg border border-stone-200 hover:border-amber-300 hover:bg-amber-50 cursor-pointer transition-all">
                   <input
                     type="checkbox"
                     checked={(answers.email_options || []).includes('results')}
                     onChange={() => toggleEmailOption('results')}
-                    className="w-4 h-4 rounded"
-                    style={{ accentColor: '#8B3A4D' }}
+                    className="w-4 h-4 text-amber-600 rounded focus:ring-amber-500"
                   />
-                  <span style={{ color: '#2C2C30' }}>Send me the survey results</span>
+                  <span className="text-stone-700">Send me the survey results</span>
                 </label>
               </div>
             )}
@@ -447,241 +444,69 @@ export default function SurveyPage() {
     }
   }
 
-  // THANK YOU SCREEN
   if (submitted) {
     const emailOptions = answers.email_options || []
     const wantsDrawing = emailOptions.includes('drawing')
     const wantsResults = emailOptions.includes('results')
 
     return (
-      <div className="min-h-screen flex items-center justify-center p-6" style={{ background: 'linear-gradient(to bottom right, #FAF7F2, #E8E0D5)' }}>
+      <div className="min-h-screen bg-gradient-to-br from-amber-50 to-stone-100 flex items-center justify-center p-6">
         <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md text-center">
-          {/* Logo */}
-          <div className="flex justify-center mb-4">
-            <svg width="60" height="60" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M40 8C40 8 20 28 20 48C20 59.046 28.954 68 40 68C51.046 68 60 59.046 60 48C60 28 40 8 40 8Z" stroke="#6B2D3F" strokeWidth="2" fill="none"/>
-              <path d="M30 52C30 52 35 44 40 44C45 44 50 52 50 52" stroke="#C9A962" strokeWidth="2" fill="none" strokeLinecap="round"/>
-              <path d="M40 68V76" stroke="#6B2D3F" strokeWidth="2"/>
-              <path d="M32 76H48" stroke="#6B2D3F" strokeWidth="2" strokeLinecap="round"/>
-            </svg>
-          </div>
-          
-          <h2 className="text-2xl font-bold mb-2" style={{ color: '#2C2C30' }}>Thank you!</h2>
-          <p className="mb-6 leading-relaxed" style={{ color: '#4A4A50' }}>
+          <div className="text-5xl mb-4">🍷</div>
+          <h2 className="text-2xl font-bold text-stone-800 mb-2">Thank you!</h2>
+          <p className="text-stone-600 mb-4">
             Your insights will help make wine country trips better for everyone. Cheers to that.
           </p>
-          
           {answers.email && (wantsDrawing || wantsResults) && (
-            <div className="text-sm mb-6 p-4 rounded-lg" style={{ backgroundColor: '#FAF7F2', color: '#4A4A50' }}>
-              {wantsDrawing && <p className="mb-1">✓ You're entered in the gift card drawing</p>}
-              {wantsResults && <p>✓ We'll send you the results when ready</p>}
+            <div className="text-sm text-stone-500 space-y-1">
+              {wantsDrawing && <p>{"You're entered in the gift card drawing."}</p>}
+              {wantsResults && <p>{"We'll send you the results when they're ready."}</p>}
             </div>
           )}
-
-          {/* CTA - Explore ValleySomm */}
-          <div className="space-y-3">
-            <a
-              href="/"
-              className="block w-full py-3 px-6 text-white font-semibold rounded-xl transition-all shadow-lg text-center"
-              style={{ background: 'linear-gradient(135deg, #8B3A4D 0%, #6B2D3F 100%)' }}
-            >
-              Explore Yadkin Valley Wineries
-            </a>
-            <p className="text-xs" style={{ color: '#B8A99A' }}>
-              Learn more about ValleySomm at{' '}
-              <a href="/" className="underline" style={{ color: '#6B2D3F' }}>
-                valleysomm.com
-              </a>
-            </p>
-          </div>
         </div>
       </div>
     )
   }
 
-  // START SCREEN - MOBILE OPTIMIZED WITH VALLEYSOMM BRANDING
-  if (!hasStarted) {
-    return (
-      <div className="min-h-screen p-4 sm:p-6" style={{ background: 'linear-gradient(to bottom right, #FAF7F2, #E8E0D5)' }}>
-        <div className="max-w-2xl mx-auto">
-          {/* Header with Logo - COMPACT */}
-          <div className="text-center mb-6">
-            {/* Logo - Slightly Smaller on Mobile */}
-            <div className="flex justify-center mb-3">
-              <svg width="50" height="50" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" className="sm:w-[60px] sm:h-[60px]">
-                <path d="M40 8C40 8 20 28 20 48C20 59.046 28.954 68 40 68C51.046 68 60 59.046 60 48C60 28 40 8 40 8Z" stroke="#6B2D3F" strokeWidth="2" fill="none"/>
-                <path d="M30 52C30 52 35 44 40 44C45 44 50 52 50 52" stroke="#C9A962" strokeWidth="2" fill="none" strokeLinecap="round"/>
-                <path d="M40 68V76" stroke="#6B2D3F" strokeWidth="2"/>
-                <path d="M32 76H48" stroke="#6B2D3F" strokeWidth="2" strokeLinecap="round"/>
-              </svg>
-            </div>
-            
-            <div className="text-xs sm:text-sm font-medium mb-1.5" style={{ color: '#6B2D3F' }}>Valley Somm</div>
-            <h1 className="text-2xl sm:text-3xl font-bold mb-1.5 leading-tight" style={{ color: '#2C2C30' }}>Wine Country Trip Survey</h1>
-            <p className="text-sm sm:text-base" style={{ color: '#4A4A50' }}>Help us understand wine trip planning</p>
-          </div>
-
-          {/* Main Start Card */}
-          <div className="bg-white rounded-2xl shadow-xl overflow-hidden mb-4">
-            {/* Social Proof Banner - COMPACT */}
-            <div className="px-4 py-3 text-white text-center" style={{ background: 'linear-gradient(135deg, #6B2D3F 0%, #8B3A4D 100%)' }}>
-              <p className="font-semibold text-base sm:text-lg">🍷 Join 340+ wine lovers</p>
-            </div>
-
-            <div className="p-5 sm:p-8">
-              {/* The Problem - CONDENSED */}
-              <div className="mb-5">
-                <h2 className="text-xl sm:text-2xl font-bold mb-2 leading-tight" style={{ color: '#2C2C30' }}>
-                  Planning a wine trip shouldn't be stressful
-                </h2>
-                <p className="text-sm sm:text-base leading-relaxed mb-3" style={{ color: '#4A4A50' }}>
-                  Yet many visitors tell us it is. We're learning what makes planning hard—and what would make it easier.
-                </p>
-              </div>
-
-              {/* Quick Stats - MORE COMPACT */}
-              <div className="rounded-xl p-4 mb-5" style={{ backgroundColor: '#FAF7F2', border: '1px solid #E8E0D5' }}>
-                <p className="text-xs font-semibold mb-2.5" style={{ color: '#6B2D3F' }}>🎯 What we're learning:</p>
-                <ul className="space-y-1.5 text-xs sm:text-sm" style={{ color: '#4A4A50' }}>
-                  <li className="flex items-start gap-2">
-                    <span className="font-bold mt-0.5" style={{ color: '#C9A962' }}>•</span>
-                    <span><strong>Couples dominate</strong> wine country visits</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="font-bold mt-0.5" style={{ color: '#C9A962' }}>•</span>
-                    <span><strong>1-2 weeks advance planning</strong> is typical</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="font-bold mt-0.5" style={{ color: '#C9A962' }}>•</span>
-                    <span><strong>Confidence varies widely</strong> in winery selection</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="font-bold mt-0.5" style={{ color: '#C9A962' }}>•</span>
-                    <span><strong>Google is the starting point</strong> for most</span>
-                  </li>
-                </ul>
-              </div>
-
-              {/* Why Take This - COMPACT ICONS */}
-              <div className="space-y-2.5 mb-5">
-                <div className="flex items-center gap-2.5 text-sm" style={{ color: '#4A4A50' }}>
-                  <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="#C9A962" strokeWidth="2">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span><strong>3 minutes</strong> (actually timed)</span>
-                </div>
-                <div className="flex items-center gap-2.5 text-sm" style={{ color: '#4A4A50' }}>
-                  <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="#C9A962" strokeWidth="2">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span><strong>100% anonymous</strong></span>
-                </div>
-                <div className="flex items-center gap-2.5 text-sm" style={{ color: '#4A4A50' }}>
-                  <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="#C9A962" strokeWidth="2">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                  </svg>
-                  <span><strong>Win $50</strong> gift card (Jan 20)</span>
-                </div>
-              </div>
-
-              {/* CTA Button - PROMINENT */}
-              <button
-                onClick={() => setHasStarted(true)}
-                className="w-full py-4 text-white font-semibold rounded-xl transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg text-base sm:text-lg"
-                style={{ background: 'linear-gradient(135deg, #8B3A4D 0%, #6B2D3F 100%)' }}
-              >
-                Share Your Experience 🍷
-              </button>
-
-              <p className="text-xs text-center mt-3 leading-relaxed" style={{ color: '#B8A99A' }}>
-                Your honest feedback helps improve wine tourism
-              </p>
-            </div>
-          </div>
-
-          {/* Footer - COMPACT */}
-          <p className="text-center text-xs sm:text-sm" style={{ color: '#B8A99A' }}>
-            Questions? Email hello@valleysomm.com
-          </p>
-        </div>
-      </div>
-    )
-  }
-
-  // SURVEY QUESTIONS
   const currentQuestions = steps[currentStep].questions.map((i) => questions[i])
+  const progress = (currentStep + 1) / steps.length
 
   return (
-    <div className="min-h-screen p-4 sm:p-6" style={{ background: 'linear-gradient(to bottom right, #FAF7F2, #E8E0D5)' }}>
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-stone-100 p-6">
       <div className="max-w-2xl mx-auto">
-        {/* Header with Logo */}
-        <div className="text-center mb-6">
-          {/* Logo */}
-          <div className="flex justify-center mb-3">
-            <svg width="40" height="40" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" className="sm:w-[50px] sm:h-[50px]">
-              <path d="M40 8C40 8 20 28 20 48C20 59.046 28.954 68 40 68C51.046 68 60 59.046 60 48C60 28 40 8 40 8Z" stroke="#6B2D3F" strokeWidth="2" fill="none"/>
-              <path d="M30 52C30 52 35 44 40 44C45 44 50 52 50 52" stroke="#C9A962" strokeWidth="2" fill="none" strokeLinecap="round"/>
-              <path d="M40 68V76" stroke="#6B2D3F" strokeWidth="2"/>
-              <path d="M32 76H48" stroke="#6B2D3F" strokeWidth="2" strokeLinecap="round"/>
-            </svg>
-          </div>
-          <div className="text-xs sm:text-sm font-medium mb-1" style={{ color: '#6B2D3F' }}>Valley Somm</div>
-          <h1 className="text-xl sm:text-2xl font-bold mb-1" style={{ color: '#2C2C30' }}>Wine Country Trip Survey</h1>
-          <p className="text-xs sm:text-sm" style={{ color: '#4A4A50' }}>3 minutes • Anonymous • Win $50 gift card</p>
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="text-sm font-medium text-amber-700 mb-2">Valley Somm</div>
+          <h1 className="text-3xl font-bold text-stone-800 mb-2">Wine Country Trip Survey</h1>
+          <p className="text-stone-600">{"Help us understand what makes wine trips great (and what doesn't)"}</p>
+          <p className="text-sm text-stone-500 mt-1">4 minutes • Anonymous • Enter by Jan 20 to win a $50 gift card</p>
         </div>
 
-        {/* Progress */}
-        <div className="mb-8">
-          <div className="flex justify-between mb-2">
-            {steps.map((step, i) => (
-              <div
-                key={i}
-                className="text-xs sm:text-sm font-medium"
-                style={{
-                  color: i === currentStep ? '#6B2D3F' : i < currentStep ? '#8B3A4D' : '#B8A99A'
-                }}
-              >
-                {step.title}
-              </div>
-            ))}
-          </div>
-          <div className="h-2 rounded-full overflow-hidden" style={{ backgroundColor: '#E8E0D5' }}>
-            <div
-              className="h-full transition-all duration-300"
-              style={{ 
-                width: `${((currentStep + 1) / steps.length) * 100}%`,
-                background: 'linear-gradient(90deg, #8B3A4D 0%, #6B2D3F 100%)'
-              }}
-            />
-          </div>
-        </div>
+        {/* Wine Glass Progress */}
+        <WineGlassProgress progress={progress} />
 
         {/* Questions */}
         <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 space-y-8">
           {currentQuestions.map((q) => (
             <div key={q.id} className="space-y-4">
-              <h3 className="text-lg font-semibold" style={{ color: '#2C2C30' }}>{q.question}</h3>
+              <h3 className="text-lg font-semibold text-stone-800">{q.question}</h3>
               {renderQuestion(q)}
             </div>
           ))}
 
           {/* Error message */}
           {error && (
-            <div className="p-4 rounded-lg text-sm" style={{ backgroundColor: '#FEE2E2', borderColor: '#F87171', color: '#991B1B', border: '1px solid' }}>
-              {error}
-            </div>
+            <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">{error}</div>
           )}
 
           {/* Navigation */}
-          <div className="flex justify-between pt-4" style={{ borderTop: '1px solid #E8E0D5' }}>
+          <div className="flex justify-between pt-4 border-t border-stone-100">
             {currentStep > 0 ? (
               <button
                 type="button"
                 onClick={() => setCurrentStep(currentStep - 1)}
-                className="px-6 py-2 font-medium"
-                style={{ color: '#4A4A50' }}
-                onMouseEnter={(e) => e.target.style.color = '#2C2C30'}
-                onMouseLeave={(e) => e.target.style.color = '#4A4A50'}
+                disabled={submitting}
+                className="px-6 py-2 text-stone-600 hover:text-stone-800 font-medium disabled:opacity-50"
               >
                 ← Back
               </button>
@@ -693,10 +518,8 @@ export default function SurveyPage() {
               <button
                 type="button"
                 onClick={() => setCurrentStep(currentStep + 1)}
-                className="px-6 py-3 text-white font-medium rounded-lg transition-colors"
-                style={{ backgroundColor: '#8B3A4D' }}
-                onMouseEnter={(e) => e.target.style.backgroundColor = '#6B2D3F'}
-                onMouseLeave={(e) => e.target.style.backgroundColor = '#8B3A4D'}
+                disabled={submitting}
+                className="px-6 py-3 bg-amber-500 hover:bg-amber-600 text-white font-medium rounded-lg transition-colors disabled:opacity-50"
               >
                 Continue →
               </button>
@@ -705,23 +528,26 @@ export default function SurveyPage() {
                 type="button"
                 onClick={handleSubmit}
                 disabled={submitting}
-                className="px-6 py-3 text-white font-medium rounded-lg transition-colors"
-                style={{ backgroundColor: submitting ? '#B8A99A' : '#6B2D3F' }}
-                onMouseEnter={(e) => {
-                  if (!submitting) e.target.style.backgroundColor = '#8B3A4D'
-                }}
-                onMouseLeave={(e) => {
-                  if (!submitting) e.target.style.backgroundColor = '#6B2D3F'
-                }}
+                className="px-6 py-3 bg-amber-600 hover:bg-amber-700 disabled:bg-amber-300 text-white font-medium rounded-lg transition-colors flex items-center gap-2"
               >
-                {submitting ? 'Submitting...' : 'Submit Survey 🍷'}
+                {submitting ? (
+                  <>
+                    <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Submitting...
+                  </>
+                ) : (
+                  'Submit Survey 🍷'
+                )}
               </button>
             )}
           </div>
         </div>
 
         {/* Footer */}
-        <p className="text-center text-sm mt-6" style={{ color: '#B8A99A' }}>
+        <p className="text-center text-sm text-stone-400 mt-6">
           Your responses are anonymous and help improve wine tourism for everyone.
         </p>
       </div>
