@@ -713,7 +713,7 @@ export default function SurveyPage() {
                       .from('survey_analytics')
                       .select('step_events')
                       .eq('session_id', sessionId)
-                      .single()
+                      .maybeSingle()
                     
                     const existingEvents = currentData?.step_events || []
                     await supabase.from('survey_analytics').update({
