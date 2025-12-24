@@ -497,7 +497,7 @@ export default function SurveyPage() {
             <button
               onClick={() => {
                 setStarted(true)
-                window.scrollTo({ top: 0, behavior: 'smooth' })
+                setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 0)
               }}
               className="w-full py-4 text-white font-semibold rounded-lg transition-all transform hover:scale-[1.02] shadow-lg"
               style={{ backgroundColor: '#6B2D3F' }}
@@ -632,7 +632,7 @@ export default function SurveyPage() {
                 type="button"
                 onClick={() => {
                   setCurrentStep(currentStep - 1)
-                  window.scrollTo({ top: 0, behavior: 'smooth' })
+                  setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 0)
                 }}
                 disabled={submitting}
                 className="px-6 py-2 text-stone-600 hover:text-stone-800 font-medium disabled:opacity-50"
@@ -648,7 +648,7 @@ export default function SurveyPage() {
                 type="button"
                 onClick={() => {
                   setCurrentStep(currentStep + 1)
-                  window.scrollTo({ top: 0, behavior: 'smooth' })
+                  setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 0)
                 }}
                 disabled={submitting}
                 className="px-6 py-3 text-white font-medium rounded-lg transition-colors disabled:opacity-50"
