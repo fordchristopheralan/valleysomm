@@ -62,19 +62,58 @@ export default function ChatInterface({ onClose }) {
       // Update conversation data
       setConversationData(data.conversationData)
 
-      // **FIX #5**: If itinerary should be generated, add the generation message ONCE
+      // **FIX #5**: If itinerary should be generated, trigger AI to create it
       if (data.shouldGenerateItinerary && !conversationData.itineraryTriggered) {
-        setTimeout(() => {
-          setMessages(prev => [...prev, {
-            role: 'assistant',
-            content: '🍷 Perfect! Generating your personalized Yadkin Valley itinerary...'
-          }])
-          // Mark as fully generated
-          setConversationData(prev => ({
-            ...prev,
-            itineraryGenerated: true
-          }))
-        }, 500)
+        // Add the "Generating..." message
+        setMessages(prev => [...prev, {
+          role: 'assistant',
+          content: '🍷 Perfect! Generating your personalized Yadkin Valley itinerary...'
+        }])
+        
+        // Mark as triggered to prevent duplicates
+        setConversationData(prev => ({ ...prev, itineraryTriggered: true }))
+        
+        // Actually generate the itinerary by sending a final message to AI
+        setTimeout(async () => {
+          try {
+            const generateResponse = await fetch('/api/chat', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                messages: [
+                  ...updatedMessages,
+                  { role: 'assistant', content: data.message },
+                  { 
+                    role: 'user', 
+                    content: 'Please generate my complete itinerary now with specific winery names, times, and details.' 
+                  }
+                ],
+                conversationData: { ...data.conversationData, itineraryTriggered: true }
+              })
+            })
+            
+            const itineraryData = await generateResponse.json()
+            
+            // Add the full itinerary
+            setMessages(prev => [...prev, {
+              role: 'assistant',
+              content: itineraryData.message
+            }])
+            
+            // Mark as fully generated
+            setConversationData(prev => ({
+              ...prev,
+              itineraryGenerated: true
+            }))
+            
+          } catch (error) {
+            console.error('Error generating itinerary:', error)
+            setMessages(prev => [...prev, {
+              role: 'assistant',
+              content: "I had trouble generating your itinerary. Let me try again - could you tell me one more time what kind of experience you're looking for?"
+            }])
+          }
+        }, 1000)
       }
 
     } catch (error) {
