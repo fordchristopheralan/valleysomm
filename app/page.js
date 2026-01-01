@@ -520,10 +520,10 @@ export default function SurveyPage() {
               <div className="p-5 text-center" style={{ backgroundColor: '#6B2D3F' }}>
                 <div className="text-3xl mb-2">🎁</div>
                 <h1 className="text-xl sm:text-2xl font-bold text-white mb-1">
-                  Win a $50 Gift Card
+                  Win a $50 Wine.com Gift Card
                 </h1>
                 <p className="text-white/80 text-sm">
-                  to Yadkin Valley wineries
+                  Just share your wine trip experience
                 </p>
               </div>
 
@@ -620,7 +620,7 @@ export default function SurveyPage() {
                   </div>
                   <div>
                     <p className="text-sm text-stone-700"><strong>Get entered to win $50</strong></p>
-                    <p className="text-xs text-stone-500">Redeemable at Yadkin Valley wineries</p>
+                    <p className="text-xs text-stone-500">Wine.com gift card</p>
                   </div>
                 </div>
               </div>
