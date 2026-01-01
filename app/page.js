@@ -166,6 +166,47 @@ const steps = [
   { title: 'Insights & Wrap-up', questions: [8, 9, 10, 11, 12] },
 ]
 
+// Countdown timer component
+function CountdownTimer({ targetDate }) {
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0 })
+
+  useEffect(() => {
+    const calculateTimeLeft = () => {
+      const difference = targetDate - new Date()
+      if (difference > 0) {
+        setTimeLeft({
+          days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+          hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+          minutes: Math.floor((difference / 1000 / 60) % 60),
+        })
+      }
+    }
+
+    calculateTimeLeft()
+    const timer = setInterval(calculateTimeLeft, 60000) // Update every minute
+    return () => clearInterval(timer)
+  }, [targetDate])
+
+  return (
+    <div className="flex justify-center gap-3">
+      <div className="text-center">
+        <div className="text-2xl sm:text-3xl font-bold text-white">{timeLeft.days}</div>
+        <div className="text-xs text-white/70 uppercase tracking-wide">Days</div>
+      </div>
+      <div className="text-2xl sm:text-3xl font-bold text-white/50">:</div>
+      <div className="text-center">
+        <div className="text-2xl sm:text-3xl font-bold text-white">{timeLeft.hours}</div>
+        <div className="text-xs text-white/70 uppercase tracking-wide">Hours</div>
+      </div>
+      <div className="text-2xl sm:text-3xl font-bold text-white/50">:</div>
+      <div className="text-center">
+        <div className="text-2xl sm:text-3xl font-bold text-white">{timeLeft.minutes}</div>
+        <div className="text-xs text-white/70 uppercase tracking-wide">Min</div>
+      </div>
+    </div>
+  )
+}
+
 export default function SurveyPage() {
   const [started, setStarted] = useState(false)
   const [currentStep, setCurrentStep] = useState(0)
@@ -175,6 +216,8 @@ export default function SurveyPage() {
   const [error, setError] = useState(null)
   const [responseCount, setResponseCount] = useState(0)
   const [sessionId, setSessionId] = useState(null)
+
+  const drawingEndDate = new Date('2026-01-20T23:59:59')
 
   // Initialize session and track landing page view
   useEffect(() => {
@@ -451,120 +494,188 @@ export default function SurveyPage() {
     }
   }
 
-  // Landing Screen
+  // Landing Screen - OPTIMIZED FOR CONVERSION
   if (!started) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-amber-50 to-stone-100 flex items-center justify-center p-6">
-        <div className="max-w-2xl w-full">
-          <div className="bg-white rounded-2xl shadow-xl p-8 sm:p-12">
-            {/* Wine glass icon */}
-            <div className="flex justify-center mb-6">
-              <svg width="70" height="87" viewBox="0 0 80 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M40 10C40 10 20 30 20 50C20 61.046 28.954 70 40 70C51.046 70 60 61.046 60 50C60 30 40 10 40 10Z" stroke="#6B2D3F" strokeWidth="2.5" fill="none"/>
-                <path d="M32 52C32 52 36 46 40 46C44 46 48 52 48 52" stroke="#C9A962" strokeWidth="2" fill="none" strokeLinecap="round"/>
-                <path d="M40 70V88" stroke="#6B2D3F" strokeWidth="2"/>
-                <path d="M32 88H48" stroke="#6B2D3F" strokeWidth="2" strokeLinecap="round"/>
-              </svg>
+      <div className="min-h-screen bg-gradient-to-br from-amber-50 to-stone-100">
+        {/* Hero Section - Everything above the fold */}
+        <div className="px-4 pt-6 pb-4">
+          <div className="max-w-lg mx-auto">
+            {/* Compact Header */}
+            <div className="text-center mb-4">
+              <div className="inline-flex items-center gap-2 mb-3">
+                <svg width="32" height="40" viewBox="0 0 80 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M40 10C40 10 20 30 20 50C20 61.046 28.954 70 40 70C51.046 70 60 61.046 60 50C60 30 40 10 40 10Z" stroke="#6B2D3F" strokeWidth="2.5" fill="none"/>
+                  <path d="M32 52C32 52 36 46 40 46C44 46 48 52 48 52" stroke="#C9A962" strokeWidth="2" fill="none" strokeLinecap="round"/>
+                  <path d="M40 70V88" stroke="#6B2D3F" strokeWidth="2"/>
+                  <path d="M32 88H48" stroke="#6B2D3F" strokeWidth="2" strokeLinecap="round"/>
+                </svg>
+                <span className="text-sm font-semibold tracking-wide" style={{ color: '#6B2D3F' }}>VALLEY SOMM</span>
+              </div>
             </div>
 
-            {/* Brand name */}
-            <div className="text-center mb-6">
-              <h1 className="text-sm font-medium tracking-wide mb-2" style={{ color: '#8B3A4D' }}>VALLEY SOMM</h1>
-              <h2 className="text-3xl sm:text-4xl font-bold text-stone-800 mb-3">Wine Country Trip Survey</h2>
-              <p className="text-lg text-stone-600 mb-6">
-                Help us build the perfect wine trip planning tool
+            {/* Main Value Prop Card */}
+            <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+              {/* Gift Card Banner - THE HOOK */}
+              <div className="p-5 text-center" style={{ backgroundColor: '#6B2D3F' }}>
+                <div className="text-3xl mb-2">🎁</div>
+                <h1 className="text-xl sm:text-2xl font-bold text-white mb-1">
+                  Win a $50 Gift Card
+                </h1>
+                <p className="text-white/80 text-sm">
+                  to Yadkin Valley wineries
+                </p>
+              </div>
+
+              {/* Survey Ask */}
+              <div className="p-5 text-center border-b border-stone-100">
+                <h2 className="text-lg font-semibold text-stone-800 mb-2">
+                  Share your wine trip experience
+                </h2>
+                <p className="text-stone-600 text-sm">
+                  3-minute survey • 100% anonymous
+                </p>
+              </div>
+
+              {/* Social Proof + CTA */}
+              <div className="p-5">
+                <div className="flex items-center justify-center gap-2 mb-4">
+                  <div className="flex -space-x-2">
+                    <div className="w-8 h-8 rounded-full bg-amber-200 flex items-center justify-center text-xs">🍷</div>
+                    <div className="w-8 h-8 rounded-full bg-rose-200 flex items-center justify-center text-xs">🍇</div>
+                    <div className="w-8 h-8 rounded-full bg-emerald-200 flex items-center justify-center text-xs">✨</div>
+                  </div>
+                  <span className="text-sm text-stone-600">
+                    <strong style={{ color: '#6B2D3F' }}>{responseCount}+</strong> wine lovers have shared
+                  </span>
+                </div>
+
+                {/* PRIMARY CTA - ABOVE THE FOLD */}
+                <button
+                  onClick={async () => {
+                    setStarted(true)
+                    setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 0)
+                    
+                    // Track survey start
+                    if (sessionId) {
+                      await supabase.from('survey_analytics').update({
+                        step_events: [{
+                          step: 1,
+                          timestamp: new Date().toISOString()
+                        }]
+                      }).eq('session_id', sessionId)
+                    }
+                  }}
+                  className="w-full py-4 text-white font-bold text-lg rounded-xl transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg"
+                  style={{ backgroundColor: '#6B2D3F' }}
+                  onMouseEnter={(e) => e.target.style.backgroundColor = '#8B3A4D'}
+                  onMouseLeave={(e) => e.target.style.backgroundColor = '#6B2D3F'}
+                >
+                  Take the Survey →
+                </button>
+              </div>
+
+              {/* Countdown Timer */}
+              <div className="px-5 pb-5">
+                <div className="rounded-xl p-4" style={{ backgroundColor: '#2D4A3E' }}>
+                  <p className="text-center text-white/80 text-xs uppercase tracking-wide mb-2">Drawing ends in</p>
+                  <CountdownTimer targetDate={drawingEndDate} />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Below the fold - Additional info for scrollers */}
+        <div className="px-4 pb-8">
+          <div className="max-w-lg mx-auto">
+            {/* What We're Building */}
+            <div className="bg-white rounded-2xl shadow-lg p-6 mb-4">
+              <h3 className="font-semibold text-stone-800 mb-3 text-center">Why your input matters</h3>
+              <p className="text-stone-600 text-sm text-center mb-4">
+                {"We're building an AI tool to make wine trip planning effortless. Your real experiences will shape what we create."}
               </p>
-            </div>
-
-            {/* Response Counter - Social Proof */}
-            <div className="mb-8">
-              <div className="bg-gradient-to-br from-amber-50 to-stone-50 rounded-xl p-6 text-center border border-amber-100">
-                <div className="text-4xl font-bold mb-2" style={{ color: '#6B2D3F' }}>
-                  {responseCount}+
+              <div className="space-y-3">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0">
+                    <span className="text-sm">🗺️</span>
+                  </div>
+                  <div>
+                    <p className="text-sm text-stone-700"><strong>Tell us what frustrated you</strong></p>
+                    <p className="text-xs text-stone-500">Research? Reservations? Routes?</p>
+                  </div>
                 </div>
-                <div className="text-sm text-stone-600">Wine lovers have shared their experiences</div>
-              </div>
-            </div>
-
-            {/* Why Your Input Matters */}
-            <div className="space-y-3 mb-8">
-              <div className="flex items-start gap-3 p-4 bg-amber-50 rounded-lg border border-amber-100">
-                <div className="flex-shrink-0 text-xl">🍷</div>
-                <div className="text-sm text-stone-700">
-                  <span className="font-semibold">Your experience matters</span> — every insight helps us understand real trip planning challenges
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0">
+                    <span className="text-sm">💡</span>
+                  </div>
+                  <div>
+                    <p className="text-sm text-stone-700"><strong>Share what would have helped</strong></p>
+                    <p className="text-xs text-stone-500">Your ideas become features</p>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-start gap-3 p-4 bg-amber-50 rounded-lg border border-amber-100">
-                <div className="flex-shrink-0 text-xl">🗺️</div>
-                <div className="text-sm text-stone-700">
-                  <span className="font-semibold">Shape the future</span> — your feedback directly influences what we build for wine travelers
-                </div>
-              </div>
-              <div className="flex items-start gap-3 p-4 bg-amber-50 rounded-lg border border-amber-100">
-                <div className="flex-shrink-0 text-xl">✨</div>
-                <div className="text-sm text-stone-700">
-                  <span className="font-semibold">Join the community</span> — be part of making wine country trips easier for everyone
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0">
+                    <span className="text-sm">🎁</span>
+                  </div>
+                  <div>
+                    <p className="text-sm text-stone-700"><strong>Get entered to win $50</strong></p>
+                    <p className="text-xs text-stone-500">Redeemable at Yadkin Valley wineries</p>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Urgency Banner */}
-            <div className="mb-8 p-4 rounded-lg text-center border" style={{ backgroundColor: '#6B2D3F', color: 'white', borderColor: '#8B3A4D' }}>
-              <div className="text-sm font-medium mb-1">⏰ Drawing closes January 20, 2025</div>
-              <div className="text-xs opacity-90">Complete the survey to enter for a $50 Yadkin Valley gift card</div>
-            </div>
-
-            {/* What to Expect */}
-            <div className="mb-8">
-              <h3 className="font-semibold text-stone-800 mb-3">What to expect:</h3>
-              <ul className="space-y-2 text-sm text-stone-600">
-                <li className="flex items-center gap-2">
-                  <svg className="w-5 h-5 flex-shrink-0" style={{ color: '#8B3A4D' }} fill="currentColor" viewBox="0 0 20 20">
+            {/* Trust Signals */}
+            <div className="bg-white rounded-2xl shadow-lg p-6">
+              <h3 className="font-semibold text-stone-800 mb-3 text-center">What to expect</h3>
+              <ul className="space-y-2">
+                <li className="flex items-center gap-2 text-sm text-stone-600">
+                  <svg className="w-5 h-5 flex-shrink-0" style={{ color: '#2D4A3E' }} fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
                   </svg>
-                  <span><strong>3 minutes</strong> • 13 questions about your wine trip planning</span>
+                  <span><strong>3 minutes</strong> — 13 quick questions</span>
                 </li>
-                <li className="flex items-center gap-2">
-                  <svg className="w-5 h-5 flex-shrink-0" style={{ color: '#8B3A4D' }} fill="currentColor" viewBox="0 0 20 20">
+                <li className="flex items-center gap-2 text-sm text-stone-600">
+                  <svg className="w-5 h-5 flex-shrink-0" style={{ color: '#2D4A3E' }} fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
                   </svg>
-                  <span><strong>100% anonymous</strong> • Email optional for gift card drawing only</span>
+                  <span><strong>100% anonymous</strong> — email optional</span>
                 </li>
-                <li className="flex items-center gap-2">
-                  <svg className="w-5 h-5 flex-shrink-0" style={{ color: '#8B3A4D' }} fill="currentColor" viewBox="0 0 20 20">
+                <li className="flex items-center gap-2 text-sm text-stone-600">
+                  <svg className="w-5 h-5 flex-shrink-0" style={{ color: '#2D4A3E' }} fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
                   </svg>
-                  <span><strong>Make an impact</strong> • Help improve wine tourism experiences</span>
+                  <span><strong>No spam</strong> — just the drawing + results</span>
                 </li>
               </ul>
+
+              {/* Secondary CTA */}
+              <button
+                onClick={async () => {
+                  setStarted(true)
+                  setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 0)
+                  
+                  if (sessionId) {
+                    await supabase.from('survey_analytics').update({
+                      step_events: [{
+                        step: 1,
+                        timestamp: new Date().toISOString()
+                      }]
+                    }).eq('session_id', sessionId)
+                  }
+                }}
+                className="w-full mt-4 py-3 text-white font-semibold rounded-xl transition-all"
+                style={{ backgroundColor: '#6B2D3F' }}
+                onMouseEnter={(e) => e.target.style.backgroundColor = '#8B3A4D'}
+                onMouseLeave={(e) => e.target.style.backgroundColor = '#6B2D3F'}
+              >
+                Start Survey 🍷
+              </button>
             </div>
 
-            {/* CTA Button */}
-            <button
-              onClick={async () => {
-                setStarted(true)
-                setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 0)
-                
-                // Track survey start
-                if (sessionId) {
-                  await supabase.from('survey_analytics').update({
-                    step_events: [{
-                      step: 1,
-                      timestamp: new Date().toISOString()
-                    }]
-                  }).eq('session_id', sessionId)
-                }
-              }}
-              className="w-full py-4 text-white font-semibold rounded-lg transition-all transform hover:scale-[1.02] shadow-lg"
-              style={{ backgroundColor: '#6B2D3F' }}
-              onMouseEnter={(e) => e.target.style.backgroundColor = '#8B3A4D'}
-              onMouseLeave={(e) => e.target.style.backgroundColor = '#6B2D3F'}
-            >
-              Start Survey 🍷
-            </button>
-
             <p className="text-center text-xs text-stone-400 mt-4">
-              Your insights help us build better wine country experiences
+              Valley Somm • Building better wine country experiences
             </p>
           </div>
         </div>
@@ -581,99 +692,87 @@ export default function SurveyPage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-amber-50 to-stone-100 flex items-center justify-center p-6">
         <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md text-center">
-          <div className="flex justify-center mb-4">
-            <svg width="60" height="75" viewBox="0 0 80 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M40 10C40 10 20 30 20 50C20 61.046 28.954 70 40 70C51.046 70 60 61.046 60 50C60 30 40 10 40 10Z" stroke="#6B2D3F" strokeWidth="2.5" fill="none"/>
-              <path d="M32 52C32 52 36 46 40 46C44 46 48 52 48 52" stroke="#C9A962" strokeWidth="2" fill="none" strokeLinecap="round"/>
-              <path d="M40 70V88" stroke="#6B2D3F" strokeWidth="2"/>
-              <path d="M32 88H48" stroke="#6B2D3F" strokeWidth="2" strokeLinecap="round"/>
+          <div className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center" style={{ backgroundColor: '#2D4A3E' }}>
+            <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
           </div>
           <h2 className="text-2xl font-bold text-stone-800 mb-2">Thank you!</h2>
           <p className="text-stone-600 mb-4">
-            Your insights will help make wine country trips better for everyone. Cheers to that.
+            Your insights will help make wine country trips better for everyone. Cheers! 🍷
           </p>
           {answers.email && (wantsDrawing || wantsResults) && (
-            <div className="text-sm text-stone-500 space-y-1 mb-6">
-              {wantsDrawing && <p>{"You're entered in the gift card drawing."}</p>}
-              {wantsResults && <p>{"We'll send you the results when they're ready."}</p>}
+            <div className="bg-amber-50 rounded-lg p-4 mb-6 text-left">
+              <p className="text-sm font-medium text-stone-700 mb-2">{"What's next:"}</p>
+              <ul className="text-sm text-stone-600 space-y-1">
+                {wantsDrawing && <li>✓ {"You're entered in the $50 gift card drawing"}</li>}
+                {wantsResults && <li>✓ {"We'll email you the survey results"}</li>}
+              </ul>
+              <p className="text-xs text-stone-500 mt-2">Drawing: January 20, 2026</p>
             </div>
           )}
           <a 
-            href="https://valleysomm.com" 
-            className="inline-block px-6 py-3 text-white font-medium rounded-lg transition-colors"
-            style={{ backgroundColor: '#8B3A4D' }}
-            onMouseEnter={(e) => e.target.style.backgroundColor = '#6B2D3F'}
-            onMouseLeave={(e) => e.target.style.backgroundColor = '#8B3A4D'}
+            href="https://beta.valleysomm.com" 
+            className="inline-block w-full py-3 text-white font-medium rounded-lg transition-colors"
+            style={{ backgroundColor: '#6B2D3F' }}
+            onMouseEnter={(e) => e.target.style.backgroundColor = '#8B3A4D'}
+            onMouseLeave={(e) => e.target.style.backgroundColor = '#6B2D3F'}
           >
-            Explore Yadkin Valley Wineries
+            Preview ValleySomm Beta →
           </a>
           <p className="text-sm text-stone-400 mt-4">
-            Learn more about ValleySomm at <a href="https://valleysomm.com" className="hover:underline" style={{ color: '#8B3A4D' }}>valleysomm.com</a>
+            See what {"we're"} building at <a href="https://beta.valleysomm.com" className="hover:underline" style={{ color: '#8B3A4D' }}>beta.valleysomm.com</a>
           </p>
         </div>
       </div>
     )
   }
 
-  // Survey Questions
+  // Survey Questions (unchanged)
   const currentQuestions = steps[currentStep].questions.map((i) => questions[i])
   const progressPercent = ((currentStep + 1) / steps.length) * 100
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-stone-100 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-stone-100 p-4 sm:p-6">
       <div className="max-w-2xl mx-auto">
-        <div className="text-center mb-6">
-          <div className="flex justify-center mb-3">
-            <svg width="50" height="62" viewBox="0 0 80 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        {/* Compact Header */}
+        <div className="text-center mb-4">
+          <div className="inline-flex items-center gap-2 mb-2">
+            <svg width="28" height="35" viewBox="0 0 80 100" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M40 10C40 10 20 30 20 50C20 61.046 28.954 70 40 70C51.046 70 60 61.046 60 50C60 30 40 10 40 10Z" stroke="#6B2D3F" strokeWidth="2.5" fill="none"/>
               <path d="M32 52C32 52 36 46 40 46C44 46 48 52 48 52" stroke="#C9A962" strokeWidth="2" fill="none" strokeLinecap="round"/>
               <path d="M40 70V88" stroke="#6B2D3F" strokeWidth="2"/>
               <path d="M32 88H48" stroke="#6B2D3F" strokeWidth="2" strokeLinecap="round"/>
             </svg>
+            <span className="text-sm font-semibold" style={{ color: '#6B2D3F' }}>Wine Trip Survey</span>
           </div>
-          <div className="text-sm font-medium mb-2" style={{ color: '#8B3A4D' }}>Valley Somm</div>
-          <h1 className="text-3xl font-bold text-stone-800 mb-2">Wine Country Trip Survey</h1>
-          <p className="text-stone-600">{"Help us understand what makes wine trips great (and what doesn't)"}</p>
-          <p className="text-sm text-stone-500 mt-1">3 minutes • Anonymous • Win $50 gift card</p>
         </div>
 
-        <div className="mb-8">
-          <div className="hidden sm:flex justify-between mb-2">
-            {steps.map((step, i) => (
-              <div
-                key={i}
-                className={`text-xs font-medium transition-colors ${
-                  i === currentStep ? 'text-wine-burgundy' : i < currentStep ? 'text-amber-400' : 'text-stone-400'
-                }`}
-                style={i === currentStep ? { color: '#8B3A4D' } : {}}
-              >
-                {step.title}
-              </div>
-            ))}
-          </div>
-          
-          <div className="sm:hidden text-center mb-2">
-            <span className="text-sm font-medium" style={{ color: '#8B3A4D' }}>
+        {/* Progress Bar */}
+        <div className="mb-6">
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-xs font-medium text-stone-500">
               Step {currentStep + 1} of {steps.length}
             </span>
+            <span className="text-xs font-medium" style={{ color: '#6B2D3F' }}>
+              {steps[currentStep].title}
+            </span>
           </div>
-          
           <div className="h-2 bg-stone-200 rounded-full overflow-hidden">
             <div
               className="h-full transition-all duration-300"
               style={{ 
                 width: `${progressPercent}%`,
-                backgroundColor: '#8B3A4D'
+                backgroundColor: '#6B2D3F'
               }}
             />
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 space-y-8">
+        <div className="bg-white rounded-2xl shadow-xl p-5 sm:p-8 space-y-6">
           {currentQuestions.map((q) => (
-            <div key={q.id} className="space-y-4">
-              <h3 className="text-lg font-semibold text-stone-800">{q.question}</h3>
+            <div key={q.id} className="space-y-3">
+              <h3 className="text-base sm:text-lg font-semibold text-stone-800">{q.question}</h3>
               {renderQuestion(q)}
             </div>
           ))}
@@ -691,7 +790,7 @@ export default function SurveyPage() {
                   setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 0)
                 }}
                 disabled={submitting}
-                className="px-6 py-2 text-stone-600 hover:text-stone-800 font-medium disabled:opacity-50"
+                className="px-4 sm:px-6 py-2 text-stone-600 hover:text-stone-800 font-medium disabled:opacity-50"
               >
                 ← Back
               </button>
@@ -703,11 +802,10 @@ export default function SurveyPage() {
               <button
                 type="button"
                 onClick={async () => {
-                  const nextStep = currentStep + 2 // currentStep is 0-indexed, but steps are 1-4
+                  const nextStep = currentStep + 2
                   setCurrentStep(currentStep + 1)
                   setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 0)
                   
-                  // Track step progression
                   if (sessionId) {
                     const { data: currentData } = await supabase
                       .from('survey_analytics')
@@ -725,10 +823,10 @@ export default function SurveyPage() {
                   }
                 }}
                 disabled={submitting}
-                className="px-6 py-3 text-white font-medium rounded-lg transition-colors disabled:opacity-50"
-                style={{ backgroundColor: '#8B3A4D' }}
-                onMouseEnter={(e) => !submitting && (e.target.style.backgroundColor = '#6B2D3F')}
-                onMouseLeave={(e) => !submitting && (e.target.style.backgroundColor = '#8B3A4D')}
+                className="px-5 sm:px-6 py-3 text-white font-medium rounded-lg transition-colors disabled:opacity-50"
+                style={{ backgroundColor: '#6B2D3F' }}
+                onMouseEnter={(e) => !submitting && (e.target.style.backgroundColor = '#8B3A4D')}
+                onMouseLeave={(e) => !submitting && (e.target.style.backgroundColor = '#6B2D3F')}
               >
                 Continue →
               </button>
@@ -737,7 +835,7 @@ export default function SurveyPage() {
                 type="button"
                 onClick={handleSubmit}
                 disabled={submitting}
-                className="px-6 py-3 text-white font-medium rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
+                className="px-5 sm:px-6 py-3 text-white font-medium rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
                 style={{ backgroundColor: submitting ? '#C4637A' : '#6B2D3F' }}
                 onMouseEnter={(e) => !submitting && (e.target.style.backgroundColor = '#8B3A4D')}
                 onMouseLeave={(e) => !submitting && (e.target.style.backgroundColor = '#6B2D3F')}
@@ -758,8 +856,8 @@ export default function SurveyPage() {
           </div>
         </div>
 
-        <p className="text-center text-sm text-stone-400 mt-6">
-          Drawing ends January 20, 2025
+        <p className="text-center text-xs text-stone-400 mt-4">
+          🎁 Drawing ends January 20, 2026
         </p>
       </div>
     </div>
