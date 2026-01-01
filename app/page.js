@@ -523,7 +523,7 @@ export default function SurveyPage() {
                   Win a $50 Wine.com Gift Card
                 </h1>
                 <p className="text-white/80 text-sm">
-                  Just share your wine trip experience
+                  Planning wine trips is harder than it should be. Help us fix that.
                 </p>
               </div>
 
@@ -571,7 +571,7 @@ export default function SurveyPage() {
                   onMouseEnter={(e) => e.target.style.backgroundColor = '#8B3A4D'}
                   onMouseLeave={(e) => e.target.style.backgroundColor = '#6B2D3F'}
                 >
-                  Take the Survey →
+                  Share & Enter to Win →
                 </button>
               </div>
 
@@ -670,8 +670,7 @@ export default function SurveyPage() {
                 onMouseEnter={(e) => e.target.style.backgroundColor = '#8B3A4D'}
                 onMouseLeave={(e) => e.target.style.backgroundColor = '#6B2D3F'}
               >
-                Start Survey 🍷
-              </button>
+                Share & Enter to Win →              </button>
             </div>
 
             <p className="text-center text-xs text-stone-400 mt-4">
