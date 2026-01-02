@@ -15,7 +15,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
-<!-- Meta Pixel Code -->
+
 <script>
 !function(f,b,e,v,n,t,s)
 {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
@@ -31,7 +31,7 @@ fbq('track', 'PageView');
 <noscript><img height="1" width="1" style="display:none"
 src="https://www.facebook.com/tr?id=1392125219061950&ev=PageView&noscript=1"
 /></noscript>
-<!-- End Meta Pixel Code -->
+
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-12RY5VL0J6"
           strategy="afterInteractive"
